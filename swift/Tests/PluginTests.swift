@@ -16,7 +16,7 @@ private struct SuccessPlugin: PiqleyPlugin {
 private struct StatePlugin: PiqleyPlugin {
     func handle(_ request: PluginRequest) async throws -> PluginResponse {
         var ps = PluginState()
-        ps.set("processed", true)
+        ps.set("processed", to: true)
         return PluginResponse(success: true, state: ["photo.jpg": ps])
     }
 }

@@ -20,7 +20,7 @@ import PiqleyCore
 
 @Test func responseWithState() {
     var ps = PluginState()
-    ps.set("score", 42)
+    ps.set("score", to: 42)
     let r = PluginResponse(success: true, state: ["photo.jpg": ps])
     #expect(r.success == true)
     #expect(r.state?["photo.jpg"] != nil)
@@ -45,7 +45,7 @@ import PiqleyCore
 
 @Test func responseToOutputLineWithState() {
     var ps = PluginState()
-    ps.set("caption", "sunset")
+    ps.set("caption", to: "sunset")
     let line = PluginResponse(success: true, state: ["img.jpg": ps]).toOutputLine()
     #expect(line.type == "result")
     #expect(line.state?["img.jpg"]?["caption"] == .string("sunset"))

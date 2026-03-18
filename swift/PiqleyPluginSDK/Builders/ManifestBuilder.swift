@@ -91,7 +91,14 @@ public enum DependencyBuilder {
     public static func buildBlock(_ components: String...) -> [String] {
         components
     }
-    public static func buildExpression(_ expression: String) -> String { expression }
+
+    public static func buildExpression(_ expression: String) -> String {
+        expression
+    }
+
+    public static func buildExpression(_ expression: any StateKey.Type) -> String {
+        expression.namespace
+    }
 }
 
 // MARK: - Hooks

@@ -84,6 +84,37 @@ import Foundation
     #expect(manifest.dependencies == ["original"])
 }
 
+// MARK: - StateKey.Type dependency
+
+@Test func buildStateKeyTypeDependency() throws {
+    let manifest = try buildManifest {
+        Name("meta-plugin")
+        ProtocolVersion("1.0")
+        Dependencies {
+            ImageMetadataKey.self
+        }
+        Hooks {
+            HookEntry(.preProcess, command: "run")
+        }
+    }
+    #expect(manifest.dependencies == ["original"])
+}
+
+@Test func buildMixedDependencies() throws {
+    let manifest = try buildManifest {
+        Name("mixed-plugin")
+        ProtocolVersion("1.0")
+        Dependencies {
+            ImageMetadataKey.self
+            "hashtag"
+        }
+        Hooks {
+            HookEntry(.preProcess, command: "run")
+        }
+    }
+    #expect(manifest.dependencies == ["original", "hashtag"])
+}
+
 // MARK: - Write validation catches bad manifest (batchProxy + json)
 
 @Test func writeValidationCatchesBadManifest() throws {
