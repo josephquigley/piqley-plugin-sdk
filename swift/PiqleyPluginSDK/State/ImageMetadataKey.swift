@@ -1,8 +1,10 @@
+import PiqleyCore
+
 /// Curated keys for reading original image metadata (EXIF, IPTC, TIFF, XMP).
 ///
 /// All raw values use "Group:Tag" format (e.g. `"TIFF:Model"`, `"IPTC:Keywords"`).
 public enum ImageMetadataKey: String, StateKey {
-    public static let namespace = "original"
+    public static let namespace = ReservedName.original
 
     // MARK: - TIFF
 

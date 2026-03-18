@@ -221,7 +221,7 @@ extension PluginManifest {
     /// if validation fails.
     public func writeValidated(to directory: URL) throws {
         let data = try encode()
-        let fileURL = directory.appendingPathComponent("manifest.json")
+        let fileURL = directory.appendingPathComponent(PluginFile.manifest)
         try data.write(to: fileURL)
     }
 

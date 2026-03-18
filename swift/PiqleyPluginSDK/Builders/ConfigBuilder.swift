@@ -200,7 +200,7 @@ extension PluginConfig {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(self)
 
-        let fileURL = directory.appendingPathComponent("config.json")
+        let fileURL = directory.appendingPathComponent(PluginFile.config)
         try data.write(to: fileURL)
     }
 }

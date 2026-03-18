@@ -10,8 +10,8 @@ public enum MatchPattern: Sendable {
     public var encoded: String {
         switch self {
         case let .exact(value): value
-        case let .glob(value): "glob:\(value)"
-        case let .regex(value): "regex:\(value)"
+        case let .glob(value): "\(PatternPrefix.glob)\(value)"
+        case let .regex(value): "\(PatternPrefix.regex)\(value)"
         }
     }
 }
