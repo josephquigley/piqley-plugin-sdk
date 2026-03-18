@@ -104,7 +104,7 @@ private func tempLogPath() -> String {
 
     let before = Date().addingTimeInterval(-1) // allow 1s slack for ISO 8601 second truncation
     let log = try ExecutionLog(path: path)
-    let entry = ExecutionLogEntry(filename: "ts.jpg", hook: .schedule, success: true)
+    let entry = ExecutionLogEntry(filename: "ts.jpg", hook: .publish, success: true)
     try log.append(entry)
     let after = Date().addingTimeInterval(1)
 
