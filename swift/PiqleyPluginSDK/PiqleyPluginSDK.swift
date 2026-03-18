@@ -1,5 +1,2 @@
-public struct PiqleyPluginSDK {
-    public static func hello() -> String {
-        "Hello from PiqleyPluginSDK (Swift)!"
-    }
-}
+// PiqleyPluginSDK — Swift SDK for building piqley plugins.
+@_exported import PiqleyCore

@@ -7,7 +7,19 @@ let package = Package(
     products: [
         .library(name: "PiqleyPluginSDK", targets: ["PiqleyPluginSDK"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/josephquigley/piqley-core.git", from: "0.1.0"),
+    ],
     targets: [
-        .target(name: "PiqleyPluginSDK", path: "swift/PiqleyPluginSDK"),
+        .target(
+            name: "PiqleyPluginSDK",
+            dependencies: [.product(name: "PiqleyCore", package: "piqley-core")],
+            path: "swift/PiqleyPluginSDK"
+        ),
+        .testTarget(
+            name: "PiqleyPluginSDKTests",
+            dependencies: ["PiqleyPluginSDK"],
+            path: "swift/Tests"
+        ),
     ]
 )
