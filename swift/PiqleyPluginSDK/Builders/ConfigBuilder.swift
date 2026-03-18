@@ -44,6 +44,15 @@ public enum RuleEmit: Sendable {
 // MARK: - ConfigValue
 
 /// A key-value pair for plugin configuration.
+///
+/// Use the `=>` operator for ergonomic construction inside a `Values` block:
+/// ```swift
+/// Values {
+///     "url" => "https://example.com"
+///     "quality" => 85
+///     "enabled" => true
+/// }
+/// ```
 public struct ConfigValue: Sendable {
     let key: String
     let value: JSONValue
@@ -52,6 +61,17 @@ public struct ConfigValue: Sendable {
         self.key = key
         self.value = value
     }
+}
+
+/// Operator for creating config value pairs inside a `Values` block.
+infix operator =>: AssignmentPrecedence
+
+/// Creates a config value pair. Use inside a `Values` block.
+///
+/// Supports `JSONValue` literals via `ExpressibleBy*Literal` conformances:
+/// `"key" => 85` works because `85` becomes `JSONValue.number(85)`.
+public func => (key: String, value: JSONValue) -> ConfigValue {
+    ConfigValue(key, value)
 }
 
 // MARK: - ConfigRule
@@ -77,39 +97,69 @@ public struct ConfigRule: Sendable {
 
 public protocol ConfigComponent: Sendable {}
 
-// MARK: - ConfigValues block
+// MARK: - Values block
 
-public struct ConfigValues: ConfigComponent {
+/// A block of key-value config entries.
+///
+/// ```swift
+/// Values {
+///     "url" => "https://example.com"
+///     "quality" => 85
+/// }
+/// ```
+public struct Values: ConfigComponent {
     let entries: [ConfigValue]
-    public init(@ConfigValuesBuilder _ builder: () -> [ConfigValue]) {
+    public init(@ValuesBuilder _ builder: () -> [ConfigValue]) {
         self.entries = builder()
     }
 }
 
+/// Backward-compatible alias.
+public typealias ConfigValues = Values
+
 @resultBuilder
-public enum ConfigValuesBuilder {
+public enum ValuesBuilder {
     public static func buildBlock(_ components: ConfigValue...) -> [ConfigValue] {
         components
     }
     public static func buildExpression(_ expression: ConfigValue) -> ConfigValue { expression }
 }
 
-// MARK: - ConfigRules block
+/// Backward-compatible alias.
+public typealias ConfigValuesBuilder = ValuesBuilder
 
-public struct ConfigRules: ConfigComponent {
+// MARK: - Rules block
+
+/// A block of declarative metadata matching rules.
+///
+/// ```swift
+/// Rules {
+///     ConfigRule(
+///         match: .field(.original(.model), pattern: .regex(".*a7r.*")),
+///         emit: .keywords(["Sony", "A7R Life"])
+///     )
+/// }
+/// ```
+public struct Rules: ConfigComponent {
     let rules: [ConfigRule]
-    public init(@ConfigRulesBuilder _ builder: () -> [ConfigRule]) {
+    public init(@RulesBuilder _ builder: () -> [ConfigRule]) {
         self.rules = builder()
     }
 }
 
+/// Backward-compatible alias.
+public typealias ConfigRules = Rules
+
 @resultBuilder
-public enum ConfigRulesBuilder {
+public enum RulesBuilder {
     public static func buildBlock(_ components: ConfigRule...) -> [ConfigRule] {
         components
     }
     public static func buildExpression(_ expression: ConfigRule) -> ConfigRule { expression }
 }
+
+/// Backward-compatible alias.
+public typealias ConfigRulesBuilder = RulesBuilder
 
 // MARK: - ConfigComponentBuilder
 
@@ -130,11 +180,11 @@ public func buildConfig(@ConfigComponentBuilder _ builder: () -> [any ConfigComp
     var rules: [Rule] = []
 
     for component in components {
-        if let c = component as? ConfigValues {
+        if let c = component as? Values {
             for entry in c.entries {
                 values[entry.key] = entry.value
             }
-        } else if let c = component as? ConfigRules {
+        } else if let c = component as? Rules {
             rules.append(contentsOf: c.rules.map { $0.toRule() })
         }
     }

@@ -15,9 +15,9 @@ private enum HashtagKeys: String, StateKey {
 
 @Test func configBuilderValues() {
     let config = buildConfig {
-        ConfigValues {
-            ConfigValue("quality", .number(80))
-            ConfigValue("enabled", .bool(true))
+        Values {
+            "quality" => 80
+            "enabled" => true
         }
     }
     #expect(config.values["quality"] == .number(80))
@@ -29,7 +29,7 @@ private enum HashtagKeys: String, StateKey {
 
 @Test func configBuilderRules() {
     let config = buildConfig {
-        ConfigRules {
+        Rules {
             ConfigRule(
                 match: .field(.original(.model), pattern: .exact("Sony")),
                 emit: .keywords(["#sony"])
@@ -53,10 +53,10 @@ private enum HashtagKeys: String, StateKey {
 
 @Test func configBuilderValuesAndRules() {
     let config = buildConfig {
-        ConfigValues {
-            ConfigValue("mode", .string("auto"))
+        Values {
+            "mode" => "auto"
         }
-        ConfigRules {
+        Rules {
             ConfigRule(
                 match: .field(.original(.keywords), pattern: .regex("^portrait$")),
                 emit: .keywords(["#portrait"])
@@ -90,8 +90,8 @@ private enum HashtagKeys: String, StateKey {
 
 @Test func configBuilderWriteSuccess() throws {
     let config = buildConfig {
-        ConfigValues {
-            ConfigValue("quality", .number(95))
+        Values {
+            "quality" => 95
         }
     }
 
@@ -113,7 +113,7 @@ private enum HashtagKeys: String, StateKey {
 
 @Test func configBuilderDependencyRawStrings() {
     let config = buildConfig {
-        ConfigRules {
+        Rules {
             ConfigRule(
                 match: .field(.dependency("my-plugin", key: "some-key"), pattern: .exact("value")),
                 emit: .keywords(["#result"])
@@ -127,7 +127,7 @@ private enum HashtagKeys: String, StateKey {
 
 @Test func configBuilderHookScopedRule() {
     let config = buildConfig {
-        ConfigRules {
+        Rules {
             ConfigRule(
                 match: .field(.original(.model), pattern: .exact("Sony"), hook: .preProcess),
                 emit: .keywords(["#sony"])
