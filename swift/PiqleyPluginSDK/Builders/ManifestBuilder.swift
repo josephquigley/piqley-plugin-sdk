@@ -215,15 +215,25 @@ public func buildManifest(@ManifestComponentBuilder _ builder: () throws -> [any
 // MARK: - PluginManifest write extension
 
 extension PluginManifest {
+    /// Validates and writes the manifest to a directory as `manifest.json`.
+    ///
+    /// Runs ``ManifestValidator`` before writing. Throws ``SDKError/manifestValidationFailed(_:)``
+    /// if validation fails.
     public func writeValidated(to directory: URL) throws {
-        let errors = ManifestValidator.validate(self)
-        guard errors.isEmpty else { throw SDKError.manifestValidationFailed(errors) }
-
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        let data = try encoder.encode(self)
-
+        let data = try encode()
         let fileURL = directory.appendingPathComponent("manifest.json")
         try data.write(to: fileURL)
+    }
+
+    /// Validates and encodes the manifest as JSON data without writing to disk.
+    ///
+    /// Runs ``ManifestValidator`` before encoding. Throws ``SDKError/manifestValidationFailed(_:)``
+    /// if validation fails.
+    public func encode() throws -> Data {
+        let errors = ManifestValidator.validate(self)
+        guard errors.isEmpty else { throw SDKError.manifestValidationFailed(errors) }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return try encoder.encode(self)
     }
 }
