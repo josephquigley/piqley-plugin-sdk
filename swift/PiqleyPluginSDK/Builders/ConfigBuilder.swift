@@ -180,12 +180,12 @@ public func buildConfig(@ConfigComponentBuilder _ builder: () -> [any ConfigComp
     var rules: [Rule] = []
 
     for component in components {
-        if let c = component as? Values {
-            for entry in c.entries {
+        if let component = component as? Values {
+            for entry in component.entries {
                 values[entry.key] = entry.value
             }
-        } else if let c = component as? Rules {
-            rules.append(contentsOf: c.rules.map { $0.toRule() })
+        } else if let component = component as? Rules {
+            rules.append(contentsOf: component.rules.map { $0.toRule() })
         }
     }
 

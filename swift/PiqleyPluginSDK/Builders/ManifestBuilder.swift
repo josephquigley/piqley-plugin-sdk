@@ -176,14 +176,14 @@ public func buildManifest(@ManifestComponentBuilder _ builder: () throws -> [any
     var hooks: [String: HookConfig] = [:]
 
     for component in components {
-        if let c = component as? Name { name = c.value }
-        else if let c = component as? ProtocolVersion { protocolVersion = c.value }
-        else if let c = component as? PluginVersion { pluginVersion = c.version }
-        else if let c = component as? ConfigEntries { configEntries = c.entries }
-        else if let c = component as? Setup { setup = c.config }
-        else if let c = component as? Dependencies { dependencies = c.deps }
-        else if let c = component as? Hooks {
-            for entry in c.hookEntries {
+        if let component = component as? Name { name = component.value }
+        else if let component = component as? ProtocolVersion { protocolVersion = component.value }
+        else if let component = component as? PluginVersion { pluginVersion = component.version }
+        else if let component = component as? ConfigEntries { configEntries = component.entries }
+        else if let component = component as? Setup { setup = component.config }
+        else if let component = component as? Dependencies { dependencies = component.deps }
+        else if let component = component as? Hooks {
+            for entry in component.hookEntries {
                 hooks[entry.hook.rawValue] = entry.config
             }
         }
