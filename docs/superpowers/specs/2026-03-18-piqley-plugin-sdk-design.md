@@ -546,9 +546,15 @@ extension PluginRequest {
     ) -> (request: PluginRequest, output: CapturedOutput)
 }
 
+public struct ImageResult: Sendable {
+    public let filename: String
+    public let success: Bool
+    public let error: String?
+}
+
 public struct CapturedOutput: Sendable {
     public var progressMessages: [String]
-    public var imageResults: [(filename: String, success: Bool, error: String?)]
+    public var imageResults: [ImageResult]
     public var allLines: [String]
 }
 ```
