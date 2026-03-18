@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 420" width="920" height="420">
+
+  <!-- Mascot -->
+  <g>
+    <!-- Puzzle pieces on the right side (replacing photos) -->
+    <!-- Bottom puzzle piece -->
+    <g transform="translate(320, 248) rotate(8)">
+      <path d="M 0 10 Q 0 0 10 0 L 35 0 Q 35 -8 43 -8 Q 51 -8 51 0 L 80 0 Q 90 0 90 10 L 90 30 Q 98 30 98 38 Q 98 46 90 46 L 90 70 Q 90 80 80 80 L 10 80 Q 0 80 0 70 Z" fill="#87CEEB" stroke="#5BA3C7" stroke-width="2"/>
+    </g>
+
+    <!-- Middle puzzle piece -->
+    <g transform="translate(310, 240) rotate(-3)">
+      <path d="M 0 10 Q 0 0 10 0 L 35 0 Q 35 -8 43 -8 Q 51 -8 51 0 L 80 0 Q 90 0 90 10 L 90 30 Q 98 30 98 38 Q 98 46 90 46 L 90 70 Q 90 80 80 80 L 10 80 Q 0 80 0 70 Z" fill="#FFD700" stroke="#D4A800" stroke-width="2"/>
+    </g>
+
+    <!-- Top puzzle piece -->
+    <g transform="translate(305, 232) rotate(4)">
+      <path d="M 0 10 Q 0 0 10 0 L 35 0 Q 35 -8 43 -8 Q 51 -8 51 0 L 80 0 Q 90 0 90 10 L 90 30 Q 98 30 98 38 Q 98 46 90 46 L 90 70 Q 90 80 80 80 L 10 80 Q 0 80 0 70 Z" fill="#8FBC8F" stroke="#6B9A6B" stroke-width="2"/>
+      <!-- Code bracket on piece -->
+      <text x="30" y="48" font-family="monospace" font-size="28" fill="white" font-weight="bold" text-anchor="middle">{}</text>
+    </g>
+
+    <!-- Body -->
+    <ellipse cx="200" cy="295" rx="90" ry="70" fill="#F4A7B9"/>
+    <ellipse cx="200" cy="295" rx="80" ry="60" fill="#F8C4D0"/>
+
+    <!-- Left leg -->
+    <ellipse cx="160" cy="355" rx="20" ry="25" fill="#F4A7B9"/>
+    <ellipse cx="160" cy="370" rx="18" ry="10" fill="#E8899E"/>
+
+    <!-- Right leg -->
+    <ellipse cx="240" cy="355" rx="20" ry="25" fill="#F4A7B9"/>
+    <ellipse cx="240" cy="370" rx="18" ry="10" fill="#E8899E"/>
+
+    <!-- Head -->
+    <circle cx="200" cy="180" r="80" fill="#F4A7B9"/>
+    <circle cx="200" cy="185" r="72" fill="#F8C4D0"/>
+
+    <!-- Left ear -->
+    <ellipse cx="140" cy="115" rx="28" ry="38" fill="#F4A7B9" transform="rotate(-20 140 115)"/>
+    <ellipse cx="140" cy="115" rx="18" ry="26" fill="#E8899E" transform="rotate(-20 140 115)"/>
+
+    <!-- Right ear -->
+    <ellipse cx="260" cy="115" rx="28" ry="38" fill="#F4A7B9" transform="rotate(20 260 115)"/>
+    <ellipse cx="260" cy="115" rx="18" ry="26" fill="#E8899E" transform="rotate(20 260 115)"/>
+
+    <!-- Eyes -->
+    <ellipse cx="172" cy="170" rx="14" ry="16" fill="white"/>
+    <ellipse cx="228" cy="170" rx="14" ry="16" fill="white"/>
+    <circle cx="175" cy="172" r="8" fill="#3D2C2C"/>
+    <circle cx="231" cy="172" r="8" fill="#3D2C2C"/>
+    <!-- Eye shine -->
+    <circle cx="178" cy="168" r="3" fill="white"/>
+    <circle cx="234" cy="168" r="3" fill="white"/>
+
+    <!-- Snout -->
+    <ellipse cx="200" cy="205" rx="30" ry="22" fill="#E8899E"/>
+    <ellipse cx="200" cy="203" rx="28" ry="19" fill="#F0A0B2"/>
+    <!-- Nostrils -->
+    <ellipse cx="190" cy="205" rx="5" ry="6" fill="#D4758A"/>
+    <ellipse cx="210" cy="205" rx="5" ry="6" fill="#D4758A"/>
+
+    <!-- Smile -->
+    <path d="M 180 220 Q 200 235 220 220" stroke="#D4758A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+    <!-- Blush cheeks -->
+    <ellipse cx="148" cy="200" rx="15" ry="10" fill="#F0A0B2" opacity="0.5"/>
+    <ellipse cx="252" cy="200" rx="15" ry="10" fill="#F0A0B2" opacity="0.5"/>
+
+    <!-- Left arm holding puzzle piece -->
+    <path d="M 125 265 Q 95 255 80 235 Q 75 225 90 218" stroke="#F4A7B9" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <circle cx="85" cy="220" r="10" fill="#F4A7B9"/>
+
+    <!-- Right arm resting near puzzle stack -->
+    <path d="M 275 265 Q 300 260 315 250 Q 325 245 320 255" stroke="#F4A7B9" stroke-width="18" fill="none" stroke-linecap="round"/>
+    <circle cx="318" cy="250" r="10" fill="#F4A7B9"/>
+
+    <!-- Puzzle piece being held up by left arm -->
+    <g transform="translate(40, 165) rotate(-10)">
+      <path d="M 0 10 Q 0 0 10 0 L 40 0 Q 40 -10 50 -10 Q 60 -10 60 0 L 95 0 Q 105 0 105 10 L 105 35 Q 115 35 115 45 Q 115 55 105 55 L 105 82 Q 105 92 95 92 L 10 92 Q 0 92 0 82 Z" fill="#E6E6FA" stroke="#B8B8D4" stroke-width="2"/>
+      <!-- Plug icon on held piece -->
+      <circle cx="52" cy="40" r="16" fill="none" stroke="white" stroke-width="3"/>
+      <line x1="52" y1="28" x2="52" y2="18" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <line x1="44" y1="32" x2="37" y2="25" stroke="white" stroke-width="3" stroke-linecap="round"/>
+      <line x1="60" y1="32" x2="67" y2="25" stroke="white" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <!-- Curly tail -->
+    <path d="M 280 310 Q 310 300 305 320 Q 300 340 320 330 Q 340 320 330 340" stroke="#F4A7B9" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+    <!-- Sparkles -->
+    <g fill="#FFD700" opacity="0.7">
+      <polygon points="60,140 63,148 71,148 65,153 67,161 60,156 53,161 55,153 49,148 57,148"/>
+      <polygon points="310,130 313,138 321,138 315,143 317,151 310,146 303,151 305,143 299,138 307,138"/>
+      <polygon points="440,220 442,225 447,225 443,228 444,233 440,230 436,233 437,228 433,225 438,225"/>
+    </g>
+  </g>
+
+  <!-- Handwritten Script Text -->
+  <g transform="translate(490, 120) scale(2.2)">
+    <!-- p - flowing script -->
+    <path d="M 5 25 Q 5 70 8 80 M 5 25 Q 10 5 25 5 Q 42 5 40 22 Q 38 40 20 42 Q 8 42 5 35" stroke="#3D2C2C" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- i -->
+    <path d="M 48 18 Q 50 42 52 45" stroke="#3D2C2C" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="50" cy="5" r="4" fill="#E8899E"/>
+    <!-- q - flowing script -->
+    <path d="M 96 22 Q 96 5 83 5 Q 73 5 73 22 Q 73 42 86 42 Q 96 42 96 30 M 96 25 Q 98 70 100 80" stroke="#3D2C2C" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- l - tall loop -->
+    <path d="M 118 -5 Q 111 -5 111 10 Q 111 30 118 45" stroke="#3D2C2C" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <!-- e - cursive -->
+    <path d="M 128 28 Q 148 28 148 18 Q 148 5 135 5 Q 125 5 125 22 Q 125 42 138 45 Q 148 45 151 38" stroke="#3D2C2C" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- y - cursive with tail -->
+    <path d="M 160 10 Q 165 30 170 40 M 185 10 Q 177 35 170 55 Q 165 68 155 65" stroke="#3D2C2C" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Decorative swash under text -->
+    <path d="M 0 55 Q 85 68 185 50" stroke="#F4A7B9" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.6"/>
+  </g>
+
+  <!-- "plugin sdk" subtitle -->
+  <text x="600" y="380" font-family="monospace" font-size="36" fill="#3D2C2C" text-anchor="middle" letter-spacing="4" opacity="0.7">plugin sdk</text>
+</svg>
