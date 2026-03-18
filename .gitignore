@@ -1,0 +1,29 @@
+# Swift
+.build/
+.swiftpm/
+Package.resolved
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+python/dist/
+python/build/
+.venv/
+*.whl
+
+# Node
+node/node_modules/
+node/dist/
+
+# IDEs
+.vscode/
+.idea/
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+
+# OS
+.DS_Store
+Thumbs.db
