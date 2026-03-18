@@ -1,0 +1,222 @@
+import Foundation
+import PiqleyCore
+
+// MARK: - ManifestComponent protocol
+
+public protocol ManifestComponent: Sendable {}
+
+// MARK: - Top-level components
+
+public struct Name: ManifestComponent {
+    let value: String
+    public init(_ value: String) { self.value = value }
+}
+
+public struct ProtocolVersion: ManifestComponent {
+    let value: String
+    public init(_ value: String) { self.value = value }
+}
+
+public struct PluginVersion: ManifestComponent {
+    let version: SemanticVersion
+    public init(_ string: String) throws {
+        self.version = try SemanticVersion(string)
+    }
+}
+
+// MARK: - ConfigEntries
+
+public struct ConfigEntries: ManifestComponent {
+    let entries: [ConfigEntry]
+    public init(@ConfigEntryBuilder _ builder: () -> [ConfigEntry]) {
+        self.entries = builder()
+    }
+}
+
+public struct Value: Sendable {
+    let entry: ConfigEntry
+    public init(_ key: String, type: ConfigValueType, default defaultValue: JSONValue = .null) {
+        self.entry = .value(key: key, type: type, value: defaultValue)
+    }
+}
+
+public struct Secret: Sendable {
+    let entry: ConfigEntry
+    public init(_ secretKey: String, type: ConfigValueType) {
+        self.entry = .secret(secretKey: secretKey, type: type)
+    }
+}
+
+@resultBuilder
+public enum ConfigEntryBuilder {
+    public static func buildBlock(_ components: ConfigEntryConvertible...) -> [ConfigEntry] {
+        components.map { $0.asConfigEntry() }
+    }
+    public static func buildExpression(_ expression: Value) -> ConfigEntryConvertible { expression }
+    public static func buildExpression(_ expression: Secret) -> ConfigEntryConvertible { expression }
+}
+
+public protocol ConfigEntryConvertible {
+    func asConfigEntry() -> ConfigEntry
+}
+
+extension Value: ConfigEntryConvertible {
+    public func asConfigEntry() -> ConfigEntry { entry }
+}
+
+extension Secret: ConfigEntryConvertible {
+    public func asConfigEntry() -> ConfigEntry { entry }
+}
+
+// MARK: - Setup
+
+public struct Setup: ManifestComponent {
+    let config: SetupConfig
+    public init(command: String, args: [String] = []) {
+        self.config = SetupConfig(command: command, args: args)
+    }
+}
+
+// MARK: - Dependencies
+
+public struct Dependencies: ManifestComponent {
+    let deps: [String]
+    public init(@DependencyBuilder _ builder: () -> [String]) {
+        self.deps = builder()
+    }
+}
+
+@resultBuilder
+public enum DependencyBuilder {
+    public static func buildBlock(_ components: String...) -> [String] {
+        components
+    }
+    public static func buildExpression(_ expression: String) -> String { expression }
+}
+
+// MARK: - Hooks
+
+public struct Hooks: ManifestComponent {
+    let hookEntries: [HookEntry]
+    public init(@HookEntryBuilder _ builder: () -> [HookEntry]) {
+        self.hookEntries = builder()
+    }
+}
+
+public struct HookEntry: Sendable {
+    let hook: Hook
+    let config: HookConfig
+
+    public init(
+        _ hook: Hook,
+        command: String? = nil,
+        args: [String] = [],
+        protocol pluginProtocol: PluginProtocol? = nil,
+        timeout: Int? = nil,
+        successCodes: [Int32]? = nil,
+        warningCodes: [Int32]? = nil,
+        criticalCodes: [Int32]? = nil,
+        batchProxy: BatchProxyConfig? = nil
+    ) {
+        self.hook = hook
+        self.config = HookConfig(
+            command: command,
+            args: args,
+            timeout: timeout,
+            pluginProtocol: pluginProtocol,
+            successCodes: successCodes,
+            warningCodes: warningCodes,
+            criticalCodes: criticalCodes,
+            batchProxy: batchProxy
+        )
+    }
+}
+
+@resultBuilder
+public enum HookEntryBuilder {
+    public static func buildBlock(_ components: HookEntry...) -> [HookEntry] {
+        components
+    }
+    public static func buildExpression(_ expression: HookEntry) -> HookEntry { expression }
+}
+
+// MARK: - ManifestComponentBuilder
+
+@resultBuilder
+public enum ManifestComponentBuilder {
+    public static func buildBlock(_ components: (any ManifestComponent)...) -> [any ManifestComponent] {
+        components
+    }
+    public static func buildExpression(_ expression: any ManifestComponent) -> any ManifestComponent { expression }
+    public static func buildOptional(_ component: (any ManifestComponent)?) -> any ManifestComponent {
+        component ?? _EmptyManifestComponent()
+    }
+}
+
+private struct _EmptyManifestComponent: ManifestComponent {}
+
+// MARK: - buildManifest
+
+public func buildManifest(@ManifestComponentBuilder _ builder: () throws -> [any ManifestComponent]) throws -> PluginManifest {
+    let components = try builder()
+
+    var name: String? = nil
+    var protocolVersion: String? = nil
+    var pluginVersion: SemanticVersion? = nil
+    var configEntries: [ConfigEntry] = []
+    var setup: SetupConfig? = nil
+    var dependencies: [String]? = nil
+    var hooks: [String: HookConfig] = [:]
+
+    for component in components {
+        if let c = component as? Name { name = c.value }
+        else if let c = component as? ProtocolVersion { protocolVersion = c.value }
+        else if let c = component as? PluginVersion { pluginVersion = c.version }
+        else if let c = component as? ConfigEntries { configEntries = c.entries }
+        else if let c = component as? Setup { setup = c.config }
+        else if let c = component as? Dependencies { dependencies = c.deps }
+        else if let c = component as? Hooks {
+            for entry in c.hookEntries {
+                hooks[entry.hook.rawValue] = entry.config
+            }
+        }
+    }
+
+    var errors: [String] = []
+    if name == nil || name!.isEmpty {
+        errors.append("Plugin name must not be empty.")
+    }
+    if protocolVersion == nil || protocolVersion!.isEmpty {
+        errors.append("Plugin protocol version must not be empty.")
+    }
+
+    if !errors.isEmpty {
+        throw SDKError.manifestValidationFailed(errors)
+    }
+
+    return PluginManifest(
+        name: name!,
+        pluginProtocolVersion: protocolVersion!,
+        pluginVersion: pluginVersion,
+        config: configEntries,
+        setup: setup,
+        dependencies: dependencies.map { $0.isEmpty ? nil : $0 } ?? nil,
+        hooks: hooks
+    )
+}
+
+// MARK: - PluginManifest write extension
+
+extension PluginManifest {
+    public func writeValidated(to directory: URL) throws {
+        let errors = ManifestValidator.validate(self)
+        guard errors.isEmpty else { throw SDKError.manifestValidationFailed(errors) }
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(self)
+
+        let fileURL = directory.appendingPathComponent("manifest.json")
+        try data.write(to: fileURL)
+    }
+}
