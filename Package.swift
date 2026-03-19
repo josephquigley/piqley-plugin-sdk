@@ -8,7 +8,7 @@ let package = Package(
         .library(name: "PiqleyPluginSDK", targets: ["PiqleyPluginSDK"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/josephquigley/piqley-core.git", from: "0.1.0"),
+        .package(url: "https://github.com/josephquigley/piqley-core.git", from: "0.2.0"),
     ],
     targets: [
         .target(
