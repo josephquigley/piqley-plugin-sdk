@@ -3,10 +3,10 @@
   "$id": "https://piqley.dev/schemas/build-manifest.schema.json",
   "title": "Piqley Build Manifest",
   "type": "object",
-  "required": ["pluginName", "pluginProtocolVersion", "bin"],
+  "required": ["pluginName", "pluginSchemaVersion", "bin"],
   "properties": {
     "pluginName": { "type": "string", "minLength": 1 },
-    "pluginProtocolVersion": { "type": "string", "const": "1" },
+    "pluginSchemaVersion": { "type": "string", "const": "1" },
     "bin": {
       "type": "array",
       "items": { "type": "string" },

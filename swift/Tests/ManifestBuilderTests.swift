@@ -14,7 +14,7 @@ import Foundation
     #expect(manifest.identifier == "com.test.my-plugin")
     #expect(manifest.name == "My Plugin")
     #expect(manifest.description == nil)
-    #expect(manifest.pluginProtocolVersion == "1.0")
+    #expect(manifest.pluginSchemaVersion == "1.0")
     #expect(manifest.config.isEmpty)
     #expect(manifest.setup == nil)
     #expect(manifest.dependencies == nil)
@@ -43,7 +43,7 @@ import Foundation
     #expect(manifest.identifier == "com.test.full-plugin")
     #expect(manifest.name == "Full Plugin")
     #expect(manifest.description == "A full-featured plugin")
-    #expect(manifest.pluginProtocolVersion == "2.0")
+    #expect(manifest.pluginSchemaVersion == "2.0")
     #expect(manifest.pluginVersion == SemanticVersion(major: 1, minor: 2, patch: 3))
     #expect(manifest.config.count == 2)
     #expect(manifest.setup?.command == "setup.sh")
@@ -114,7 +114,7 @@ import Foundation
     let decoded = try JSONDecoder().decode(PluginManifest.self, from: data)
     #expect(decoded.identifier == "com.test.write-plugin")
     #expect(decoded.name == "Write Plugin")
-    #expect(decoded.pluginProtocolVersion == "1.0")
+    #expect(decoded.pluginSchemaVersion == "1.0")
 }
 
 // MARK: - Missing identifier throws

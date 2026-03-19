@@ -50,7 +50,7 @@ struct SchemaConformanceTests {
             identifier: "com.test.full-plugin",
             name: "Full Plugin",
             description: "A full-featured plugin",
-            pluginProtocolVersion: "1",
+            pluginSchemaVersion: "1",
             pluginVersion: SemanticVersion(major: 1, minor: 2, patch: 3),
             config: [
                 .value(key: "quality", type: .int, value: .number(80)),
@@ -78,7 +78,7 @@ struct SchemaConformanceTests {
         let json: [String: Any] = [
             "identifier": "com.test.bad-plugin",
             "name": "bad-plugin",
-            "pluginProtocolVersion": "99"
+            "pluginSchemaVersion": "99"
         ]
 
         let result = try validate(json, against: "manifest.schema.json")
@@ -108,7 +108,7 @@ struct SchemaConformanceTests {
     @Test func validBuildManifestConformsToSchema() throws {
         let json: [String: Any] = [
             "pluginName": "my-plugin",
-            "pluginProtocolVersion": "1",
+            "pluginSchemaVersion": "1",
             "bin": ["my-plugin"],
             "data": ["resources/template.txt"],
             "dependencies": [

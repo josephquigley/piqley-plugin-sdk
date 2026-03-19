@@ -8,7 +8,7 @@ import Foundation
     let json = """
     {
         "pluginName": "my-plugin",
-        "pluginProtocolVersion": "1",
+        "pluginSchemaVersion": "1",
         "bin": ["build/my-plugin"],
         "data": ["templates/default.json"],
         "dependencies": []
@@ -18,7 +18,7 @@ import Foundation
     let manifest = try JSONDecoder().decode(BuildManifest.self, from: data)
 
     #expect(manifest.pluginName == "my-plugin")
-    #expect(manifest.pluginProtocolVersion == "1")
+    #expect(manifest.pluginSchemaVersion == "1")
     #expect(manifest.bin == ["build/my-plugin"])
     #expect(manifest.data == ["templates/default.json"])
     #expect(manifest.dependencies.isEmpty)
@@ -40,7 +40,7 @@ private func makePluginDirectory(
     // Build manifest
     let buildManifest: [String: Any] = [
         "pluginName": pluginName,
-        "pluginProtocolVersion": "1",
+        "pluginSchemaVersion": "1",
         "bin": includeBin ? ["my-binary"] : ["missing-binary"],
         "data": [] as [String],
         "dependencies": [] as [Any],
@@ -52,7 +52,7 @@ private func makePluginDirectory(
     let manifest: [String: Any] = [
         "identifier": "com.test.\(manifestName ?? pluginName)",
         "name": manifestName ?? pluginName,
-        "pluginProtocolVersion": "1",
+        "pluginSchemaVersion": "1",
     ]
     let manifestData = try JSONSerialization.data(withJSONObject: manifest)
     try manifestData.write(to: dir.appendingPathComponent("manifest.json"))

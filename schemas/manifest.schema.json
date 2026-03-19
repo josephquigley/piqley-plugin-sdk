@@ -3,12 +3,12 @@
   "$id": "https://piqley.dev/schemas/manifest.schema.json",
   "title": "Piqley Plugin Manifest",
   "type": "object",
-  "required": ["identifier", "name", "pluginProtocolVersion"],
+  "required": ["identifier", "name", "pluginSchemaVersion"],
   "properties": {
     "identifier": { "type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$" },
     "name": { "type": "string", "minLength": 1 },
     "description": { "type": "string" },
-    "pluginProtocolVersion": { "type": "string", "const": "1" },
+    "pluginSchemaVersion": { "type": "string", "const": "1" },
     "pluginVersion": {
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$"

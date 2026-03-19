@@ -174,7 +174,7 @@ public func buildManifest(@ManifestComponentBuilder _ builder: () throws -> [any
         identifier: identifier!,
         name: name!,
         description: description,
-        pluginProtocolVersion: protocolVersion!,
+        pluginSchemaVersion: protocolVersion!,
         pluginVersion: pluginVersion,
         config: configEntries,
         setup: setup,
