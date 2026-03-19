@@ -8,7 +8,8 @@ let package = Package(
         .library(name: "PiqleyPluginSDK", targets: ["PiqleyPluginSDK"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/josephquigley/piqley-core.git", from: "0.2.0"),
+        .package(path: "../piqley-core"),
+        .package(url: "https://github.com/kylef/JSONSchema.swift", from: "0.6.0"),
     ],
     targets: [
         .target(
@@ -18,8 +19,12 @@ let package = Package(
         ),
         .testTarget(
             name: "PiqleyPluginSDKTests",
-            dependencies: ["PiqleyPluginSDK"],
-            path: "swift/Tests"
+            dependencies: [
+                "PiqleyPluginSDK",
+                .product(name: "JSONSchema", package: "JSONSchema.swift"),
+            ],
+            path: "swift/Tests",
+            resources: [.copy("schemas")]
         ),
     ]
 )

@@ -23,6 +23,10 @@
         "emit": {
           "type": "array",
           "items": { "$ref": "#/$defs/emitConfig" }
+        },
+        "write": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/emitConfig" }
         }
       },
       "additionalProperties": false

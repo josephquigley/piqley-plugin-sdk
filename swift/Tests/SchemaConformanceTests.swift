@@ -1,0 +1,204 @@
+import Testing
+import Foundation
+import JSONSchema
+@testable import PiqleyPluginSDK
+import PiqleyCore
+
+// MARK: - Schema conformance test suite
+
+@Suite("Schema Conformance")
+struct SchemaConformanceTests {
+
+    // MARK: - Helpers
+
+    /// Loads a JSON Schema from the test bundle's schemas resource directory.
+    private func loadSchema(_ filename: String) throws -> [String: Any] {
+        let url = Bundle.module.url(forResource: filename, withExtension: nil, subdirectory: "schemas")!
+        let data = try Data(contentsOf: url)
+        let json = try JSONSerialization.jsonObject(with: data)
+        return json as! [String: Any]
+    }
+
+    /// Parses encoded JSON Data into a JSONSerialization-compatible value.
+    private func parseJSON(_ data: Data) throws -> Any {
+        try JSONSerialization.jsonObject(with: data)
+    }
+
+    /// Validates a JSON instance against a schema and returns the validation result.
+    private func validate(_ instance: Any, against schemaFile: String) throws -> ValidationResult {
+        let schema = try loadSchema(schemaFile)
+        return try JSONSchema.validate(instance, schema: schema)
+    }
+
+    // MARK: - Manifest schema tests
+
+    @Test func validManifestConformsToSchema() throws {
+        let manifest = try buildManifest {
+            Name("my-plugin")
+            ProtocolVersion("1")
+            Hooks {
+                HookEntry(.preProcess, command: "run")
+            }
+        }
+
+        let data = try manifest.encode()
+        let instance = try parseJSON(data)
+        let result = try validate(instance, against: "manifest.schema.json")
+        #expect(result.valid, "Minimal manifest should conform to schema: \(result.errors)")
+    }
+
+    @Test func manifestWithAllFieldsConformsToSchema() throws {
+        let manifest = PluginManifest(
+            name: "full-plugin",
+            pluginProtocolVersion: "1",
+            pluginVersion: SemanticVersion(major: 1, minor: 2, patch: 3),
+            config: [
+                .value(key: "quality", type: .int, value: .number(80)),
+                .secret(secretKey: "API_KEY", type: .string),
+            ],
+            setup: SetupConfig(command: "setup.sh", args: ["--verbose"]),
+            dependencies: [
+                PluginDependency(
+                    url: "https://github.com/example/original.piqleyplugin",
+                    version: VersionConstraint(
+                        from: SemanticVersion(major: 1, minor: 0, patch: 0),
+                        rule: .upToNextMajor
+                    )
+                ),
+            ],
+            hooks: [
+                "pre-process": HookConfig(command: "process", timeout: 30),
+                "publish": HookConfig(command: "publish", pluginProtocol: .json),
+            ]
+        )
+
+        let data = try manifest.encode()
+        let instance = try parseJSON(data)
+        let result = try validate(instance, against: "manifest.schema.json")
+        #expect(result.valid, "Full manifest should conform to schema: \(result.errors)")
+    }
+
+    @Test func invalidProtocolVersionRejectedBySchema() throws {
+        let json: [String: Any] = [
+            "name": "bad-plugin",
+            "pluginProtocolVersion": "99",
+            "hooks": [
+                "pre-process": ["command": "run"]
+            ]
+        ]
+
+        let result = try validate(json, against: "manifest.schema.json")
+        #expect(!result.valid, "Protocol version '99' should be rejected by the schema")
+    }
+
+    @Test func invalidHookNameRejectedBySchema() throws {
+        let json: [String: Any] = [
+            "name": "bad-hook-plugin",
+            "pluginProtocolVersion": "1",
+            "hooks": [
+                "not-a-real-hook": ["command": "run"]
+            ]
+        ]
+
+        let result = try validate(json, against: "manifest.schema.json")
+        #expect(!result.valid, "Unknown hook name should be rejected by the schema")
+    }
+
+    // MARK: - Config schema tests
+
+    @Test func validConfigConformsToSchema() throws {
+        let config = buildConfig {
+            Values {
+                "quality" => 80
+                "enabled" => true
+            }
+            Rules {
+                ConfigRule(
+                    match: .field(.original(.model), pattern: .exact("Sony")),
+                    emit: [.keywords(["#sony"])]
+                )
+            }
+        }
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        let data = try encoder.encode(config)
+        let instance = try parseJSON(data)
+        let result = try validate(instance, against: "config.schema.json")
+        #expect(result.valid, "Config should conform to schema: \(result.errors)")
+    }
+
+    // MARK: - Build manifest schema tests
+
+    @Test func validBuildManifestConformsToSchema() throws {
+        let json: [String: Any] = [
+            "pluginName": "my-plugin",
+            "pluginProtocolVersion": "1",
+            "bin": ["my-plugin"],
+            "data": ["resources/template.txt"],
+            "dependencies": [
+                [
+                    "url": "https://github.com/example/dep.piqleyplugin",
+                    "version": [
+                        "from": "1.0.0",
+                        "rule": "upToNextMajor"
+                    ]
+                ] as [String: Any]
+            ]
+        ]
+
+        let result = try validate(json, against: "build-manifest.schema.json")
+        #expect(result.valid, "Build manifest should conform to schema: \(result.errors)")
+    }
+
+    // MARK: - Plugin input schema tests
+
+    @Test func validPluginInputConformsToSchema() throws {
+        let json: [String: Any] = [
+            "hook": "pre-process",
+            "folderPath": "/tmp/photos",
+            "pluginConfig": ["quality": 80],
+            "secrets": ["API_KEY": "secret-value"],
+            "executionLogPath": "/tmp/log.json",
+            "dataPath": "/tmp/data",
+            "logPath": "/tmp/plugin.log",
+            "dryRun": false,
+            "pluginVersion": "1.0.0",
+            "state": [
+                "original": [
+                    "img001.jpg": ["TIFF:Model": "Sony A7R"]
+                ]
+            ]
+        ]
+
+        let result = try validate(json, against: "plugin-input.schema.json")
+        #expect(result.valid, "Plugin input should conform to schema: \(result.errors)")
+    }
+
+    // MARK: - Plugin output schema tests
+
+    @Test func validPluginOutputProgressConformsToSchema() throws {
+        let json: [String: Any] = [
+            "type": "progress",
+            "message": "Processing image 1 of 10"
+        ]
+
+        let result = try validate(json, against: "plugin-output.schema.json")
+        #expect(result.valid, "Progress output should conform to schema: \(result.errors)")
+    }
+
+    @Test func validPluginOutputResultConformsToSchema() throws {
+        let json: [String: Any] = [
+            "type": "result",
+            "success": true,
+            "state": [
+                "hashtag": [
+                    "img001.jpg": ["tags": "nature, landscape"]
+                ]
+            ]
+        ]
+
+        let result = try validate(json, against: "plugin-output.schema.json")
+        #expect(result.valid, "Result output should conform to schema: \(result.errors)")
+    }
+}
