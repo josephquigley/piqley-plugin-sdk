@@ -32,11 +32,11 @@ private enum HashtagKeys: String, StateKey {
         Rules {
             ConfigRule(
                 match: .field(.original(.model), pattern: .exact("Sony")),
-                emit: .keywords(["#sony"])
+                emit: [.keywords(["#sony"])]
             )
             ConfigRule(
                 match: .field(.dependency(HashtagKeys.tags), pattern: .glob("*nature*")),
-                emit: .keywords(["#nature"])
+                emit: [.keywords(["#nature"])]
             )
         }
     }
@@ -44,7 +44,7 @@ private enum HashtagKeys: String, StateKey {
     #expect(config.rules.count == 2)
     #expect(config.rules[0].match.field == "original:TIFF:Model")
     #expect(config.rules[0].match.pattern == "Sony")
-    #expect(config.rules[0].emit.values == ["#sony"])
+    #expect(config.rules[0].emit[0].values == ["#sony"])
     #expect(config.rules[1].match.field == "hashtag:tags")
     #expect(config.rules[1].match.pattern == "glob:*nature*")
 }
@@ -59,7 +59,7 @@ private enum HashtagKeys: String, StateKey {
         Rules {
             ConfigRule(
                 match: .field(.original(.keywords), pattern: .regex("^portrait$")),
-                emit: .keywords(["#portrait"])
+                emit: [.keywords(["#portrait"])]
             )
         }
     }
@@ -68,13 +68,14 @@ private enum HashtagKeys: String, StateKey {
     #expect(config.rules[0].match.pattern == "regex:^portrait$")
 }
 
-// MARK: - RuleEmit.keywords default field (nil in emit config)
+// MARK: - RuleEmit.keywords sets field to "keywords"
 
-@Test func ruleEmitKeywordsDefaultField() {
+@Test func ruleEmitKeywordsField() {
     let emit = RuleEmit.keywords(["#tag1", "#tag2"])
     let emitConfig = emit.toEmitConfig()
-    #expect(emitConfig.field == nil)
+    #expect(emitConfig.field == "keywords")
     #expect(emitConfig.values == ["#tag1", "#tag2"])
+    #expect(emitConfig.action == nil)
 }
 
 // MARK: - RuleEmit.values custom field
@@ -84,6 +85,78 @@ private enum HashtagKeys: String, StateKey {
     let emitConfig = emit.toEmitConfig()
     #expect(emitConfig.field == "custom:field")
     #expect(emitConfig.values == ["value1", "value2"])
+}
+
+// MARK: - New emit actions
+
+@Test func ruleEmitRemove() {
+    let emit = RuleEmit.remove(field: "keywords", ["generic-camera", "glob:auto-*"])
+    let config = emit.toEmitConfig()
+    #expect(config.action == "remove")
+    #expect(config.field == "keywords")
+    #expect(config.values == ["generic-camera", "glob:auto-*"])
+}
+
+@Test func ruleEmitRemoveKeywords() {
+    let emit = RuleEmit.removeKeywords(["old-tag"])
+    let config = emit.toEmitConfig()
+    #expect(config.action == "remove")
+    #expect(config.field == "keywords")
+    #expect(config.values == ["old-tag"])
+}
+
+@Test func ruleEmitReplace() {
+    let emit = RuleEmit.replace(field: "tags", [
+        (pattern: "regex:SONY(.+)", replacement: "Sony $1"),
+    ])
+    let config = emit.toEmitConfig()
+    #expect(config.action == "replace")
+    #expect(config.field == "tags")
+    #expect(config.replacements?.count == 1)
+    #expect(config.replacements?[0].pattern == "regex:SONY(.+)")
+    #expect(config.replacements?[0].replacement == "Sony $1")
+}
+
+@Test func ruleEmitReplaceKeywords() {
+    let emit = RuleEmit.replaceKeywords([
+        (pattern: "old", replacement: "new"),
+    ])
+    let config = emit.toEmitConfig()
+    #expect(config.action == "replace")
+    #expect(config.field == "keywords")
+}
+
+@Test func ruleEmitRemoveField() {
+    let emit = RuleEmit.removeField(field: "tags")
+    let config = emit.toEmitConfig()
+    #expect(config.action == "removeField")
+    #expect(config.field == "tags")
+    #expect(config.values == nil)
+}
+
+@Test func ruleEmitRemoveAllFields() {
+    let emit = RuleEmit.removeAllFields
+    let config = emit.toEmitConfig()
+    #expect(config.action == "removeField")
+    #expect(config.field == "*")
+}
+
+@Test func configRuleMultipleEmits() {
+    let config = buildConfig {
+        Rules {
+            ConfigRule(
+                match: .field(.original(.model), pattern: .exact("Canon")),
+                emit: [
+                    .removeField(field: "keywords"),
+                    .values(field: "keywords", ["Canon"]),
+                ]
+            )
+        }
+    }
+    #expect(config.rules[0].emit.count == 2)
+    #expect(config.rules[0].emit[0].action == "removeField")
+    #expect(config.rules[0].emit[1].field == "keywords")
+    #expect(config.rules[0].emit[1].values == ["Canon"])
 }
 
 // MARK: - Write success
@@ -116,7 +189,7 @@ private enum HashtagKeys: String, StateKey {
         Rules {
             ConfigRule(
                 match: .field(.dependency("my-plugin", key: "some-key"), pattern: .exact("value")),
-                emit: .keywords(["#result"])
+                emit: [.keywords(["#result"])]
             )
         }
     }
@@ -130,7 +203,7 @@ private enum HashtagKeys: String, StateKey {
         Rules {
             ConfigRule(
                 match: .field(.original(.model), pattern: .exact("Sony"), hook: .preProcess),
-                emit: .keywords(["#sony"])
+                emit: [.keywords(["#sony"])]
             )
         }
     }

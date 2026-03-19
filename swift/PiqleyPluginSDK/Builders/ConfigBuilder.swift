@@ -30,13 +30,35 @@ public struct RuleMatch: Sendable {
 public enum RuleEmit: Sendable {
     case keywords([String])
     case values(field: String, [String])
+    case remove(field: String, [String])
+    case removeKeywords([String])
+    case replace(field: String, [(pattern: String, replacement: String)])
+    case replaceKeywords([(pattern: String, replacement: String)])
+    case removeField(field: String)
+    case removeAllFields
 
     func toEmitConfig() -> EmitConfig {
         switch self {
         case let .keywords(values):
-            EmitConfig(field: nil, values: values)
+            EmitConfig(field: "keywords", values: values)
         case let .values(field, values):
             EmitConfig(field: field, values: values)
+        case let .remove(field, values):
+            EmitConfig(action: "remove", field: field, values: values)
+        case let .removeKeywords(values):
+            EmitConfig(action: "remove", field: "keywords", values: values)
+        case let .replace(field, pairs):
+            EmitConfig(action: "replace", field: field, replacements: pairs.map {
+                Replacement(pattern: $0.pattern, replacement: $0.replacement)
+            })
+        case let .replaceKeywords(pairs):
+            EmitConfig(action: "replace", field: "keywords", replacements: pairs.map {
+                Replacement(pattern: $0.pattern, replacement: $0.replacement)
+            })
+        case let .removeField(field):
+            EmitConfig(action: "removeField", field: field)
+        case .removeAllFields:
+            EmitConfig(action: "removeField", field: "*")
         }
     }
 }
@@ -79,17 +101,15 @@ public func => (key: String, value: JSONValue) -> ConfigValue {
 /// A typed declarative rule for a plugin config.
 public struct ConfigRule: Sendable {
     let match: RuleMatch
-    let hook: Hook?
-    let emit: RuleEmit
+    let emit: [RuleEmit]
 
-    public init(match: RuleMatch, hook: Hook? = nil, emit: RuleEmit) {
+    public init(match: RuleMatch, emit: [RuleEmit]) {
         self.match = match
-        self.hook = hook
         self.emit = emit
     }
 
     func toRule() -> Rule {
-        Rule(match: match.toMatchConfig(), emit: emit.toEmitConfig())
+        Rule(match: match.toMatchConfig(), emit: emit.map { $0.toEmitConfig() })
     }
 }
 
@@ -136,7 +156,7 @@ public typealias ConfigValuesBuilder = ValuesBuilder
 /// Rules {
 ///     ConfigRule(
 ///         match: .field(.original(.model), pattern: .regex(".*a7r.*")),
-///         emit: .keywords(["Sony", "A7R Life"])
+///         emit: [.keywords(["Sony", "A7R Life"])]
 ///     )
 /// }
 /// ```
