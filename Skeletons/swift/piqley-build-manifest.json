@@ -1,0 +1,7 @@
+{
+  "pluginName": "__PLUGIN_NAME__",
+  "pluginProtocolVersion": "1",
+  "bin": [".build/release/__PLUGIN_NAME__"],
+  "data": [],
+  "dependencies": []
+}
