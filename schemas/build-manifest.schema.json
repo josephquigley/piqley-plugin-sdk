@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://piqley.dev/schemas/build-manifest.schema.json",
+  "title": "Piqley Build Manifest",
+  "type": "object",
+  "required": ["pluginName", "pluginProtocolVersion", "bin"],
+  "properties": {
+    "pluginName": { "type": "string", "minLength": 1 },
+    "pluginProtocolVersion": { "type": "string", "const": "1" },
+    "bin": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "data": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["url", "version"],
+        "properties": {
+          "url": {
+            "type": "string",
+            "pattern": "\\.piqleyplugin$"
+          },
+          "version": {
+            "type": "object",
+            "required": ["from", "rule"],
+            "properties": {
+              "from": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+              "rule": { "enum": ["upToNextMajor", "upToNextMinor", "exact"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

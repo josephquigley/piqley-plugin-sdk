@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://piqley.dev/schemas/manifest.schema.json",
+  "title": "Piqley Plugin Manifest",
+  "type": "object",
+  "required": ["name", "pluginProtocolVersion", "hooks"],
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "pluginProtocolVersion": { "type": "string", "const": "1" },
+    "pluginVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "config": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/configEntry" }
+    },
+    "setup": { "$ref": "#/$defs/setupConfig" },
+    "dependencies": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pluginDependency" }
+    },
+    "hooks": {
+      "type": "object",
+      "propertyNames": {
+        "enum": ["pre-process", "post-process", "publish", "post-publish"]
+      },
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/hookConfig" }
+    }
+  },
+  "$defs": {
+    "configEntry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["key", "type"],
+          "properties": {
+            "key": { "type": "string" },
+            "type": { "enum": ["string", "int", "float", "bool"] },
+            "value": {}
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["secret_key", "type"],
+          "properties": {
+            "secret_key": { "type": "string" },
+            "type": { "enum": ["string", "int", "float", "bool"] }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "setupConfig": {
+      "type": "object",
+      "required": ["command"],
+      "properties": {
+        "command": { "type": "string" },
+        "args": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "pluginDependency": {
+      "type": "object",
+      "required": ["url", "version"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "pattern": "\\.piqleyplugin$"
+        },
+        "version": {
+          "type": "object",
+          "required": ["from", "rule"],
+          "properties": {
+            "from": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+            "rule": { "enum": ["upToNextMajor", "upToNextMinor", "exact"] }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "hookConfig": {
+      "type": "object",
+      "properties": {
+        "command": { "type": "string" },
+        "args": { "type": "array", "items": { "type": "string" } },
+        "timeout": { "type": "integer", "minimum": 0 },
+        "protocol": { "enum": ["json", "pipe"] },
+        "successCodes": { "type": "array", "items": { "type": "integer" } },
+        "warningCodes": { "type": "array", "items": { "type": "integer" } },
+        "criticalCodes": { "type": "array", "items": { "type": "integer" } },
+        "batchProxy": { "$ref": "#/$defs/batchProxyConfig" }
+      },
+      "additionalProperties": false
+    },
+    "batchProxyConfig": {
+      "type": "object",
+      "properties": {
+        "sort": {
+          "type": "object",
+          "required": ["key", "order"],
+          "properties": {
+            "key": { "type": "string" },
+            "order": { "enum": ["ascending", "descending"] }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

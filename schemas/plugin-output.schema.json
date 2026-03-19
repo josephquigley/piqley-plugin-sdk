@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://piqley.dev/schemas/plugin-output.schema.json",
+  "title": "Piqley Plugin Output Line",
+  "type": "object",
+  "required": ["type"],
+  "oneOf": [
+    {
+      "properties": {
+        "type": { "const": "progress" },
+        "message": { "type": "string" }
+      },
+      "required": ["type", "message"]
+    },
+    {
+      "properties": {
+        "type": { "const": "imageResult" },
+        "filename": { "type": "string" },
+        "success": { "type": "boolean" },
+        "error": { "type": ["string", "null"] }
+      },
+      "required": ["type", "filename", "success"]
+    },
+    {
+      "properties": {
+        "type": { "const": "result" },
+        "success": { "type": "boolean" },
+        "error": { "type": ["string", "null"] },
+        "message": { "type": ["string", "null"] },
+        "state": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": ["type", "success"]
+    }
+  ]
+}

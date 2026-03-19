@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://piqley.dev/schemas/plugin-input.schema.json",
+  "title": "Piqley Plugin Input Payload",
+  "type": "object",
+  "required": ["hook", "folderPath", "pluginConfig", "secrets", "executionLogPath", "dataPath", "logPath", "dryRun", "pluginVersion"],
+  "properties": {
+    "hook": { "type": "string", "enum": ["pre-process", "post-process", "publish", "post-publish"] },
+    "folderPath": { "type": "string" },
+    "pluginConfig": { "type": "object", "additionalProperties": true },
+    "secrets": { "type": "object", "additionalProperties": { "type": "string" } },
+    "executionLogPath": { "type": "string" },
+    "dataPath": { "type": "string" },
+    "logPath": { "type": "string" },
+    "dryRun": { "type": "boolean" },
+    "state": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "pluginVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "lastExecutedVersion": { "type": ["string", "null"], "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+  },
+  "additionalProperties": false
+}
