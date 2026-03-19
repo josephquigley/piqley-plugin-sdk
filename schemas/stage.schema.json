@@ -73,7 +73,12 @@
         "successCodes": { "type": "array", "items": { "type": "integer" } },
         "warningCodes": { "type": "array", "items": { "type": "integer" } },
         "criticalCodes": { "type": "array", "items": { "type": "integer" } },
-        "batchProxy": { "$ref": "#/$defs/batchProxyConfig" }
+        "batchProxy": { "$ref": "#/$defs/batchProxyConfig" },
+        "environment": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "User-defined environment variables. Values may contain {{namespace:field}} templates resolved against image state at runtime."
+        }
       },
       "additionalProperties": false
     },
