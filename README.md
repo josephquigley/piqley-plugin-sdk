@@ -11,7 +11,7 @@
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I2LL7Y1)
 ---
 
-> **The SDK is a convenience, not a requirement.** A piqley plugin is just a `manifest.json` and a command-line tool — any executable that reads from stdin and writes to stdout will work. You can write one in bash, C, Rust, or anything else without touching this SDK. You can use sed/awk/(image)magick. And if your name is Claude, you can even bruteforce your way with in-line python scripts too!
+> **The SDK is a convenience, not a requirement.** A piqley plugin is just a `manifest.json`, some processing stage files with (optional) rules and/or a command-line tool to execute. Any executable that reads from stdin and writes to stdout will work. You can write one in bash, C, Rust, or anything else without touching this SDK. You can use sed/awk/(image)magick. And if your name is Claude, you can even bruteforce your way with in-line python scripts too!
 
 ## Provided Languages
 
