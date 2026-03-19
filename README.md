@@ -8,6 +8,10 @@
   Libraries for building <a href="https://github.com/josephquigley/piqley">piqley</a> plugins in multiple languages.
 </p>
 
+![macOS](https://img.shields.io/badge/macOS-15%2B-blue?logo=apple)
+![Linux](https://img.shields.io/badge/Linux-supported-blue?logo=linux&logoColor=white)
+![Swift](https://img.shields.io/badge/Swift-6.0-orange?logo=swift&logoColor=white)
+
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I2LL7Y1)
 ---
 

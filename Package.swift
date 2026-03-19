@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "PiqleyPluginSDK",
+    platforms: [.macOS(.v15)],
     products: [
         .library(name: "PiqleyPluginSDK", targets: ["PiqleyPluginSDK"]),
     ],
@@ -16,6 +17,11 @@ let package = Package(
             name: "PiqleyPluginSDK",
             dependencies: [.product(name: "PiqleyCore", package: "piqley-core")],
             path: "swift/PiqleyPluginSDK"
+        ),
+        .executableTarget(
+            name: "piqley-build",
+            dependencies: ["PiqleyPluginSDK"],
+            path: "swift/PiqleyBuild"
         ),
         .testTarget(
             name: "PiqleyPluginSDKTests",

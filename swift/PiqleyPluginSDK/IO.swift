@@ -1,5 +1,6 @@
 import Foundation
 import PiqleyCore
+import Synchronization
 
 /// Internal protocol for writing JSON lines to output.
 protocol PluginIO: Sendable {
@@ -9,25 +10,35 @@ protocol PluginIO: Sendable {
 /// Writes to stdout with immediate flushing.
 struct StdoutIO: PluginIO {
     func writeLine(_ line: String) {
-        print(line)
-        fflush(stdout)
+        var out = FileHandleOutputStream(FileHandle.standardOutput)
+        print(line, to: &out)
+    }
+}
+
+/// A `TextOutputStream` backed by a `FileHandle` that flushes after each write.
+private struct FileHandleOutputStream: TextOutputStream {
+    private let handle: FileHandle
+
+    init(_ handle: FileHandle) {
+        self.handle = handle
+    }
+
+    mutating func write(_ string: String) {
+        if let data = string.data(using: .utf8) {
+            handle.write(data)
+        }
     }
 }
 
 /// Captures output lines for testing.
-final class CapturedIO: PluginIO, @unchecked Sendable {
-    private let lock = NSLock()
-    private var _lines: [String] = []
+final class CapturedIO: PluginIO, Sendable {
+    private let _lines = Mutex<[String]>([])
 
     func writeLine(_ line: String) {
-        lock.lock()
-        defer { lock.unlock() }
-        _lines.append(line)
+        _lines.withLock { $0.append(line) }
     }
 
     var lines: [String] {
-        lock.lock()
-        defer { lock.unlock() }
-        return _lines
+        _lines.withLock { $0 }
     }
 }

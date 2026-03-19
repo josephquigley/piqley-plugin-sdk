@@ -48,9 +48,8 @@ public struct ExecutionLog: Sendable {
         try FileManager.default.createDirectory(at: parentDir, withIntermediateDirectories: true)
 
         let data = try Self.iso8601Encoder.encode(entry)
-        guard let line = String(data: data, encoding: .utf8) else {
-            throw CocoaError(.fileWriteUnknown)
-        }
+        // Force-unwrap is safe: JSONEncoder always produces valid UTF-8
+        let line = String(data: data, encoding: .utf8)!
 
         let lineWithNewline = line + "\n"
         let lineData = Data(lineWithNewline.utf8)
