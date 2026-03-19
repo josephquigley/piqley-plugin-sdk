@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://piqley.dev/schemas/stage.schema.json",
+  "title": "Piqley Plugin Stage Config",
+  "description": "Per-stage configuration file (stage-<name>.json) with optional pre-rules, binary config, and post-rules.",
+  "type": "object",
+  "properties": {
+    "preRules": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rule" }
+    },
+    "binary": { "$ref": "#/$defs/hookConfig" },
+    "postRules": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/rule" }
+    }
+  },
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "required": ["match", "emit"],
+      "properties": {
+        "match": { "$ref": "#/$defs/matchConfig" },
+        "emit": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/emitConfig" }
+        },
+        "write": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/emitConfig" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "matchConfig": {
+      "type": "object",
+      "required": ["field", "pattern"],
+      "properties": {
+        "field": { "type": "string" },
+        "pattern": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "emitConfig": {
+      "type": "object",
+      "required": ["field"],
+      "properties": {
+        "action": { "type": "string" },
+        "field": { "type": "string" },
+        "values": { "type": "array", "items": { "type": "string" } },
+        "replacements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["pattern", "replacement"],
+            "properties": {
+              "pattern": { "type": "string" },
+              "replacement": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "hookConfig": {
+      "type": "object",
+      "properties": {
+        "command": { "type": "string" },
+        "args": { "type": "array", "items": { "type": "string" } },
+        "timeout": { "type": "integer", "minimum": 0 },
+        "protocol": { "enum": ["json", "pipe"] },
+        "successCodes": { "type": "array", "items": { "type": "integer" } },
+        "warningCodes": { "type": "array", "items": { "type": "integer" } },
+        "criticalCodes": { "type": "array", "items": { "type": "integer" } },
+        "batchProxy": { "$ref": "#/$defs/batchProxyConfig" }
+      },
+      "additionalProperties": false
+    },
+    "batchProxyConfig": {
+      "type": "object",
+      "properties": {
+        "sort": {
+          "type": "object",
+          "required": ["key", "order"],
+          "properties": {
+            "key": { "type": "string" },
+            "order": { "enum": ["ascending", "descending"] }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
