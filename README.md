@@ -8,11 +8,16 @@
   Libraries for building <a href="https://github.com/josephquigley/piqley">piqley</a> plugins in multiple languages.
 </p>
 
-![macOS](https://img.shields.io/badge/macOS-15%2B-blue?logo=apple)
-![Linux](https://img.shields.io/badge/Linux-supported-blue?logo=linux&logoColor=white)
-![Swift](https://img.shields.io/badge/Swift-6.0-orange?logo=swift&logoColor=white)
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-15%2B-blue?logo=apple" alt="macOS">
+  <img src="https://img.shields.io/badge/Linux-supported-blue?logo=linux&logoColor=white" alt="Linux">
+  <img src="https://img.shields.io/badge/Swift-6.0-orange?logo=swift&logoColor=white" alt="Swift">
+</p>
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/I3I2LL7Y1)
+<p align="center">
+  <a href="https://ko-fi.com/I3I2LL7Y1"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="ko-fi"></a>
+</p>
+
 ---
 
 > **The SDK is a convenience, not a requirement.** A piqley plugin is just a `manifest.json`, some processing stage files with (optional) rules and/or a command-line tool to execute. Any executable that reads from stdin and writes to stdout will work. You can write one in bash, C, Rust, or anything else without touching this SDK. You can use sed/awk/(image)magick. And if your name is Claude, you can even bruteforce your way with in-line python scripts too!
