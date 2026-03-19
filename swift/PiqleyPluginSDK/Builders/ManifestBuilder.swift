@@ -141,10 +141,13 @@ public struct HookEntry: Sendable {
 
 @resultBuilder
 public enum HookEntryBuilder {
-    public static func buildBlock(_ components: HookEntry...) -> [HookEntry] {
-        components
+    public static func buildBlock(_ components: [HookEntry]...) -> [HookEntry] {
+        components.flatMap { $0 }
     }
-    public static func buildExpression(_ expression: HookEntry) -> HookEntry { expression }
+    public static func buildExpression(_ expression: HookEntry) -> [HookEntry] { [expression] }
+    public static func buildArray(_ components: [[HookEntry]]) -> [HookEntry] {
+        components.flatMap { $0 }
+    }
 }
 
 // MARK: - ManifestComponentBuilder
