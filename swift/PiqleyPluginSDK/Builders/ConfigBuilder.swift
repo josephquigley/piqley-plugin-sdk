@@ -102,14 +102,20 @@ public func => (key: String, value: JSONValue) -> ConfigValue {
 public struct ConfigRule: Sendable {
     let match: RuleMatch
     let emit: [RuleEmit]
+    let write: [RuleEmit]
 
-    public init(match: RuleMatch, emit: [RuleEmit]) {
+    public init(match: RuleMatch, emit: [RuleEmit] = [], write: [RuleEmit] = []) {
         self.match = match
         self.emit = emit
+        self.write = write
     }
 
     func toRule() -> Rule {
-        Rule(match: match.toMatchConfig(), emit: emit.map { $0.toEmitConfig() })
+        Rule(
+            match: match.toMatchConfig(),
+            emit: emit.map { $0.toEmitConfig() },
+            write: write.map { $0.toEmitConfig() }
+        )
     }
 }
 

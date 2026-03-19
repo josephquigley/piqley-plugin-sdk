@@ -159,6 +159,56 @@ private enum HashtagKeys: String, StateKey {
     #expect(config.rules[0].emit[1].values == ["Canon"])
 }
 
+// MARK: - MatchField.read
+
+@Test func matchFieldRead() {
+    let field = MatchField.read("IPTC:Keywords")
+    #expect(field.encoded == "read:IPTC:Keywords")
+}
+
+// MARK: - ConfigRule.write
+
+@Test func configRuleWithWrite() {
+    let config = buildConfig {
+        Rules {
+            ConfigRule(
+                match: .field(.original(.model), pattern: .exact("Canon")),
+                emit: [.keywords(["canon"])],
+                write: [.values(field: "IPTC:Keywords", ["canon"])]
+            )
+        }
+    }
+    #expect(config.rules[0].write.count == 1)
+    #expect(config.rules[0].write[0].field == "IPTC:Keywords")
+    #expect(config.rules[0].write[0].values == ["canon"])
+}
+
+@Test func configRuleWriteOnly() {
+    let config = buildConfig {
+        Rules {
+            ConfigRule(
+                match: .field(.read("IPTC:Keywords"), pattern: .glob("*landscape*")),
+                write: [.remove(field: "IPTC:Keywords", ["glob:temp-*"])]
+            )
+        }
+    }
+    #expect(config.rules[0].match.field == "read:IPTC:Keywords")
+    #expect(config.rules[0].emit.isEmpty)
+    #expect(config.rules[0].write.count == 1)
+}
+
+@Test func configRuleDefaultsWriteToEmpty() {
+    let config = buildConfig {
+        Rules {
+            ConfigRule(
+                match: .field(.original(.model), pattern: .exact("Sony")),
+                emit: [.keywords(["sony"])]
+            )
+        }
+    }
+    #expect(config.rules[0].write.isEmpty)
+}
+
 // MARK: - Write success
 
 @Test func configBuilderWriteSuccess() throws {

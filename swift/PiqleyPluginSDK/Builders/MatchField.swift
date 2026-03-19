@@ -19,4 +19,9 @@ public struct MatchField: Sendable {
     public static func dependency(_ plugin: String, key: String) -> MatchField {
         MatchField(encoded: "\(plugin):\(key)")
     }
+
+    /// Match against current image file metadata (read: namespace).
+    public static func read(_ key: String) -> MatchField {
+        MatchField(encoded: "read:\(key)")
+    }
 }
