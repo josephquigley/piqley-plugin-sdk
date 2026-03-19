@@ -75,6 +75,15 @@ public struct Packager {
         try fm.copyItem(at: manifestURL, to: pluginDir.appendingPathComponent("manifest.json"))
         try fm.copyItem(at: configURL, to: pluginDir.appendingPathComponent("config.json"))
 
+        // Copy stage-*.json files
+        let dirContents = try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+        for file in dirContents {
+            let fileName = file.lastPathComponent
+            if fileName.hasPrefix(PluginFile.stagePrefix) && fileName.hasSuffix(PluginFile.stageSuffix) {
+                try fm.copyItem(at: file, to: pluginDir.appendingPathComponent(fileName))
+            }
+        }
+
         // Copy bin files
         if !buildManifest.bin.isEmpty {
             let binDir = pluginDir.appendingPathComponent("bin")
