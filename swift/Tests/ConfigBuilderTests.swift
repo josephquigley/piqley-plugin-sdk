@@ -104,6 +104,36 @@ private enum HashtagKeys: String, StateKey {
     #expect(field.encoded == "read:IPTC:Keywords")
 }
 
+// MARK: - Clone emit actions
+
+@Test func ruleEmitClone() {
+    let emit = RuleEmit.clone(field: "keywords", source: "original:IPTC:Keywords")
+    let config = emit.toEmitConfig()
+    #expect(config.action == "clone")
+    #expect(config.field == "keywords")
+    #expect(config.source == "original:IPTC:Keywords")
+    #expect(config.values == nil)
+    #expect(config.replacements == nil)
+}
+
+@Test func ruleEmitCloneKeywords() {
+    let emit = RuleEmit.cloneKeywords(source: "original:IPTC:Keywords")
+    let config = emit.toEmitConfig()
+    #expect(config.action == "clone")
+    #expect(config.field == "keywords")
+    #expect(config.source == "original:IPTC:Keywords")
+}
+
+@Test func ruleEmitCloneAll() {
+    let emit = RuleEmit.cloneAll(source: "original")
+    let config = emit.toEmitConfig()
+    #expect(config.action == "clone")
+    #expect(config.field == "*")
+    #expect(config.source == "original")
+    #expect(config.values == nil)
+    #expect(config.replacements == nil)
+}
+
 // MARK: - Write success
 
 @Test func configBuilderWriteSuccess() throws {

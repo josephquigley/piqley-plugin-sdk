@@ -34,29 +34,38 @@ public enum RuleEmit: Sendable {
     case replaceKeywords([(pattern: String, replacement: String)])
     case removeField(field: String)
     case removeAllFields
+    case clone(field: String, source: String)
+    case cloneKeywords(source: String)
+    case cloneAll(source: String)
 
     func toEmitConfig() -> EmitConfig {
         switch self {
         case let .keywords(values):
-            EmitConfig(field: "keywords", values: values)
+            EmitConfig(action: nil, field: "keywords", values: values, replacements: nil, source: nil)
         case let .values(field, values):
-            EmitConfig(field: field, values: values)
+            EmitConfig(action: nil, field: field, values: values, replacements: nil, source: nil)
         case let .remove(field, values):
-            EmitConfig(action: "remove", field: field, values: values)
+            EmitConfig(action: "remove", field: field, values: values, replacements: nil, source: nil)
         case let .removeKeywords(values):
-            EmitConfig(action: "remove", field: "keywords", values: values)
+            EmitConfig(action: "remove", field: "keywords", values: values, replacements: nil, source: nil)
         case let .replace(field, pairs):
-            EmitConfig(action: "replace", field: field, replacements: pairs.map {
+            EmitConfig(action: "replace", field: field, values: nil, replacements: pairs.map {
                 Replacement(pattern: $0.pattern, replacement: $0.replacement)
-            })
+            }, source: nil)
         case let .replaceKeywords(pairs):
-            EmitConfig(action: "replace", field: "keywords", replacements: pairs.map {
+            EmitConfig(action: "replace", field: "keywords", values: nil, replacements: pairs.map {
                 Replacement(pattern: $0.pattern, replacement: $0.replacement)
-            })
+            }, source: nil)
         case let .removeField(field):
-            EmitConfig(action: "removeField", field: field)
+            EmitConfig(action: "removeField", field: field, values: nil, replacements: nil, source: nil)
         case .removeAllFields:
-            EmitConfig(action: "removeField", field: "*")
+            EmitConfig(action: "removeField", field: "*", values: nil, replacements: nil, source: nil)
+        case let .clone(field, source):
+            EmitConfig(action: "clone", field: field, values: nil, replacements: nil, source: source)
+        case let .cloneKeywords(source):
+            EmitConfig(action: "clone", field: "keywords", values: nil, replacements: nil, source: source)
+        case let .cloneAll(source):
+            EmitConfig(action: "clone", field: "*", values: nil, replacements: nil, source: source)
         }
     }
 }
