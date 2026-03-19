@@ -5,7 +5,7 @@ import PiqleyCore
 
 public struct PluginRequest: Sendable {
     public let hook: Hook
-    public let folderPath: String
+    public let imageFolderPath: String
     public let pluginConfig: [String: JSONValue]
     public let secrets: [String: String]
     public let executionLogPath: String
@@ -22,7 +22,7 @@ public struct PluginRequest: Sendable {
     /// Internal init from payload.
     init(payload: PluginInputPayload, io: PluginIO) {
         self.hook = Hook(rawValue: payload.hook) ?? .preProcess
-        self.folderPath = payload.folderPath
+        self.imageFolderPath = payload.imageFolderPath
         self.pluginConfig = payload.pluginConfig
         self.secrets = payload.secrets
         self.executionLogPath = payload.executionLogPath
@@ -35,9 +35,9 @@ public struct PluginRequest: Sendable {
         self.io = io
     }
 
-    /// Lists image files in folderPath matching piqley's supported extensions (.jpg, .jpeg, .jxl).
+    /// Lists image files in imageFolderPath matching piqley's supported extensions (.jpg, .jpeg, .jxl).
     public func imageFiles() throws -> [URL] {
-        let url = URL(fileURLWithPath: folderPath)
+        let url = URL(fileURLWithPath: imageFolderPath)
         let contents = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
         return contents.filter { Self.imageExtensions.contains($0.pathExtension.lowercased()) }
     }
@@ -104,7 +104,7 @@ public final class CapturedOutput: Sendable {
 extension PluginRequest {
     public static func mock(
         hook: Hook = .preProcess,
-        folderPath: String = "/tmp/test",
+        imageFolderPath: String = "/tmp/test",
         pluginConfig: [String: JSONValue] = [:],
         secrets: [String: String] = [:],
         executionLogPath: String = "/tmp/test/log.jsonl",
@@ -118,7 +118,7 @@ extension PluginRequest {
         let io = CapturedIO()
         let payload = PluginInputPayload(
             hook: hook.rawValue,
-            folderPath: folderPath,
+            imageFolderPath: imageFolderPath,
             pluginConfig: pluginConfig,
             secrets: secrets,
             executionLogPath: executionLogPath,

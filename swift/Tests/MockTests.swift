@@ -8,7 +8,7 @@ import Foundation
 @Test func mockDefaults() {
     let (req, _) = PluginRequest.mock()
     #expect(req.hook == .preProcess)
-    #expect(req.folderPath == "/tmp/test")
+    #expect(req.imageFolderPath == "/tmp/test")
     #expect(req.pluginConfig.isEmpty)
     #expect(req.secrets.isEmpty)
     #expect(req.executionLogPath == "/tmp/test/log.jsonl")
@@ -27,9 +27,9 @@ import Foundation
     #expect(req.hook == .publish)
 }
 
-@Test func mockCustomFolderPath() {
-    let (req, _) = PluginRequest.mock(folderPath: "/Users/photo/albums")
-    #expect(req.folderPath == "/Users/photo/albums")
+@Test func mockCustomImageFolderPath() {
+    let (req, _) = PluginRequest.mock(imageFolderPath: "/Users/photo/albums")
+    #expect(req.imageFolderPath == "/Users/photo/albums")
 }
 
 @Test func mockCustomConfig() {

@@ -7,7 +7,7 @@ import Foundation
 
 private func makePayload(
     hook: String = "pre-process",
-    folderPath: String = "/tmp/photos",
+    imageFolderPath: String = "/tmp/photos",
     pluginConfig: [String: JSONValue] = ["quality": .number(80)],
     secrets: [String: String] = ["API_KEY": "abc123"],
     executionLogPath: String = "/tmp/log.jsonl",
@@ -20,7 +20,7 @@ private func makePayload(
 ) -> PluginInputPayload {
     PluginInputPayload(
         hook: hook,
-        folderPath: folderPath,
+        imageFolderPath: imageFolderPath,
         pluginConfig: pluginConfig,
         secrets: secrets,
         executionLogPath: executionLogPath,
@@ -45,9 +45,9 @@ private func makePayload(
     #expect(req.hook == .preProcess)
 }
 
-@Test func requestMapsFolderPath() {
-    let req = PluginRequest(payload: makePayload(folderPath: "/my/folder"), io: CapturedIO())
-    #expect(req.folderPath == "/my/folder")
+@Test func requestMapsImageFolderPath() {
+    let req = PluginRequest(payload: makePayload(imageFolderPath: "/my/folder"), io: CapturedIO())
+    #expect(req.imageFolderPath == "/my/folder")
 }
 
 @Test func requestMapsPluginConfig() {
@@ -158,7 +158,7 @@ private func makePayload(
         FileManager.default.createFile(atPath: dir.appendingPathComponent(name).path, contents: nil)
     }
 
-    let req = PluginRequest(payload: makePayload(folderPath: dir.path), io: CapturedIO())
+    let req = PluginRequest(payload: makePayload(imageFolderPath: dir.path), io: CapturedIO())
     let found = try req.imageFiles()
     let names = Set(found.map { $0.lastPathComponent })
     #expect(names.contains("a.jpg"))

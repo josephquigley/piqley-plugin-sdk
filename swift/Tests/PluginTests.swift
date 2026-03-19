@@ -32,7 +32,7 @@ private struct FailPlugin: PiqleyPlugin {
 private func makePayloadData(hook: String = "pre-process") throws -> Data {
     let payload = PluginInputPayload(
         hook: hook,
-        folderPath: "/tmp/photos",
+        imageFolderPath: "/tmp/photos",
         pluginConfig: [:],
         secrets: [:],
         executionLogPath: "/tmp/log.jsonl",

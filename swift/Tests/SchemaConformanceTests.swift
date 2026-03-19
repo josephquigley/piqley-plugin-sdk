@@ -156,7 +156,7 @@ struct SchemaConformanceTests {
     @Test func validPluginInputConformsToSchema() throws {
         let json: [String: Any] = [
             "hook": "pre-process",
-            "folderPath": "/tmp/photos",
+            "imageFolderPath": "/tmp/photos",
             "pluginConfig": ["quality": 80],
             "secrets": ["API_KEY": "secret-value"],
             "executionLogPath": "/tmp/log.json",

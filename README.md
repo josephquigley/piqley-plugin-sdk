@@ -56,7 +56,7 @@ The `manifest.json` declares the plugin's name, config schema, hooks, and option
   "hooks": {
     "publish": {
       "command": "./bin/publish",
-      "args": ["$PIQLEY_FOLDER_PATH"],
+      "args": ["$PIQLEY_IMAGE_FOLDER_PATH"],
       "protocol": "json"
     }
   }
@@ -84,7 +84,7 @@ Plugins communicate with piqley over stdin/stdout using one of two protocols:
 ```json
 {
   "hook": "publish",
-  "folderPath": "/tmp/piqley-abc123/",
+  "imageFolderPath": "/tmp/piqley-abc123/",
   "pluginConfig": { "url": "https://mysite.com" },
   "secrets": { "api-key": "id:secret" },
   "dryRun": false
@@ -99,7 +99,7 @@ The plugin writes JSON lines to stdout:
 {"type": "result", "success": true, "error": null}
 ```
 
-**Pipe protocol** — context is passed via environment variables (`PIQLEY_FOLDER_PATH`, `PIQLEY_HOOK`, `PIQLEY_SECRET_*`, etc.) and stdout/stderr are forwarded directly to the user. Exit code determines success.
+**Pipe protocol** — context is passed via environment variables (`PIQLEY_IMAGE_FOLDER_PATH`, `PIQLEY_HOOK`, `PIQLEY_SECRET_*`, etc.) and stdout/stderr are forwarded directly to the user. Exit code determines success.
 
 ### Config
 
