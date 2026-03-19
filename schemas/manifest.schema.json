@@ -3,9 +3,11 @@
   "$id": "https://piqley.dev/schemas/manifest.schema.json",
   "title": "Piqley Plugin Manifest",
   "type": "object",
-  "required": ["name", "pluginProtocolVersion", "hooks"],
+  "required": ["identifier", "name", "pluginProtocolVersion"],
   "properties": {
+    "identifier": { "type": "string", "minLength": 1 },
     "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
     "pluginProtocolVersion": { "type": "string", "const": "1" },
     "pluginVersion": {
       "type": "string",
@@ -19,14 +21,6 @@
     "dependencies": {
       "type": "array",
       "items": { "$ref": "#/$defs/pluginDependency" }
-    },
-    "hooks": {
-      "type": "object",
-      "propertyNames": {
-        "enum": ["pre-process", "post-process", "publish", "post-publish"]
-      },
-      "minProperties": 1,
-      "additionalProperties": { "$ref": "#/$defs/hookConfig" }
     }
   },
   "$defs": {
@@ -76,35 +70,6 @@
           "properties": {
             "from": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
             "rule": { "enum": ["upToNextMajor", "upToNextMinor", "exact"] }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    "hookConfig": {
-      "type": "object",
-      "properties": {
-        "command": { "type": "string" },
-        "args": { "type": "array", "items": { "type": "string" } },
-        "timeout": { "type": "integer", "minimum": 0 },
-        "protocol": { "enum": ["json", "pipe"] },
-        "successCodes": { "type": "array", "items": { "type": "integer" } },
-        "warningCodes": { "type": "array", "items": { "type": "integer" } },
-        "criticalCodes": { "type": "array", "items": { "type": "integer" } },
-        "batchProxy": { "$ref": "#/$defs/batchProxyConfig" }
-      },
-      "additionalProperties": false
-    },
-    "batchProxyConfig": {
-      "type": "object",
-      "properties": {
-        "sort": {
-          "type": "object",
-          "required": ["key", "order"],
-          "properties": {
-            "key": { "type": "string" },
-            "order": { "enum": ["ascending", "descending"] }
           },
           "additionalProperties": false
         }

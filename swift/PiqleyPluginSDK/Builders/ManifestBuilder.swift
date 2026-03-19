@@ -12,6 +12,16 @@ public struct Name: ManifestComponent {
     public init(_ value: String) { self.value = value }
 }
 
+public struct Identifier: ManifestComponent {
+    let value: String
+    public init(_ value: String) { self.value = value }
+}
+
+public struct Description: ManifestComponent {
+    let value: String
+    public init(_ value: String) { self.value = value }
+}
+
 public struct ProtocolVersion: ManifestComponent {
     let value: String
     public init(_ value: String) { self.value = value }
@@ -105,55 +115,6 @@ public enum DependencyBuilder {
     }
 }
 
-// MARK: - Hooks
-
-public struct Hooks: ManifestComponent {
-    let hookEntries: [HookEntry]
-    public init(@HookEntryBuilder _ builder: () -> [HookEntry]) {
-        self.hookEntries = builder()
-    }
-}
-
-public struct HookEntry: Sendable {
-    let hook: Hook
-    let config: HookConfig
-
-    public init(
-        _ hook: Hook,
-        command: String? = nil,
-        args: [String] = [],
-        protocol pluginProtocol: PluginProtocol? = nil,
-        timeout: Int? = nil,
-        successCodes: [Int32]? = nil,
-        warningCodes: [Int32]? = nil,
-        criticalCodes: [Int32]? = nil,
-        batchProxy: BatchProxyConfig? = nil
-    ) {
-        self.hook = hook
-        self.config = HookConfig(
-            command: command,
-            args: args,
-            timeout: timeout,
-            pluginProtocol: pluginProtocol,
-            successCodes: successCodes,
-            warningCodes: warningCodes,
-            criticalCodes: criticalCodes,
-            batchProxy: batchProxy
-        )
-    }
-}
-
-@resultBuilder
-public enum HookEntryBuilder {
-    public static func buildBlock(_ components: [HookEntry]...) -> [HookEntry] {
-        components.flatMap { $0 }
-    }
-    public static func buildExpression(_ expression: HookEntry) -> [HookEntry] { [expression] }
-    public static func buildArray(_ components: [[HookEntry]]) -> [HookEntry] {
-        components.flatMap { $0 }
-    }
-}
-
 // MARK: - ManifestComponentBuilder
 
 @resultBuilder
@@ -174,29 +135,30 @@ private struct _EmptyManifestComponent: ManifestComponent {}
 public func buildManifest(@ManifestComponentBuilder _ builder: () throws -> [any ManifestComponent]) throws -> PluginManifest {
     let components = try builder()
 
+    var identifier: String? = nil
     var name: String? = nil
+    var description: String? = nil
     var protocolVersion: String? = nil
     var pluginVersion: SemanticVersion? = nil
     var configEntries: [ConfigEntry] = []
     var setup: SetupConfig? = nil
     var dependencies: [PluginDependency]? = nil
-    var hooks: [String: HookConfig] = [:]
 
     for component in components {
-        if let component = component as? Name { name = component.value }
+        if let component = component as? Identifier { identifier = component.value }
+        else if let component = component as? Name { name = component.value }
+        else if let component = component as? Description { description = component.value }
         else if let component = component as? ProtocolVersion { protocolVersion = component.value }
         else if let component = component as? PluginVersion { pluginVersion = component.version }
         else if let component = component as? ConfigEntries { configEntries = component.entries }
         else if let component = component as? Setup { setup = component.config }
         else if let component = component as? Dependencies { dependencies = component.deps }
-        else if let component = component as? Hooks {
-            for entry in component.hookEntries {
-                hooks[entry.hook.rawValue] = entry.config
-            }
-        }
     }
 
     var errors: [String] = []
+    if identifier == nil || identifier!.isEmpty {
+        errors.append("Plugin identifier must not be empty.")
+    }
     if name == nil || name!.isEmpty {
         errors.append("Plugin name must not be empty.")
     }
@@ -209,13 +171,14 @@ public func buildManifest(@ManifestComponentBuilder _ builder: () throws -> [any
     }
 
     return PluginManifest(
+        identifier: identifier!,
         name: name!,
+        description: description,
         pluginProtocolVersion: protocolVersion!,
         pluginVersion: pluginVersion,
         config: configEntries,
         setup: setup,
-        dependencies: dependencies.map { $0.isEmpty ? nil : $0 } ?? nil,
-        hooks: hooks
+        dependencies: dependencies.map { $0.isEmpty ? nil : $0 } ?? nil
     )
 }
 

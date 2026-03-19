@@ -7,20 +7,18 @@ import PiqleyCore
 public struct RuleMatch: Sendable {
     let field: MatchField
     let pattern: MatchPattern
-    let hook: Hook?
 
-    private init(field: MatchField, pattern: MatchPattern, hook: Hook? = nil) {
+    private init(field: MatchField, pattern: MatchPattern) {
         self.field = field
         self.pattern = pattern
-        self.hook = hook
     }
 
-    public static func field(_ field: MatchField, pattern: MatchPattern, hook: Hook? = nil) -> RuleMatch {
-        RuleMatch(field: field, pattern: pattern, hook: hook)
+    public static func field(_ field: MatchField, pattern: MatchPattern) -> RuleMatch {
+        RuleMatch(field: field, pattern: pattern)
     }
 
     func toMatchConfig() -> MatchConfig {
-        MatchConfig(hook: hook?.rawValue, field: field.encoded, pattern: pattern.encoded)
+        MatchConfig(field: field.encoded, pattern: pattern.encoded)
     }
 }
 
@@ -154,27 +152,7 @@ public enum ValuesBuilder {
 /// Backward-compatible alias.
 public typealias ConfigValuesBuilder = ValuesBuilder
 
-// MARK: - Rules block
-
-/// A block of declarative metadata matching rules.
-///
-/// ```swift
-/// Rules {
-///     ConfigRule(
-///         match: .field(.original(.model), pattern: .regex(".*a7r.*")),
-///         emit: [.keywords(["Sony", "A7R Life"])]
-///     )
-/// }
-/// ```
-public struct Rules: ConfigComponent {
-    let rules: [ConfigRule]
-    public init(@RulesBuilder _ builder: () -> [ConfigRule]) {
-        self.rules = builder()
-    }
-}
-
-/// Backward-compatible alias.
-public typealias ConfigRules = Rules
+// MARK: - RulesBuilder
 
 @resultBuilder
 public enum RulesBuilder {
@@ -203,19 +181,16 @@ public func buildConfig(@ConfigComponentBuilder _ builder: () -> [any ConfigComp
     let components = builder()
 
     var values: [String: JSONValue] = [:]
-    var rules: [Rule] = []
 
     for component in components {
         if let component = component as? Values {
             for entry in component.entries {
                 values[entry.key] = entry.value
             }
-        } else if let component = component as? Rules {
-            rules.append(contentsOf: component.rules.map { $0.toRule() })
         }
     }
 
-    return PluginConfig(values: values, rules: rules)
+    return PluginConfig(values: values)
 }
 
 // MARK: - PluginConfig write extension

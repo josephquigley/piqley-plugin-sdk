@@ -34,11 +34,9 @@ struct SchemaConformanceTests {
 
     @Test func validManifestConformsToSchema() throws {
         let manifest = try buildManifest {
-            Name("my-plugin")
+            Identifier("com.test.my-plugin")
+            Name("My Plugin")
             ProtocolVersion("1")
-            Hooks {
-                HookEntry(.preProcess, command: "run")
-            }
         }
 
         let data = try manifest.encode()
@@ -49,7 +47,9 @@ struct SchemaConformanceTests {
 
     @Test func manifestWithAllFieldsConformsToSchema() throws {
         let manifest = PluginManifest(
-            name: "full-plugin",
+            identifier: "com.test.full-plugin",
+            name: "Full Plugin",
+            description: "A full-featured plugin",
             pluginProtocolVersion: "1",
             pluginVersion: SemanticVersion(major: 1, minor: 2, patch: 3),
             config: [
@@ -65,10 +65,6 @@ struct SchemaConformanceTests {
                         rule: .upToNextMajor
                     )
                 ),
-            ],
-            hooks: [
-                "pre-process": HookConfig(command: "process", timeout: 30),
-                "publish": HookConfig(command: "publish", pluginProtocol: .json),
             ]
         )
 
@@ -80,28 +76,13 @@ struct SchemaConformanceTests {
 
     @Test func invalidProtocolVersionRejectedBySchema() throws {
         let json: [String: Any] = [
+            "identifier": "com.test.bad-plugin",
             "name": "bad-plugin",
-            "pluginProtocolVersion": "99",
-            "hooks": [
-                "pre-process": ["command": "run"]
-            ]
+            "pluginProtocolVersion": "99"
         ]
 
         let result = try validate(json, against: "manifest.schema.json")
         #expect(!result.valid, "Protocol version '99' should be rejected by the schema")
-    }
-
-    @Test func invalidHookNameRejectedBySchema() throws {
-        let json: [String: Any] = [
-            "name": "bad-hook-plugin",
-            "pluginProtocolVersion": "1",
-            "hooks": [
-                "not-a-real-hook": ["command": "run"]
-            ]
-        ]
-
-        let result = try validate(json, against: "manifest.schema.json")
-        #expect(!result.valid, "Unknown hook name should be rejected by the schema")
     }
 
     // MARK: - Config schema tests
@@ -111,12 +92,6 @@ struct SchemaConformanceTests {
             Values {
                 "quality" => 80
                 "enabled" => true
-            }
-            Rules {
-                ConfigRule(
-                    match: .field(.original(.model), pattern: .exact("Sony")),
-                    emit: [.keywords(["#sony"])]
-                )
             }
         }
 
