@@ -1,7 +1,11 @@
 # Swift
 .build/
 .swiftpm/
+DerivedData/
 Package.resolved
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
 
 # Python
 __pycache__/
@@ -20,10 +24,14 @@ node/dist/
 # IDEs
 .vscode/
 .idea/
-*.xcodeproj/
-*.xcworkspace/
-xcuserdata/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Credentials
+.netrc
+
+# Tools
+.claude/settings.local.json
+.worktrees/
