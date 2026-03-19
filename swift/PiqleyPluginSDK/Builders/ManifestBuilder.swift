@@ -80,24 +80,28 @@ public struct Setup: ManifestComponent {
 // MARK: - Dependencies
 
 public struct Dependencies: ManifestComponent {
-    let deps: [String]
-    public init(@DependencyBuilder _ builder: () -> [String]) {
+    let deps: [PluginDependency]
+    public init(@DependencyBuilder _ builder: () -> [PluginDependency]) {
         self.deps = builder()
     }
 }
 
 @resultBuilder
 public enum DependencyBuilder {
-    public static func buildBlock(_ components: String...) -> [String] {
+    public static func buildBlock(_ components: PluginDependency...) -> [PluginDependency] {
         components
     }
 
-    public static func buildExpression(_ expression: String) -> String {
-        expression
+    public static func buildExpression(_ expression: String) -> PluginDependency {
+        PluginDependency(name: expression)
     }
 
-    public static func buildExpression(_ expression: any StateKey.Type) -> String {
-        expression.namespace
+    public static func buildExpression(_ expression: any StateKey.Type) -> PluginDependency {
+        PluginDependency(name: expression.namespace)
+    }
+
+    public static func buildExpression(_ expression: PluginDependency) -> PluginDependency {
+        expression
     }
 }
 
@@ -175,7 +179,7 @@ public func buildManifest(@ManifestComponentBuilder _ builder: () throws -> [any
     var pluginVersion: SemanticVersion? = nil
     var configEntries: [ConfigEntry] = []
     var setup: SetupConfig? = nil
-    var dependencies: [String]? = nil
+    var dependencies: [PluginDependency]? = nil
     var hooks: [String: HookConfig] = [:]
 
     for component in components {

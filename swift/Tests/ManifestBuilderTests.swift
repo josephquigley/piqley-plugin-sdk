@@ -49,7 +49,7 @@ import Foundation
     #expect(manifest.config.count == 2)
     #expect(manifest.setup?.command == "setup.sh")
     #expect(manifest.setup?.args == ["--verbose"])
-    #expect(manifest.dependencies == ["original", "hashtag"])
+    #expect(manifest.dependencyNames == ["original", "hashtag"])
     #expect(manifest.hooks["pre-process"]?.command == "process")
     #expect(manifest.hooks["pre-process"]?.timeout == 30)
     #expect(manifest.hooks["publish"]?.pluginProtocol == .json)
@@ -81,7 +81,7 @@ import Foundation
             HookEntry(.preProcess, command: "run")
         }
     }
-    #expect(manifest.dependencies == ["original"])
+    #expect(manifest.dependencyNames == ["original"])
 }
 
 // MARK: - StateKey.Type dependency
@@ -97,7 +97,7 @@ import Foundation
             HookEntry(.preProcess, command: "run")
         }
     }
-    #expect(manifest.dependencies == ["original"])
+    #expect(manifest.dependencyNames == ["original"])
 }
 
 @Test func buildMixedDependencies() throws {
@@ -112,7 +112,7 @@ import Foundation
             HookEntry(.preProcess, command: "run")
         }
     }
-    #expect(manifest.dependencies == ["original", "hashtag"])
+    #expect(manifest.dependencyNames == ["original", "hashtag"])
 }
 
 // MARK: - Write validation catches bad manifest (batchProxy + json)
