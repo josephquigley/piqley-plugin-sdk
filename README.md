@@ -96,9 +96,12 @@ Plugins communicate with piqley over stdin/stdout using one of two protocols:
   "imageFolderPath": "/tmp/piqley-abc123/",
   "pluginConfig": { "url": "https://mysite.com" },
   "secrets": { "api-key": "id:secret" },
+  "skipped": [{ "file": "draft.jpg", "plugin": "com.example.filter" }],
   "dryRun": false
 }
 ```
+
+The `skipped` array lists images that were excluded from processing by upstream plugins via skip rules. Your plugin will not receive these images in its image folder, but the records are provided for logging or reporting.
 
 The plugin writes JSON lines to stdout:
 
