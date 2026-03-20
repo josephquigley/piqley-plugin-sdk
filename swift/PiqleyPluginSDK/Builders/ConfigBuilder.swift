@@ -37,6 +37,7 @@ public enum RuleEmit: Sendable {
     case clone(field: String, source: String)
     case cloneKeywords(source: String)
     case cloneAll(source: String)
+    case skip
 
     func toEmitConfig() -> EmitConfig {
         switch self {
@@ -66,6 +67,8 @@ public enum RuleEmit: Sendable {
             EmitConfig(action: "clone", field: "keywords", values: nil, replacements: nil, source: source)
         case let .cloneAll(source):
             EmitConfig(action: "clone", field: "*", values: nil, replacements: nil, source: source)
+        case .skip:
+            EmitConfig(action: "skip", field: nil, values: nil, replacements: nil, source: nil)
         }
     }
 }

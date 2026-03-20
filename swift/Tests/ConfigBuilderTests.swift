@@ -134,6 +134,17 @@ private enum HashtagKeys: String, StateKey {
     #expect(config.replacements == nil)
 }
 
+// MARK: - RuleEmit.skip
+
+@Test func skipEmitConfig() {
+    let config = RuleEmit.skip.toEmitConfig()
+    #expect(config.action == "skip")
+    #expect(config.field == nil)
+    #expect(config.values == nil)
+    #expect(config.replacements == nil)
+    #expect(config.source == nil)
+}
+
 // MARK: - Write success
 
 @Test func configBuilderWriteSuccess() throws {

@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `RuleEmit.skip` case for builder DSL, emitting `action: "skip"` with all other fields nil
 - Environment mapping in `hookConfig` schema
 - Clone emit cases in `RuleEmit` and `EmitConfig`
 - `StageBuilder` with PreRules/Binary/PostRules DSL
