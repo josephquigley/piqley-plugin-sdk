@@ -153,7 +153,7 @@ private func makePayload(
     try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: dir) }
 
-    let filenames = ["a.jpg", "b.jpeg", "c.jxl", "d.png", "e.tiff", "f.txt", "g.JPG"]
+    let filenames = ["a.jpg", "b.jpeg", "c.jxl", "d.png", "e.tiff", "f.txt", "g.JPG", "h.heic", "i.webp"]
     for name in filenames {
         FileManager.default.createFile(atPath: dir.appendingPathComponent(name).path, contents: nil)
     }
@@ -165,7 +165,9 @@ private func makePayload(
     #expect(names.contains("b.jpeg"))
     #expect(names.contains("c.jxl"))
     #expect(names.contains("g.JPG"))
-    #expect(!names.contains("d.png"))
-    #expect(!names.contains("e.tiff"))
+    #expect(names.contains("d.png"))
+    #expect(names.contains("e.tiff"))
+    #expect(names.contains("h.heic"))
+    #expect(names.contains("i.webp"))
     #expect(!names.contains("f.txt"))
 }
