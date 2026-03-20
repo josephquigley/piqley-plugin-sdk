@@ -7,18 +7,20 @@ import PiqleyCore
 public struct RuleMatch: Sendable {
     let field: MatchField
     let pattern: MatchPattern
+    let not: Bool
 
-    private init(field: MatchField, pattern: MatchPattern) {
+    private init(field: MatchField, pattern: MatchPattern, not: Bool = false) {
         self.field = field
         self.pattern = pattern
+        self.not = not
     }
 
-    public static func field(_ field: MatchField, pattern: MatchPattern) -> RuleMatch {
-        RuleMatch(field: field, pattern: pattern)
+    public static func field(_ field: MatchField, pattern: MatchPattern, not: Bool = false) -> RuleMatch {
+        RuleMatch(field: field, pattern: pattern, not: not)
     }
 
     func toMatchConfig() -> MatchConfig {
-        MatchConfig(field: field.encoded, pattern: pattern.encoded)
+        MatchConfig(field: field.encoded, pattern: pattern.encoded, not: not ? true : nil)
     }
 }
 
@@ -38,6 +40,7 @@ public enum RuleEmit: Sendable {
     case cloneKeywords(source: String)
     case cloneAll(source: String)
     case skip
+    case writeBack
 
     func toEmitConfig() -> EmitConfig {
         switch self {
@@ -69,6 +72,8 @@ public enum RuleEmit: Sendable {
             EmitConfig(action: "clone", field: "*", values: nil, replacements: nil, source: source)
         case .skip:
             EmitConfig(action: "skip", field: nil, values: nil, replacements: nil, source: nil)
+        case .writeBack:
+            EmitConfig(action: "writeBack", field: nil, values: nil, replacements: nil, source: nil)
         }
     }
 }

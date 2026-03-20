@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `not` parameter on `RuleMatch` for negated match conditions
+- `RuleEmit.writeBack` case for builder DSL, emitting `action: "writeBack"`
+- Extended `imageExtensions` with png, tiff, tif, heic, heif, webp
+- Skeleton `main.swift` now branches on hook type with dedicated handler methods
 - `RuleEmit.skip` case for builder DSL, emitting `action: "skip"` with all other fields nil
 - Environment mapping in `hookConfig` schema
 - Clone emit cases in `RuleEmit` and `EmitConfig`

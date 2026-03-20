@@ -17,7 +17,9 @@ public struct PluginRequest: Sendable {
     public let lastExecutedVersion: SemanticVersion?
 
     private let io: PluginIO
-    private static let imageExtensions: Set<String> = ["jpg", "jpeg", "jxl"]
+    private static let imageExtensions: Set<String> = [
+        "jpg", "jpeg", "jxl", "png", "tiff", "tif", "heic", "heif", "webp",
+    ]
 
     /// Internal init from payload.
     init(payload: PluginInputPayload, io: PluginIO) {

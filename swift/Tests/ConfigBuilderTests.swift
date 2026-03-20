@@ -145,6 +145,31 @@ private enum HashtagKeys: String, StateKey {
     #expect(config.source == nil)
 }
 
+// MARK: - RuleMatch negation
+
+@Test func testRuleMatchWithNot() {
+    let match = RuleMatch.field(.read("EXIF:Model"), pattern: .exact("Canon"), not: true)
+    let config = match.toMatchConfig()
+    #expect(config.not == true)
+}
+
+@Test func testRuleMatchWithoutNot() {
+    let match = RuleMatch.field(.read("EXIF:Model"), pattern: .exact("Canon"))
+    let config = match.toMatchConfig()
+    #expect(config.not == nil)
+}
+
+// MARK: - RuleEmit.writeBack
+
+@Test func testRuleEmitWriteBack() {
+    let config = RuleEmit.writeBack.toEmitConfig()
+    #expect(config.action == "writeBack")
+    #expect(config.field == nil)
+    #expect(config.values == nil)
+    #expect(config.replacements == nil)
+    #expect(config.source == nil)
+}
+
 // MARK: - Write success
 
 @Test func configBuilderWriteSuccess() throws {

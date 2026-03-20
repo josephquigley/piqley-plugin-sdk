@@ -3,16 +3,35 @@ import PiqleyPluginSDK
 @main
 struct Plugin: PiqleyPlugin {
     func handle(_ request: PluginRequest) async throws -> PluginResponse {
-        let images = try request.imageFiles()
-        for image in images {
-            request.reportProgress("Processing \(image.lastPathComponent)...")
-            // TODO: Add your plugin logic here
-            request.reportImageResult(image.lastPathComponent, success: true)
+        switch request.hook {
+        case .preProcess:
+            return try await preProcess(request)
+        case .postProcess:
+            return try await postProcess(request)
+        case .publish:
+            return try await publish(request)
+        case .postPublish:
+            return try await postPublish(request)
         }
+    }
+
+    private func preProcess(_ request: PluginRequest) async throws -> PluginResponse {
+        // TODO: Add pre-process logic
         return .ok
     }
 
-    static func main() async {
-        await Plugin().run()
+    private func postProcess(_ request: PluginRequest) async throws -> PluginResponse {
+        // TODO: Add post-process logic
+        return .ok
+    }
+
+    private func publish(_ request: PluginRequest) async throws -> PluginResponse {
+        // TODO: Add publish logic
+        return .ok
+    }
+
+    private func postPublish(_ request: PluginRequest) async throws -> PluginResponse {
+        // TODO: Add post-publish logic
+        return .ok
     }
 }
