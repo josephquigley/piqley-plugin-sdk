@@ -39,20 +39,23 @@ A piqley plugin is a directory inside `~/.config/piqley/plugins/<plugin-name>/` 
 
 ```
 ~/.config/piqley/plugins/my-plugin/
-├── manifest.json    # Declarative: config schema, hooks, setup command
-├── config.json      # Mutable: resolved values (managed by piqley)
-├── data/            # Plugin working directory
-└── bin/             # Plugin executables (optional)
+├── manifest.json           # Declarative: identity, config schema, setup command
+├── config.json             # Mutable: resolved values (managed by piqley)
+├── stage-pre-process.json  # Rules and/or binary for pre-process hook
+├── stage-publish.json      # Rules and/or binary for publish hook
+├── data/                   # Plugin working directory
+└── bin/                    # Plugin executables (optional)
 ```
 
 ### Manifest
 
-The `manifest.json` declares the plugin's name, config schema, hooks, and optional setup command:
+The `manifest.json` declares the plugin's identity, config schema, and optional setup command:
 
 ```json
 {
+  "identifier": "com.example.my-plugin",
   "name": "my-plugin",
-  "pluginProtocolVersion": "1",
+  "pluginSchemaVersion": "1",
   "config": [
     { "key": "url", "type": "string", "value": null },
     { "key": "quality", "type": "int", "value": 80 },
@@ -61,27 +64,31 @@ The `manifest.json` declares the plugin's name, config schema, hooks, and option
   "setup": {
     "command": "./bin/setup",
     "args": ["$PIQLEY_SECRET_API_KEY"]
-  },
-  "hooks": {
-    "publish": {
-      "command": "./bin/publish",
-      "args": ["$PIQLEY_IMAGE_FOLDER_PATH"],
-      "protocol": "json"
-    }
+  }
+}
+```
+
+Commands and rules are defined in separate stage files (e.g., `stage-publish.json`):
+
+```json
+{
+  "binary": {
+    "command": "./bin/publish",
+    "args": ["$PIQLEY_IMAGE_FOLDER_PATH"],
+    "protocol": "json"
   }
 }
 ```
 
 ### Hooks
 
-Plugins participate in a five-stage pipeline by registering hooks:
+Plugins participate in a four-stage pipeline by registering hooks:
 
 | Hook | Purpose |
 |------|---------|
 | `pre-process` | Modify images before processing (e.g. watermarking) |
 | `post-process` | Modify images after processing (e.g. resize, metadata) |
 | `publish` | Upload or distribute processed images |
-| `schedule` | Schedule or queue posts |
 | `post-publish` | Clean up, notify, or log after publishing |
 
 ### Communication Protocol
