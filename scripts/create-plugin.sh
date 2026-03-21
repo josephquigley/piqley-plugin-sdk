@@ -80,7 +80,7 @@ prompt_language() {
     echo ""
     while true; do
         printf "Language [1-4]: "
-        read -r choice
+        read -r choice < /dev/tty
         case "$choice" in
             1|swift)  RESULT="swift"; return ;;
             2|python) RESULT="python"; return ;;
@@ -94,7 +94,7 @@ prompt_language() {
 prompt_name() {
     while true; do
         printf "Plugin name (e.g. com.example.my-plugin): "
-        read -r raw_name
+        read -r raw_name < /dev/tty
         if [[ -z "$raw_name" ]]; then
             echo "Plugin name is required."
             continue
@@ -109,7 +109,7 @@ prompt_name() {
 
         if [[ "$sanitized" != "$raw_name" ]]; then
             printf "Sanitized to: %s. Use this? [Y/n] " "$sanitized"
-            read -r confirm
+            read -r confirm < /dev/tty
             if [[ "$confirm" =~ ^[Nn] ]]; then
                 continue
             fi
@@ -123,7 +123,7 @@ prompt_name() {
 prompt_destination() {
     local default="$1"
     printf "Destination directory [./%s]: " "$default"
-    read -r dest
+    read -r dest < /dev/tty
     if [[ -z "$dest" ]]; then
         dest="./$default"
     fi
