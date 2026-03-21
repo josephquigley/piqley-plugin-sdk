@@ -108,6 +108,14 @@ private func decodeLine(_ line: String) throws -> PluginOutputLine {
     #expect(result.error != nil)
 }
 
+@Test func piqleyInfoResponse() throws {
+    let json = #"{"piqleyPlugin":true,"schemaVersion":"1"}"#
+    let data = json.data(using: .utf8)!
+    let parsed = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+    #expect(parsed["piqleyPlugin"] as? Bool == true)
+    #expect(parsed["schemaVersion"] as? String == "1")
+}
+
 @Test func pluginRunBadPayload() async {
     let plugin = SuccessPlugin()
     let io = CapturedIO()

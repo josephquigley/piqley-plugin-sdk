@@ -11,6 +11,11 @@ extension PiqleyPlugin {
 
     /// Call from `@main static func main() async`.
     public func run() async {
+        if CommandLine.arguments.contains("--piqley-info") {
+            let info = #"{"piqleyPlugin":true,"schemaVersion":"1"}"#
+            print(info)
+            Foundation.exit(0)
+        }
         let inputData = FileHandle.standardInput.readDataToEndOfFile()
         let exitCode = await run(input: inputData, io: StdoutIO())
         exit(Int32(exitCode))

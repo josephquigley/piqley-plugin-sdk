@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Automatic `--piqley-info` probe response in `run()` for binary detection by the CLI
 - `not` parameter on `RuleMatch` for negated match conditions
 - `RuleEmit.writeBack` case for builder DSL, emitting `action: "writeBack"`
 - Extended `imageExtensions` with png, tiff, tif, heic, heif, webp; updated tests
