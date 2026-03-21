@@ -2,6 +2,10 @@ import PiqleyPluginSDK
 
 @main
 struct Plugin: PiqleyPlugin {
+    static func main() async {
+        await Plugin().run()
+    }
+
     func handle(_ request: PluginRequest) async throws -> PluginResponse {
         switch request.hook {
         case .preProcess:
