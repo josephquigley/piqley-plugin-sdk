@@ -1,0 +1,7 @@
+{
+  "pluginName": "__PLUGIN_NAME__",
+  "pluginSchemaVersion": "1",
+  "bin": ["src/__PLUGIN_NAME__/main.py"],
+  "data": [],
+  "dependencies": []
+}

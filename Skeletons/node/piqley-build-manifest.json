@@ -1,0 +1,7 @@
+{
+  "pluginName": "__PLUGIN_NAME__",
+  "pluginSchemaVersion": "1",
+  "bin": ["dist/index.js"],
+  "data": [],
+  "dependencies": []
+}

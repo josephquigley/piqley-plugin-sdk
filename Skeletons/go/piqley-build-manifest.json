@@ -1,0 +1,7 @@
+{
+  "pluginName": "__PLUGIN_NAME__",
+  "pluginSchemaVersion": "1",
+  "bin": ["__PLUGIN_NAME__"],
+  "data": [],
+  "dependencies": []
+}

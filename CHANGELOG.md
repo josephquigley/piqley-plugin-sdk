@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `scripts/create-plugin.sh` standalone scaffolding script for creating new plugin projects in any language; works via `curl|bash` or locally
+- Skeleton templates for Python, Node.js/TypeScript, and Go (Swift already existed)
 - Automatic `--piqley-info` probe response in `run()` for binary detection by the CLI
 - `not` parameter on `RuleMatch` for negated match conditions
 - `RuleEmit.writeBack` case for builder DSL, emitting `action: "writeBack"`

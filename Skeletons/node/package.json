@@ -1,0 +1,21 @@
+{
+  "name": "__PLUGIN_NAME__",
+  "version": "0.1.0",
+  "description": "A piqley plugin",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "__PLUGIN_NAME__": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@piqley/plugin-sdk": "^__SDK_VERSION__"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
