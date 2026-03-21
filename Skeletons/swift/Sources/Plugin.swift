@@ -8,6 +8,8 @@ struct Plugin: PiqleyPlugin {
 
     func handle(_ request: PluginRequest) async throws -> PluginResponse {
         switch request.hook {
+        case .pipelineStart:
+            return try await pipelineStart(request)
         case .preProcess:
             return try await preProcess(request)
         case .postProcess:
@@ -16,7 +18,14 @@ struct Plugin: PiqleyPlugin {
             return try await publish(request)
         case .postPublish:
             return try await postPublish(request)
+        case .pipelineFinished:
+            return try await pipelineFinished(request)
         }
+    }
+
+    private func pipelineStart(_ request: PluginRequest) async throws -> PluginResponse {
+        // TODO: Add pipeline-start logic
+        return .ok
     }
 
     private func preProcess(_ request: PluginRequest) async throws -> PluginResponse {
@@ -36,6 +45,11 @@ struct Plugin: PiqleyPlugin {
 
     private func postPublish(_ request: PluginRequest) async throws -> PluginResponse {
         // TODO: Add post-publish logic
+        return .ok
+    }
+
+    private func pipelineFinished(_ request: PluginRequest) async throws -> PluginResponse {
+        // TODO: Add pipeline-finished logic
         return .ok
     }
 }

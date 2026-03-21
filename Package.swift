@@ -9,8 +9,8 @@ let package = Package(
         .library(name: "PiqleyPluginSDK", targets: ["PiqleyPluginSDK"]),
     ],
     dependencies: [
-        //.package(path: "../piqley-core"),
-        .package(url: "https://github.com/josephquigley/piqley-core", .upToNextMajor(from: "0.3.0")),
+        .package(path: "../piqley-core"),
+        //.package(url: "https://github.com/josephquigley/piqley-core", .upToNextMajor(from: "0.3.0")),
         .package(url: "https://github.com/kylef/JSONSchema.swift", .upToNextMajor(from: "0.6.0")),
     ],
     targets: [

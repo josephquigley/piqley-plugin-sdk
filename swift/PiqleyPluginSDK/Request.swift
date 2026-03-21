@@ -16,6 +16,9 @@ public struct PluginRequest: Sendable {
     public let pluginVersion: SemanticVersion
     public let lastExecutedVersion: SemanticVersion?
 
+    /// The unique identifier for the current pipeline run, if available.
+    public let pipelineRunId: String?
+
     private let io: PluginIO
     private static let imageExtensions: Set<String> = [
         "jpg", "jpeg", "jxl", "png", "tiff", "tif", "heic", "heif", "webp",
@@ -34,6 +37,7 @@ public struct PluginRequest: Sendable {
         self.state = ResolvedState(payload.state ?? [:])
         self.pluginVersion = payload.pluginVersion
         self.lastExecutedVersion = payload.lastExecutedVersion
+        self.pipelineRunId = payload.pipelineRunId
         self.io = io
     }
 
@@ -115,7 +119,8 @@ extension PluginRequest {
         dryRun: Bool = false,
         state: ResolvedState = .empty,
         pluginVersion: SemanticVersion = SemanticVersion(major: 1, minor: 0, patch: 0),
-        lastExecutedVersion: SemanticVersion? = nil
+        lastExecutedVersion: SemanticVersion? = nil,
+        pipelineRunId: String? = nil
     ) -> (request: PluginRequest, output: CapturedOutput) {
         let io = CapturedIO()
         let payload = PluginInputPayload(
@@ -129,7 +134,8 @@ extension PluginRequest {
             dryRun: dryRun,
             state: state.rawDict,
             pluginVersion: pluginVersion,
-            lastExecutedVersion: lastExecutedVersion
+            lastExecutedVersion: lastExecutedVersion,
+            pipelineRunId: pipelineRunId
         )
         let request = PluginRequest(payload: payload, io: io)
         return (request, CapturedOutput(io: io))
