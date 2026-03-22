@@ -65,13 +65,14 @@ A piqley plugin is a directory inside `~/.config/piqley/plugins/<plugin-name>/` 
 
 ### Manifest
 
-The `manifest.json` declares the plugin's identity, config schema, and optional setup command:
+The `manifest.json` declares the plugin's identity, config schema, supported platforms, and optional setup command:
 
 ```json
 {
   "identifier": "com.example.my-plugin",
   "name": "my-plugin",
-  "pluginSchemaVersion": "1",
+  "pluginSchemaVersion": "2",
+  "supportedPlatforms": ["macos-arm64", "linux-amd64"],
   "config": [
     { "key": "url", "type": "string", "value": null },
     { "key": "quality", "type": "int", "value": 80 },
@@ -135,6 +136,26 @@ The plugin writes JSON lines to stdout:
 ```
 
 **Pipe protocol** — context is passed via environment variables (`PIQLEY_IMAGE_FOLDER_PATH`, `PIQLEY_HOOK`, `PIQLEY_SECRET_*`, etc.) and stdout/stderr are forwarded directly to the user. Exit code determines success.
+
+### Multi-Platform Support
+
+Plugins can target multiple platforms. The `piqley-build-manifest.json` uses platform-keyed `bin` and `data` fields:
+
+```json
+{
+  "pluginSchemaVersion": "2",
+  "bin": {
+    "macos-arm64": [".build/release/my-plugin"],
+    "linux-amd64": ["dist/my-plugin-linux-amd64"],
+    "linux-arm64": ["dist/my-plugin-linux-arm64"]
+  },
+  "data": {}
+}
+```
+
+Supported platforms: `macos-arm64`, `linux-amd64`, `linux-arm64`. At least one platform must be declared. When packaged, each platform's files go into subdirectories (`bin/macos-arm64/`, `bin/linux-amd64/`, etc.). When a user installs the plugin, piqley copies only the files matching their platform.
+
+Interpreted plugins (Python, Node.js) use the same structure. Provide a separate entry point per platform and factor shared logic into common files if needed.
 
 ### Config
 
