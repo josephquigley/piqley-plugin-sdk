@@ -1,9 +1,11 @@
 {
   "identifier": "__PLUGIN_IDENTIFIER__",
   "pluginName": "__PLUGIN_NAME__",
-  "pluginSchemaVersion": "1",
+  "pluginSchemaVersion": "2",
   "pluginVersion": "0.1.0",
-  "bin": ["__PLUGIN_IDENTIFIER__"],
-  "data": [],
+  "bin": {
+    "macos-arm64": ["__PLUGIN_IDENTIFIER__"]
+  },
+  "data": {},
   "dependencies": []
 }

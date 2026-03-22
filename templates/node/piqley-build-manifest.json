@@ -1,9 +1,11 @@
 {
   "identifier": "__PLUGIN_IDENTIFIER__",
   "pluginName": "__PLUGIN_NAME__",
-  "pluginSchemaVersion": "1",
+  "pluginSchemaVersion": "2",
   "pluginVersion": "0.1.0",
-  "bin": ["dist/index.js"],
-  "data": [],
+  "bin": {
+    "macos-arm64": ["dist/index.js"]
+  },
+  "data": {},
   "dependencies": []
 }

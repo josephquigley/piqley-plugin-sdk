@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `supportedPlatforms` array property in manifest schema for declaring platform compatibility
 - Schema version `"2"` support in `pluginSchemaVersion` (manifest schema)
 - Build-manifest schema `bin` and `data` updated to platform-keyed object format with `patternProperties`
+- Plugin templates (Swift, Go, Node, Python) updated to schema v2 with platform-keyed `bin`
 - `pipelineRunId` property on `PluginRequest` for per-run identification
 - `pipelineStart` and `pipelineFinished` lifecycle hooks in Swift skeleton
 - `scripts/create-plugin.sh` standalone scaffolding script for creating new plugin projects in any language; works via `curl|bash` or locally
