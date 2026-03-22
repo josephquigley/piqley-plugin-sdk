@@ -35,3 +35,4 @@ Thumbs.db
 # Tools
 .claude/settings.local.json
 .worktrees/
+.worktrees
