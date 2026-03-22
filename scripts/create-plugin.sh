@@ -22,23 +22,23 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# --- Find skeletons ---
+# --- Find templates ---
 
-find_skeletons_dir() {
+find_templates_dir() {
     # Try relative to script location (local mode)
     local script_dir
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-    local local_skeletons="$script_dir/../Skeletons"
-    if [[ -d "$local_skeletons" ]]; then
-        echo "$(cd "$local_skeletons" && pwd)"
+    local local_templates="$script_dir/../templates"
+    if [[ -d "$local_templates" ]]; then
+        echo "$(cd "$local_templates" && pwd)"
         return
     fi
 
     # Remote mode: clone the SDK repo
-    echo "Skeletons not found locally. Cloning SDK repository..." >&2
+    echo "Templates not found locally. Cloning SDK repository..." >&2
     TEMP_CLONE="$(mktemp -d)"
     git clone --depth 1 --quiet "$SDK_REPO" "$TEMP_CLONE/piqley-plugin-sdk"
-    echo "$TEMP_CLONE/piqley-plugin-sdk/Skeletons"
+    echo "$TEMP_CLONE/piqley-plugin-sdk/templates"
 }
 
 # --- Name validation (matches CLI sanitizePluginIdentifier) ---
@@ -133,14 +133,14 @@ prompt_destination() {
 # --- Scaffold ---
 
 scaffold() {
-    local skeletons_dir="$1"
+    local templates_dir="$1"
     local language="$2"
     local name="$3"
     local dest="$4"
 
-    local skeleton_src="$skeletons_dir/$language"
-    if [[ ! -d "$skeleton_src" ]]; then
-        echo "Error: No skeleton found for language '$language' at $skeleton_src" >&2
+    local template_src="$templates_dir/$language"
+    if [[ ! -d "$template_src" ]]; then
+        echo "Error: No template found for language '$language' at $template_src" >&2
         exit 1
     fi
 
@@ -151,8 +151,8 @@ scaffold() {
 
     mkdir -p "$dest"
 
-    # Copy skeleton files (including dotfiles)
-    cp -R "$skeleton_src/." "$dest/"
+    # Copy template files (including dotfiles)
+    cp -R "$template_src/." "$dest/"
 
     # Rename __PLUGIN_NAME__ directories (e.g. Python src package)
     find "$dest" -depth -type d -name '__PLUGIN_NAME__' | while read -r dir; do
@@ -210,8 +210,8 @@ main() {
     echo "piqley plugin scaffolder"
     echo "========================"
 
-    local skeletons_dir
-    skeletons_dir="$(find_skeletons_dir)"
+    local templates_dir
+    templates_dir="$(find_templates_dir)"
 
     prompt_language
     local language="$RESULT"
@@ -222,7 +222,7 @@ main() {
     prompt_destination "$name"
     local dest="$RESULT"
 
-    scaffold "$skeletons_dir" "$language" "$name" "$dest"
+    scaffold "$templates_dir" "$language" "$name" "$dest"
     print_next_steps "$language" "$dest"
 }
 
