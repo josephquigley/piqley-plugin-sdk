@@ -1,4 +1,4 @@
-module __PLUGIN_NAME__
+module __PLUGIN_IDENTIFIER__
 
 go 1.21
 

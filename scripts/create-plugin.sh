@@ -93,21 +93,38 @@ prompt_language() {
 
 prompt_name() {
     while true; do
-        printf "Plugin name (e.g. com.example.my-plugin): "
-        read -r raw_name < /dev/tty
-        if [[ -z "$raw_name" ]]; then
+        printf "Plugin display name (e.g. Ghost CMS Publisher): "
+        read -r name < /dev/tty
+        if [[ -z "$name" ]]; then
             echo "Plugin name is required."
             continue
         fi
+        RESULT="$name"
+        return
+    done
+}
+
+prompt_identifier() {
+    local display_name="$1"
+    # Synthesize a default identifier from the display name
+    local default_id
+    default_id="$(sanitize_name "$display_name")"
+
+    while true; do
+        printf "Plugin identifier [%s]: " "$default_id"
+        read -r raw_id < /dev/tty
+        if [[ -z "$raw_id" ]]; then
+            raw_id="$default_id"
+        fi
 
         local sanitized
-        sanitized="$(sanitize_name "$raw_name")"
+        sanitized="$(sanitize_name "$raw_id")"
 
         if ! validate_name "$sanitized"; then
             continue
         fi
 
-        if [[ "$sanitized" != "$raw_name" ]]; then
+        if [[ "$sanitized" != "$raw_id" ]]; then
             printf "Sanitized to: %s. Use this? [Y/n] " "$sanitized"
             read -r confirm < /dev/tty
             if [[ "$confirm" =~ ^[Nn] ]]; then
@@ -136,7 +153,8 @@ scaffold() {
     local templates_dir="$1"
     local language="$2"
     local name="$3"
-    local dest="$4"
+    local identifier="$4"
+    local dest="$5"
 
     local template_src="$templates_dir/$language"
     if [[ ! -d "$template_src" ]]; then
@@ -154,20 +172,20 @@ scaffold() {
     # Copy template files (including dotfiles)
     cp -R "$template_src/." "$dest/"
 
-    # Rename __PLUGIN_NAME__ directories (e.g. Python src package)
-    find "$dest" -depth -type d -name '__PLUGIN_NAME__' | while read -r dir; do
+    # Rename __PLUGIN_IDENTIFIER__ directories (e.g. Python src package)
+    find "$dest" -depth -type d -name '__PLUGIN_IDENTIFIER__' | while read -r dir; do
         local parent
         parent="$(dirname "$dir")"
-        mv "$dir" "$parent/$name"
+        mv "$dir" "$parent/$identifier"
     done
 
     # Substitute placeholders in all files
     find "$dest" -type f | while read -r file; do
         if file "$file" | grep -qiE 'text|json'; then
             if [[ "$(uname)" == "Darwin" ]]; then
-                sed -i '' -e "s/__PLUGIN_NAME__/$name/g" -e "s/__SDK_VERSION__/$SDK_VERSION/g" "$file"
+                sed -i '' -e "s/__PLUGIN_NAME__/$name/g" -e "s/__PLUGIN_IDENTIFIER__/$identifier/g" -e "s/__SDK_VERSION__/$SDK_VERSION/g" "$file"
             else
-                sed -i "s/__PLUGIN_NAME__/$name/g;s/__SDK_VERSION__/$SDK_VERSION/g" "$file"
+                sed -i "s/__PLUGIN_NAME__/$name/g;s/__PLUGIN_IDENTIFIER__/$identifier/g;s/__SDK_VERSION__/$SDK_VERSION/g" "$file"
             fi
         fi
     done
@@ -219,10 +237,13 @@ main() {
     prompt_name
     local name="$RESULT"
 
-    prompt_destination "$name"
+    prompt_identifier "$name"
+    local identifier="$RESULT"
+
+    prompt_destination "$identifier"
     local dest="$RESULT"
 
-    scaffold "$templates_dir" "$language" "$name" "$dest"
+    scaffold "$templates_dir" "$language" "$name" "$identifier" "$dest"
     print_next_steps "$language" "$dest"
 }
 

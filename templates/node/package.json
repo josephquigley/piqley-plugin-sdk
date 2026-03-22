@@ -1,11 +1,11 @@
 {
-  "name": "__PLUGIN_NAME__",
+  "name": "__PLUGIN_IDENTIFIER__",
   "version": "0.1.0",
   "description": "A piqley plugin",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "__PLUGIN_NAME__": "dist/index.js"
+    "__PLUGIN_IDENTIFIER__": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",

@@ -1,9 +1,9 @@
 {
-  "identifier": "__PLUGIN_NAME__",
+  "identifier": "__PLUGIN_IDENTIFIER__",
   "pluginName": "__PLUGIN_NAME__",
   "pluginSchemaVersion": "1",
   "pluginVersion": "0.1.0",
-  "bin": ["src/__PLUGIN_NAME__/main.py"],
+  "bin": ["src/__PLUGIN_IDENTIFIER__/main.py"],
   "data": [],
   "dependencies": []
 }

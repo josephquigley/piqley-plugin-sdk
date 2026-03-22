@@ -1,5 +1,5 @@
 {
-  "identifier": "__PLUGIN_NAME__",
+  "identifier": "__PLUGIN_IDENTIFIER__",
   "pluginName": "__PLUGIN_NAME__",
   "pluginSchemaVersion": "1",
   "pluginVersion": "0.1.0",
