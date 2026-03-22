@@ -108,9 +108,13 @@ struct SchemaConformanceTests {
     @Test func validBuildManifestConformsToSchema() throws {
         let json: [String: Any] = [
             "pluginName": "my-plugin",
-            "pluginSchemaVersion": "1",
-            "bin": ["my-plugin"],
-            "data": ["resources/template.txt"],
+            "pluginSchemaVersion": "2",
+            "bin": [
+                "macos-arm64": ["my-plugin"]
+            ] as [String: Any],
+            "data": [
+                "macos-arm64": ["resources/template.txt"]
+            ] as [String: Any],
             "dependencies": [
                 [
                     "url": "https://github.com/example/dep.piqleyplugin",
