@@ -108,7 +108,7 @@ struct SchemaConformanceTests {
     @Test func validBuildManifestConformsToSchema() throws {
         let json: [String: Any] = [
             "pluginName": "my-plugin",
-            "pluginSchemaVersion": "2",
+            "pluginSchemaVersion": "1",
             "bin": [
                 "macos-arm64": ["my-plugin"]
             ] as [String: Any],

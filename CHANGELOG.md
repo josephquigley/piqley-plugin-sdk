@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- Reverted `pluginSchemaVersion` back to `"1"` across all schemas, templates, tests, and docs (no production consumers)
 - Packager and PackagerTests use `PluginFile` and `PluginDirectory` constants from PiqleyCore instead of magic strings
 - `BuildManifest.bin` from `[String]` to `[String: [String]]` (platform-keyed dictionary)
 - `BuildManifest.data` from `[String]` to `[String: [String]]` (platform-keyed dictionary)

@@ -71,7 +71,7 @@ The `manifest.json` declares the plugin's identity, config schema, supported pla
 {
   "identifier": "com.example.my-plugin",
   "name": "my-plugin",
-  "pluginSchemaVersion": "2",
+  "pluginSchemaVersion": "1",
   "supportedPlatforms": ["macos-arm64", "linux-amd64"],
   "config": [
     { "key": "url", "type": "string", "value": null },
@@ -143,7 +143,7 @@ Plugins can target multiple platforms. The `piqley-build-manifest.json` uses pla
 
 ```json
 {
-  "pluginSchemaVersion": "2",
+  "pluginSchemaVersion": "1",
   "bin": {
     "macos-arm64": [".build/release/my-plugin"],
     "linux-amd64": ["dist/my-plugin-linux-amd64"],

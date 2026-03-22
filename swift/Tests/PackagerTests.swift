@@ -10,7 +10,7 @@ import Foundation
     {
         "identifier": "com.test.my-plugin",
         "pluginName": "my-plugin",
-        "pluginSchemaVersion": "2",
+        "pluginSchemaVersion": "1",
         "bin": {
             "macos-arm64": ["build/my-plugin"]
         },
@@ -24,7 +24,7 @@ import Foundation
 
     #expect(manifest.identifier == "com.test.my-plugin")
     #expect(manifest.pluginName == "my-plugin")
-    #expect(manifest.pluginSchemaVersion == "2")
+    #expect(manifest.pluginSchemaVersion == "1")
     #expect(manifest.bin == ["macos-arm64": ["build/my-plugin"]])
     #expect(manifest.data == ["macos-arm64": ["templates/default.json"]])
     #expect(manifest.dependencies?.isEmpty ?? true)
@@ -34,7 +34,7 @@ import Foundation
     let json = """
     {
         "pluginName": "my-plugin",
-        "pluginSchemaVersion": "2",
+        "pluginSchemaVersion": "1",
         "bin": { "macos-arm64": ["build/my-plugin"] },
         "data": {}
     }
@@ -50,7 +50,7 @@ import Foundation
     {
         "identifier": "com.test.multi-arch",
         "pluginName": "multi-arch",
-        "pluginSchemaVersion": "2",
+        "pluginSchemaVersion": "1",
         "bin": {
             "macos-arm64": [".build/release/multi-arch"],
             "linux-amd64": ["dist/multi-arch"]
@@ -65,7 +65,7 @@ import Foundation
     let manifest = try JSONDecoder().decode(BuildManifest.self, from: data)
 
     #expect(manifest.identifier == "com.test.multi-arch")
-    #expect(manifest.pluginSchemaVersion == "2")
+    #expect(manifest.pluginSchemaVersion == "1")
     #expect(manifest.bin == [
         "macos-arm64": [".build/release/multi-arch"],
         "linux-amd64": ["dist/multi-arch"]
@@ -97,7 +97,7 @@ private func makePluginDirectory(
     let buildManifestDict: [String: Any] = [
         "identifier": identifier ?? "com.test.\(pluginName)",
         "pluginName": pluginName,
-        "pluginSchemaVersion": "2",
+        "pluginSchemaVersion": "1",
         "bin": binValue,
         "data": [:] as [String: Any],
         "dependencies": [] as [Any],
@@ -162,7 +162,7 @@ private func makePluginDirectory(
     let manifest = try JSONDecoder().decode(PluginManifest.self, from: data)
     #expect(manifest.identifier == "com.test.gen-test")
     #expect(manifest.name == "gen-test")
-    #expect(manifest.pluginSchemaVersion == "2")
+    #expect(manifest.pluginSchemaVersion == "1")
     #expect(manifest.supportedPlatforms == ["macos-arm64"])
 }
 

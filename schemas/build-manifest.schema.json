@@ -7,7 +7,7 @@
   "properties": {
     "identifier": { "type": "string", "minLength": 1 },
     "pluginName": { "type": "string", "minLength": 1 },
-    "pluginSchemaVersion": { "type": "string", "const": "2" },
+    "pluginSchemaVersion": { "type": "string", "const": "1" },
     "description": { "type": "string" },
     "pluginVersion": {
       "type": "string",
