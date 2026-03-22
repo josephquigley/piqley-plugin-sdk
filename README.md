@@ -155,7 +155,51 @@ Plugins can target multiple platforms. The `piqley-build-manifest.json` uses pla
 
 Supported platforms: `macos-arm64`, `linux-amd64`, `linux-arm64`. At least one platform must be declared. When packaged, each platform's files go into subdirectories (`bin/macos-arm64/`, `bin/linux-amd64/`, etc.). When a user installs the plugin, piqley copies only the files matching their platform.
 
-Interpreted plugins (Python, Node.js) use the same structure. Provide a separate entry point per platform and factor shared logic into common files if needed.
+#### Building for Each Platform
+
+**Swift** plugins can cross-compile for Linux using the Swift SDK bundles:
+
+```bash
+# Install a Linux SDK (one-time)
+swift sdk install <linux-sdk-bundle-url>
+
+# Build for Linux
+swift build -c release --swift-sdk x86_64-swift-linux-musl
+swift build -c release --swift-sdk aarch64-swift-linux-musl
+```
+
+Alternatively, build inside a Docker container or use CI runners for each target platform.
+
+**Go** plugins use the `GOOS` and `GOARCH` environment variables:
+
+```bash
+GOOS=darwin GOARCH=arm64 go build -o dist/my-plugin-macos-arm64
+GOOS=linux GOARCH=amd64 go build -o dist/my-plugin-linux-amd64
+GOOS=linux GOARCH=arm64 go build -o dist/my-plugin-linux-arm64
+```
+
+**Python and Node.js** plugins are interpreted, so the same scripts typically work across platforms. Use separate entry points per platform if you depend on platform-specific native modules or system APIs. Factor shared logic into common files that each entry point imports.
+
+#### CI Example (GitHub Actions)
+
+A typical multi-platform build matrix:
+
+```yaml
+strategy:
+  matrix:
+    include:
+      - os: macos-latest
+        platform: macos-arm64
+      - os: ubuntu-latest
+        platform: linux-amd64
+
+steps:
+  - uses: actions/checkout@v4
+  - run: swift build -c release
+  - run: cp .build/release/my-plugin dist/${{ matrix.platform }}/my-plugin
+```
+
+After the matrix completes, collect artifacts and run `piqley-build` to produce the final `.piqleyplugin` package.
 
 ### Config
 
