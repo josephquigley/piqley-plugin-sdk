@@ -17,16 +17,14 @@ The binary is produced at `.build/release/__PLUGIN_NAME__`.
 
 ## Install
 
-Copy the release binary and a `manifest.json` into piqley's plugin directory:
+Build a `.piqleyplugin` package and install it:
 
 ```bash
-mkdir -p ~/.config/piqley/plugins/__PLUGIN_NAME__/bin
-cp .build/release/__PLUGIN_NAME__ ~/.config/piqley/plugins/__PLUGIN_NAME__/bin/
+./piqley-build.sh
+piqley plugin install __PLUGIN_NAME__.piqleyplugin
 ```
 
-Then create `~/.config/piqley/plugins/__PLUGIN_NAME__/manifest.json` with your plugin's identity and config schema. See the [SDK README](https://github.com/josephquigley/piqley-plugin-sdk) for the manifest format.
-
-Add stage files (e.g. `stage-publish.json`) to configure which hooks run your binary.
+Or install manually by copying the release binary and a `manifest.json` into `~/.config/piqley/plugins/__PLUGIN_NAME__/`.
 
 ## Develop
 
@@ -43,6 +41,7 @@ swift test
 - `Sources/Plugin.swift` - main entry point, routes hooks to handler functions
 - `Package.swift` - Swift package manifest
 - `piqley-build-manifest.json` - tells `piqley-build` what to package
+- `piqley-build.sh` - builds and packages the plugin for installation
 
 ## Hooks
 
