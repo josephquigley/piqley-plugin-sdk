@@ -4,9 +4,6 @@ import PiqleyCore
 /// Errors produced during plugin packaging.
 public enum PackagerError: Error, Sendable, Equatable {
     case missingBuildManifest
-    case missingManifest
-    case missingConfig
-    case nameMismatch(buildManifest: String, manifest: String)
     case missingPath(String)
     case zipFailed(String)
 }
@@ -16,7 +13,9 @@ public struct Packager {
 
     /// Packages the plugin in `directory` and returns the URL of the produced `.piqleyplugin` file.
     ///
-    /// The directory must contain `piqley-build-manifest.json`, `manifest.json`, and `config.json`.
+    /// The directory must contain `piqley-build-manifest.json`. The packager generates
+    /// `manifest.json` from the build manifest. If `config.json` exists it is copied;
+    /// otherwise an empty one is created.
     public static func package(directory: URL) throws -> URL {
         let fm = FileManager.default
 
@@ -27,29 +26,10 @@ public struct Packager {
         }
         let buildManifest = try BuildManifest.load(from: directory)
 
-        // 2. Verify manifest.json exists and decode for name check
-        let manifestURL = directory.appendingPathComponent("manifest.json")
-        guard fm.fileExists(atPath: manifestURL.path) else {
-            throw PackagerError.missingManifest
-        }
-        let manifestData = try Data(contentsOf: manifestURL)
-        let manifest = try JSONDecoder().decode(PluginManifest.self, from: manifestData)
+        // 2. Generate PluginManifest from build manifest
+        let pluginManifest = try buildManifest.toPluginManifest()
 
-        // 3. Verify config.json exists
-        let configURL = directory.appendingPathComponent("config.json")
-        guard fm.fileExists(atPath: configURL.path) else {
-            throw PackagerError.missingConfig
-        }
-
-        // 4. Name mismatch check
-        if buildManifest.pluginName != manifest.name {
-            throw PackagerError.nameMismatch(
-                buildManifest: buildManifest.pluginName,
-                manifest: manifest.name
-            )
-        }
-
-        // 5. Verify all bin paths exist
+        // 3. Verify all bin paths exist
         for bin in buildManifest.bin {
             let binURL = directory.appendingPathComponent(bin)
             guard fm.fileExists(atPath: binURL.path) else {
@@ -57,7 +37,7 @@ public struct Packager {
             }
         }
 
-        // 6. Verify all data paths exist
+        // 4. Verify all data paths exist
         for dataPath in buildManifest.data {
             let dataURL = directory.appendingPathComponent(dataPath)
             guard fm.fileExists(atPath: dataURL.path) else {
@@ -65,15 +45,23 @@ public struct Packager {
             }
         }
 
-        // 7. Stage files into a temp directory
+        // 5. Stage files into a temp directory
         let pluginName = buildManifest.pluginName
         let staging = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let pluginDir = staging.appendingPathComponent(pluginName)
         try fm.createDirectory(at: pluginDir, withIntermediateDirectories: true)
 
-        // Copy manifest.json and config.json
-        try fm.copyItem(at: manifestURL, to: pluginDir.appendingPathComponent("manifest.json"))
-        try fm.copyItem(at: configURL, to: pluginDir.appendingPathComponent("config.json"))
+        // Write generated manifest.json
+        let manifestData = try pluginManifest.encode()
+        try manifestData.write(to: pluginDir.appendingPathComponent("manifest.json"))
+
+        // Copy config.json if it exists, otherwise write an empty one
+        let configURL = directory.appendingPathComponent("config.json")
+        if fm.fileExists(atPath: configURL.path) {
+            try fm.copyItem(at: configURL, to: pluginDir.appendingPathComponent("config.json"))
+        } else {
+            try Data("{}".utf8).write(to: pluginDir.appendingPathComponent("config.json"))
+        }
 
         // Copy stage-*.json files
         let dirContents = try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
@@ -106,7 +94,7 @@ public struct Packager {
             }
         }
 
-        // 8. Zip the staged directory
+        // 6. Zip the staged directory
         let outputURL = directory.appendingPathComponent("\(pluginName).piqleyplugin")
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/zip")

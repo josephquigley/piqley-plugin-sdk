@@ -1,5 +1,6 @@
 import Testing
 @testable import PiqleyPluginSDK
+import PiqleyCore
 import Foundation
 
 // MARK: - BuildManifest Tests
@@ -7,6 +8,7 @@ import Foundation
 @Test func decodesBuildManifest() throws {
     let json = """
     {
+        "identifier": "com.test.my-plugin",
         "pluginName": "my-plugin",
         "pluginSchemaVersion": "1",
         "bin": ["build/my-plugin"],
@@ -17,11 +19,29 @@ import Foundation
     let data = Data(json.utf8)
     let manifest = try JSONDecoder().decode(BuildManifest.self, from: data)
 
+    #expect(manifest.identifier == "com.test.my-plugin")
     #expect(manifest.pluginName == "my-plugin")
     #expect(manifest.pluginSchemaVersion == "1")
     #expect(manifest.bin == ["build/my-plugin"])
     #expect(manifest.data == ["templates/default.json"])
-    #expect(manifest.dependencies.isEmpty)
+    #expect(manifest.dependencies?.isEmpty ?? true)
+}
+
+@Test func decodesBuildManifestWithoutIdentifier() throws {
+    let json = """
+    {
+        "pluginName": "my-plugin",
+        "pluginSchemaVersion": "1",
+        "bin": ["build/my-plugin"],
+        "data": [],
+        "dependencies": []
+    }
+    """
+    let data = Data(json.utf8)
+    let manifest = try JSONDecoder().decode(BuildManifest.self, from: data)
+
+    // identifier defaults to pluginName
+    #expect(manifest.identifier == "my-plugin")
 }
 
 // MARK: - Packager Tests
@@ -29,35 +49,27 @@ import Foundation
 /// Creates a minimal valid plugin directory for testing.
 private func makePluginDirectory(
     pluginName: String = "test-plugin",
-    manifestName: String? = nil,
+    identifier: String? = nil,
     includeBin: Bool = true,
-    includeConfig: Bool = true
+    includeConfig: Bool = false
 ) throws -> URL {
     let fm = FileManager.default
     let dir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try fm.createDirectory(at: dir, withIntermediateDirectories: true)
 
     // Build manifest
-    let buildManifest: [String: Any] = [
+    let buildManifestDict: [String: Any] = [
+        "identifier": identifier ?? "com.test.\(pluginName)",
         "pluginName": pluginName,
         "pluginSchemaVersion": "1",
         "bin": includeBin ? ["my-binary"] : ["missing-binary"],
         "data": [] as [String],
         "dependencies": [] as [Any],
     ]
-    let buildManifestData = try JSONSerialization.data(withJSONObject: buildManifest)
+    let buildManifestData = try JSONSerialization.data(withJSONObject: buildManifestDict)
     try buildManifestData.write(to: dir.appendingPathComponent("piqley-build-manifest.json"))
 
-    // manifest.json
-    let manifest: [String: Any] = [
-        "identifier": "com.test.\(manifestName ?? pluginName)",
-        "name": manifestName ?? pluginName,
-        "pluginSchemaVersion": "1",
-    ]
-    let manifestData = try JSONSerialization.data(withJSONObject: manifest)
-    try manifestData.write(to: dir.appendingPathComponent("manifest.json"))
-
-    // config.json
+    // config.json (optional)
     if includeConfig {
         let configData = Data("{}".utf8)
         try configData.write(to: dir.appendingPathComponent("config.json"))
@@ -85,13 +97,61 @@ private func makePluginDirectory(
     try? FileManager.default.removeItem(at: output)
 }
 
-@Test func packagerFailsOnNameMismatch() throws {
-    let dir = try makePluginDirectory(pluginName: "alpha", manifestName: "beta")
+@Test func packagerGeneratesManifestJson() throws {
+    let dir = try makePluginDirectory(pluginName: "gen-test", identifier: "com.test.gen-test")
     defer { try? FileManager.default.removeItem(at: dir) }
 
-    #expect(throws: PackagerError.nameMismatch(buildManifest: "alpha", manifest: "beta")) {
-        try Packager.package(directory: dir)
-    }
+    let output = try Packager.package(directory: dir)
+    defer { try? FileManager.default.removeItem(at: output) }
+
+    // Unzip and verify manifest.json was generated
+    let fm = FileManager.default
+    let unzipDir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try fm.createDirectory(at: unzipDir, withIntermediateDirectories: true)
+    defer { try? fm.removeItem(at: unzipDir) }
+
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
+    process.arguments = ["-q", output.path, "-d", unzipDir.path]
+    try process.run()
+    process.waitUntilExit()
+
+    let manifestURL = unzipDir
+        .appendingPathComponent("gen-test")
+        .appendingPathComponent("manifest.json")
+    #expect(fm.fileExists(atPath: manifestURL.path))
+
+    let data = try Data(contentsOf: manifestURL)
+    let manifest = try JSONDecoder().decode(PluginManifest.self, from: data)
+    #expect(manifest.identifier == "com.test.gen-test")
+    #expect(manifest.name == "gen-test")
+    #expect(manifest.pluginSchemaVersion == "1")
+}
+
+@Test func packagerGeneratesEmptyConfigWhenMissing() throws {
+    let dir = try makePluginDirectory(includeConfig: false)
+    defer { try? FileManager.default.removeItem(at: dir) }
+
+    // Should not throw even without config.json
+    let output = try Packager.package(directory: dir)
+    defer { try? FileManager.default.removeItem(at: output) }
+
+    // Unzip and verify config.json exists
+    let fm = FileManager.default
+    let unzipDir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try fm.createDirectory(at: unzipDir, withIntermediateDirectories: true)
+    defer { try? fm.removeItem(at: unzipDir) }
+
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
+    process.arguments = ["-q", output.path, "-d", unzipDir.path]
+    try process.run()
+    process.waitUntilExit()
+
+    let configURL = unzipDir
+        .appendingPathComponent("test-plugin")
+        .appendingPathComponent("config.json")
+    #expect(fm.fileExists(atPath: configURL.path))
 }
 
 @Test func packagerFailsOnMissingBinPath() throws {

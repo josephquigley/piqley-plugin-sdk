@@ -1,6 +1,8 @@
 {
+  "identifier": "__PLUGIN_NAME__",
   "pluginName": "__PLUGIN_NAME__",
   "pluginSchemaVersion": "1",
+  "pluginVersion": "0.1.0",
   "bin": ["__PLUGIN_NAME__"],
   "data": [],
   "dependencies": []
