@@ -108,7 +108,7 @@ private func makePluginDirectory(
     // config.json (optional)
     if includeConfig {
         let configData = Data("{}".utf8)
-        try configData.write(to: dir.appendingPathComponent("config.json"))
+        try configData.write(to: dir.appendingPathComponent(PluginFile.config))
     }
 
     // Binary file
@@ -155,7 +155,7 @@ private func makePluginDirectory(
 
     let manifestURL = unzipDir
         .appendingPathComponent("gen-test")
-        .appendingPathComponent("manifest.json")
+        .appendingPathComponent(PluginFile.manifest)
     #expect(fm.fileExists(atPath: manifestURL.path))
 
     let data = try Data(contentsOf: manifestURL)
@@ -188,7 +188,7 @@ private func makePluginDirectory(
 
     let configURL = unzipDir
         .appendingPathComponent("test-plugin")
-        .appendingPathComponent("config.json")
+        .appendingPathComponent(PluginFile.config)
     #expect(fm.fileExists(atPath: configURL.path))
 }
 

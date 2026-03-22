@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- Packager uses `PluginFile` and `PluginDirectory` constants from PiqleyCore instead of magic strings
+- Packager and PackagerTests use `PluginFile` and `PluginDirectory` constants from PiqleyCore instead of magic strings
 - `BuildManifest.bin` from `[String]` to `[String: [String]]` (platform-keyed dictionary)
 - `BuildManifest.data` from `[String]` to `[String: [String]]` (platform-keyed dictionary)
 - Packager stages bin/data files into platform subdirectories
