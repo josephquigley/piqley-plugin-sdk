@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "__PLUGIN_NAME__",
+    name: "__PLUGIN_PACKAGE_NAME__",
     platforms: [.macOS(.v15)],
     dependencies: [
         .package(

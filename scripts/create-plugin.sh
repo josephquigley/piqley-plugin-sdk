@@ -179,13 +179,17 @@ scaffold() {
         mv "$dir" "$parent/$identifier"
     done
 
+    # Derive sanitized package name: "Ghost & 365 Project" -> "ghost-365-project"
+    local package_name
+    package_name=$(echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-//;s/-$//')
+
     # Substitute placeholders in all files
     find "$dest" -type f | while read -r file; do
         if file "$file" | grep -qiE 'text|json'; then
             if [[ "$(uname)" == "Darwin" ]]; then
-                sed -i '' -e "s/__PLUGIN_NAME__/$name/g" -e "s/__PLUGIN_IDENTIFIER__/$identifier/g" -e "s/__SDK_VERSION__/$SDK_VERSION/g" "$file"
+                sed -i '' -e "s/__PLUGIN_PACKAGE_NAME__/$package_name/g" -e "s/__PLUGIN_NAME__/$name/g" -e "s/__PLUGIN_IDENTIFIER__/$identifier/g" -e "s/__SDK_VERSION__/$SDK_VERSION/g" "$file"
             else
-                sed -i "s/__PLUGIN_NAME__/$name/g;s/__PLUGIN_IDENTIFIER__/$identifier/g;s/__SDK_VERSION__/$SDK_VERSION/g" "$file"
+                sed -i "s/__PLUGIN_PACKAGE_NAME__/$package_name/g;s/__PLUGIN_NAME__/$name/g;s/__PLUGIN_IDENTIFIER__/$identifier/g;s/__SDK_VERSION__/$SDK_VERSION/g" "$file"
             fi
         fi
     done
