@@ -3,7 +3,7 @@
   "pluginName": "__PLUGIN_NAME__",
   "pluginSchemaVersion": "1",
   "pluginVersion": "0.1.0",
-  "bin": [".build/release/__PLUGIN_IDENTIFIER__"],
+  "bin": [".build/release/__PLUGIN_PACKAGE_NAME__"],
   "data": [],
   "dependencies": []
 }

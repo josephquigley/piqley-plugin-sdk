@@ -13,7 +13,7 @@ A [piqley](https://github.com/josephquigley/piqley-cli) plugin built with the [P
 swift build -c release
 ```
 
-The binary is produced at `.build/release/__PLUGIN_NAME__`.
+The binary is produced at `.build/release/__PLUGIN_PACKAGE_NAME__`.
 
 ## Install
 
@@ -21,10 +21,10 @@ Build a `.piqleyplugin` package and install it:
 
 ```bash
 ./piqley-build.sh
-piqley plugin install __PLUGIN_NAME__.piqleyplugin
+piqley plugin install __PLUGIN_PACKAGE_NAME__.piqleyplugin
 ```
 
-Or install manually by copying the release binary and a `manifest.json` into `~/.config/piqley/plugins/__PLUGIN_NAME__/`.
+Or install manually by copying the release binary and a `manifest.json` into `~/.config/piqley/plugins/__PLUGIN_IDENTIFIER__/`.
 
 ## Develop
 
