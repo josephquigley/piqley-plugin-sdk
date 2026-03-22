@@ -45,7 +45,7 @@ This walks you through choosing a language, naming your plugin, and setting up t
 piqley plugin create my-plugin --language swift
 ```
 
-> **Rules-only plugins don't need the SDK.** If your plugin only needs declarative rules (match/filter metadata, skip images, etc.) without running any external tool, use `piqley plugin init <identifier>` instead. This creates a plugin with just a manifest and stage files that you can configure entirely through the rules editor (`piqley plugin rules edit <identifier>`).
+> **Rules-only plugins don't need the SDK.** If your plugin only needs declarative rules (match/filter metadata, skip images, etc.) without running any external tool, use `piqley plugin init` instead. This creates a plugin with just a manifest and stage files that you can configure entirely through the rules editor.
 
 ## How Plugins Work
 
