@@ -10,10 +10,13 @@ import Foundation
     {
         "identifier": "com.test.my-plugin",
         "pluginName": "my-plugin",
-        "pluginSchemaVersion": "1",
-        "bin": ["build/my-plugin"],
-        "data": ["templates/default.json"],
-        "dependencies": []
+        "pluginSchemaVersion": "2",
+        "bin": {
+            "macos-arm64": ["build/my-plugin"]
+        },
+        "data": {
+            "macos-arm64": ["templates/default.json"]
+        }
     }
     """
     let data = Data(json.utf8)
@@ -21,9 +24,9 @@ import Foundation
 
     #expect(manifest.identifier == "com.test.my-plugin")
     #expect(manifest.pluginName == "my-plugin")
-    #expect(manifest.pluginSchemaVersion == "1")
-    #expect(manifest.bin == ["build/my-plugin"])
-    #expect(manifest.data == ["templates/default.json"])
+    #expect(manifest.pluginSchemaVersion == "2")
+    #expect(manifest.bin == ["macos-arm64": ["build/my-plugin"]])
+    #expect(manifest.data == ["macos-arm64": ["templates/default.json"]])
     #expect(manifest.dependencies?.isEmpty ?? true)
 }
 
@@ -31,16 +34,46 @@ import Foundation
     let json = """
     {
         "pluginName": "my-plugin",
-        "pluginSchemaVersion": "1",
-        "bin": ["build/my-plugin"],
-        "data": [],
-        "dependencies": []
+        "pluginSchemaVersion": "2",
+        "bin": { "macos-arm64": ["build/my-plugin"] },
+        "data": {}
     }
     """
     let data = Data(json.utf8)
     #expect(throws: (any Error).self) {
         try JSONDecoder().decode(BuildManifest.self, from: data)
     }
+}
+
+@Test func decodesPlatformKeyedBuildManifest() throws {
+    let json = """
+    {
+        "identifier": "com.test.multi-arch",
+        "pluginName": "multi-arch",
+        "pluginSchemaVersion": "2",
+        "bin": {
+            "macos-arm64": [".build/release/multi-arch"],
+            "linux-amd64": ["dist/multi-arch"]
+        },
+        "data": {
+            "macos-arm64": ["models/mac.bin"],
+            "linux-amd64": ["models/linux.bin"]
+        }
+    }
+    """
+    let data = Data(json.utf8)
+    let manifest = try JSONDecoder().decode(BuildManifest.self, from: data)
+
+    #expect(manifest.identifier == "com.test.multi-arch")
+    #expect(manifest.pluginSchemaVersion == "2")
+    #expect(manifest.bin == [
+        "macos-arm64": [".build/release/multi-arch"],
+        "linux-amd64": ["dist/multi-arch"]
+    ])
+    #expect(manifest.data == [
+        "macos-arm64": ["models/mac.bin"],
+        "linux-amd64": ["models/linux.bin"]
+    ])
 }
 
 // MARK: - Packager Tests
@@ -57,12 +90,16 @@ private func makePluginDirectory(
     try fm.createDirectory(at: dir, withIntermediateDirectories: true)
 
     // Build manifest
+    let binValue: [String: Any] = includeBin
+        ? ["macos-arm64": ["my-binary"]]
+        : ["macos-arm64": ["missing-binary"]]
+
     let buildManifestDict: [String: Any] = [
         "identifier": identifier ?? "com.test.\(pluginName)",
         "pluginName": pluginName,
-        "pluginSchemaVersion": "1",
-        "bin": includeBin ? ["my-binary"] : ["missing-binary"],
-        "data": [] as [String],
+        "pluginSchemaVersion": "2",
+        "bin": binValue,
+        "data": [:] as [String: Any],
         "dependencies": [] as [Any],
     ]
     let buildManifestData = try JSONSerialization.data(withJSONObject: buildManifestDict)
@@ -125,7 +162,8 @@ private func makePluginDirectory(
     let manifest = try JSONDecoder().decode(PluginManifest.self, from: data)
     #expect(manifest.identifier == "com.test.gen-test")
     #expect(manifest.name == "gen-test")
-    #expect(manifest.pluginSchemaVersion == "1")
+    #expect(manifest.pluginSchemaVersion == "2")
+    #expect(manifest.supportedPlatforms == ["macos-arm64"])
 }
 
 @Test func packagerGeneratesEmptyConfigWhenMissing() throws {

@@ -30,18 +30,22 @@ public struct Packager {
         let pluginManifest = try buildManifest.toPluginManifest()
 
         // 3. Verify all bin paths exist
-        for bin in buildManifest.bin {
-            let binURL = directory.appendingPathComponent(bin)
-            guard fm.fileExists(atPath: binURL.path) else {
-                throw PackagerError.missingPath(bin)
+        for (_, paths) in buildManifest.bin {
+            for bin in paths {
+                let binURL = directory.appendingPathComponent(bin)
+                guard fm.fileExists(atPath: binURL.path) else {
+                    throw PackagerError.missingPath(bin)
+                }
             }
         }
 
         // 4. Verify all data paths exist
-        for dataPath in buildManifest.data {
-            let dataURL = directory.appendingPathComponent(dataPath)
-            guard fm.fileExists(atPath: dataURL.path) else {
-                throw PackagerError.missingPath(dataPath)
+        for (_, paths) in buildManifest.data {
+            for dataPath in paths {
+                let dataURL = directory.appendingPathComponent(dataPath)
+                guard fm.fileExists(atPath: dataURL.path) else {
+                    throw PackagerError.missingPath(dataPath)
+                }
             }
         }
 
@@ -72,25 +76,31 @@ public struct Packager {
             }
         }
 
-        // Copy bin files
+        // Copy bin files into platform subdirectories
         if !buildManifest.bin.isEmpty {
             let binDir = pluginDir.appendingPathComponent("bin")
-            try fm.createDirectory(at: binDir, withIntermediateDirectories: true)
-            for bin in buildManifest.bin {
-                let src = directory.appendingPathComponent(bin)
-                let dst = binDir.appendingPathComponent(URL(fileURLWithPath: bin).lastPathComponent)
-                try fm.copyItem(at: src, to: dst)
+            for (platform, paths) in buildManifest.bin {
+                let platformDir = binDir.appendingPathComponent(platform)
+                try fm.createDirectory(at: platformDir, withIntermediateDirectories: true)
+                for bin in paths {
+                    let src = directory.appendingPathComponent(bin)
+                    let dst = platformDir.appendingPathComponent(URL(fileURLWithPath: bin).lastPathComponent)
+                    try fm.copyItem(at: src, to: dst)
+                }
             }
         }
 
-        // Copy data files
+        // Copy data files into platform subdirectories
         if !buildManifest.data.isEmpty {
             let dataDir = pluginDir.appendingPathComponent("data")
-            try fm.createDirectory(at: dataDir, withIntermediateDirectories: true)
-            for dataPath in buildManifest.data {
-                let src = directory.appendingPathComponent(dataPath)
-                let dst = dataDir.appendingPathComponent(URL(fileURLWithPath: dataPath).lastPathComponent)
-                try fm.copyItem(at: src, to: dst)
+            for (platform, paths) in buildManifest.data {
+                let platformDir = dataDir.appendingPathComponent(platform)
+                try fm.createDirectory(at: platformDir, withIntermediateDirectories: true)
+                for dataPath in paths {
+                    let src = directory.appendingPathComponent(dataPath)
+                    let dst = dataDir.appendingPathComponent(URL(fileURLWithPath: dataPath).lastPathComponent)
+                    try fm.copyItem(at: src, to: dst)
+                }
             }
         }
 

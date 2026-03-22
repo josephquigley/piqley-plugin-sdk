@@ -16,8 +16,8 @@ public struct BuildManifest: Codable, Sendable, Equatable {
     public let setup: SetupConfig?
     public let supportedFormats: [String]?
     public let conversionFormat: String?
-    public let bin: [String]
-    public let data: [String]
+    public let bin: [String: [String]]
+    public let data: [String: [String]]
     public let dependencies: [PluginDependency]?
 
     public init(
@@ -30,8 +30,8 @@ public struct BuildManifest: Codable, Sendable, Equatable {
         setup: SetupConfig? = nil,
         supportedFormats: [String]? = nil,
         conversionFormat: String? = nil,
-        bin: [String],
-        data: [String] = [],
+        bin: [String: [String]],
+        data: [String: [String]] = [:],
         dependencies: [PluginDependency]? = nil
     ) {
         self.identifier = identifier
@@ -68,7 +68,8 @@ public struct BuildManifest: Codable, Sendable, Equatable {
             setup: setup,
             dependencies: dependencies,
             supportedFormats: supportedFormats,
-            conversionFormat: conversionFormat
+            conversionFormat: conversionFormat,
+            supportedPlatforms: Array(bin.keys).sorted()
         )
     }
 
@@ -92,8 +93,18 @@ public struct BuildManifest: Codable, Sendable, Equatable {
         self.setup = try container.decodeIfPresent(SetupConfig.self, forKey: .setup)
         self.supportedFormats = try container.decodeIfPresent([String].self, forKey: .supportedFormats)
         self.conversionFormat = try container.decodeIfPresent(String.self, forKey: .conversionFormat)
-        self.bin = try container.decode([String].self, forKey: .bin)
-        self.data = try container.decodeIfPresent([String].self, forKey: .data) ?? []
+        self.bin = try container.decode([String: [String]].self, forKey: .bin)
+        self.data = try container.decodeIfPresent([String: [String]].self, forKey: .data) ?? [:]
+
+        let invalidDataPlatforms = Set(self.data.keys).subtracting(Set(self.bin.keys))
+        if !invalidDataPlatforms.isEmpty {
+            throw DecodingError.dataCorrupted(
+                DecodingError.Context(
+                    codingPath: [CodingKeys.data],
+                    debugDescription: "Data platforms \(invalidDataPlatforms.sorted()) are not declared in bin"
+                )
+            )
+        }
         if let structured = try? container.decodeIfPresent([PluginDependency].self, forKey: .dependencies) {
             self.dependencies = structured
         } else if let names = try? container.decodeIfPresent([String].self, forKey: .dependencies) {
