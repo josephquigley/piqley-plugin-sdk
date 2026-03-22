@@ -31,6 +31,22 @@
 | TypeScript / Node.js | [`node/`](node/) | `@piqley/plugin-sdk` (npm) |
 | Go | [`go/`](go/) | `github.com/josephquigley/piqley-plugin-sdk/go` |
 
+## Getting Started
+
+The quickest way to create a new plugin is with the scaffolding script:
+
+```bash
+curl -sL https://raw.githubusercontent.com/josephquigley/piqley-plugin-sdk/main/scripts/create-plugin.sh | bash
+```
+
+This walks you through choosing a language, naming your plugin, and setting up the project. You can also scaffold from the CLI if you have piqley installed:
+
+```bash
+piqley plugin create my-plugin --language swift
+```
+
+> **Rules-only plugins don't need the SDK.** If your plugin only needs declarative rules (match/filter metadata, skip images, etc.) without running any external tool, use `piqley plugin init <identifier>` instead. This creates a plugin with just a manifest and stage files that you can configure entirely through the rules editor (`piqley plugin rules edit <identifier>`).
+
 ## How Plugins Work
 
 A piqley plugin is a directory inside `~/.config/piqley/plugins/<plugin-name>/` with a `manifest.json` that declares what the plugin does and how to run it.
