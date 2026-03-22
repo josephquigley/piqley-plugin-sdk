@@ -57,14 +57,14 @@ public struct Packager {
 
         // Write generated manifest.json
         let manifestData = try pluginManifest.encode()
-        try manifestData.write(to: pluginDir.appendingPathComponent("manifest.json"))
+        try manifestData.write(to: pluginDir.appendingPathComponent(PluginFile.manifest))
 
         // Copy config.json if it exists, otherwise write an empty one
-        let configURL = directory.appendingPathComponent("config.json")
+        let configURL = directory.appendingPathComponent(PluginFile.config)
         if fm.fileExists(atPath: configURL.path) {
-            try fm.copyItem(at: configURL, to: pluginDir.appendingPathComponent("config.json"))
+            try fm.copyItem(at: configURL, to: pluginDir.appendingPathComponent(PluginFile.config))
         } else {
-            try Data("{}".utf8).write(to: pluginDir.appendingPathComponent("config.json"))
+            try Data("{}".utf8).write(to: pluginDir.appendingPathComponent(PluginFile.config))
         }
 
         // Copy stage-*.json files
@@ -78,7 +78,7 @@ public struct Packager {
 
         // Copy bin files into platform subdirectories
         if !buildManifest.bin.isEmpty {
-            let binDir = pluginDir.appendingPathComponent("bin")
+            let binDir = pluginDir.appendingPathComponent(PluginDirectory.bin)
             for (platform, paths) in buildManifest.bin {
                 let platformDir = binDir.appendingPathComponent(platform)
                 try fm.createDirectory(at: platformDir, withIntermediateDirectories: true)
@@ -92,7 +92,7 @@ public struct Packager {
 
         // Copy data files into platform subdirectories
         if !buildManifest.data.isEmpty {
-            let dataDir = pluginDir.appendingPathComponent("data")
+            let dataDir = pluginDir.appendingPathComponent(PluginDirectory.data)
             for (platform, paths) in buildManifest.data {
                 let platformDir = dataDir.appendingPathComponent(platform)
                 try fm.createDirectory(at: platformDir, withIntermediateDirectories: true)
