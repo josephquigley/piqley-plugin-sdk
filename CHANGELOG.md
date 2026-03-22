@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `supportedPlatforms` array property in manifest schema for declaring platform compatibility
+- Schema version `"2"` support in `pluginSchemaVersion` (manifest schema)
 - `pipelineRunId` property on `PluginRequest` for per-run identification
 - `pipelineStart` and `pipelineFinished` lifecycle hooks in Swift skeleton
 - `scripts/create-plugin.sh` standalone scaffolding script for creating new plugin projects in any language; works via `curl|bash` or locally
