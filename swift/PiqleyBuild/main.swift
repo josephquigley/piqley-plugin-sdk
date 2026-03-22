@@ -11,6 +11,9 @@ let directory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 do {
     let outputURL = try Packager.package(directory: directory)
     print("\u{2713} Built \(outputURL.lastPathComponent)")
+    print("")
+    print("Install with:")
+    print("  piqley plugin install \(outputURL.path)")
 } catch let error as DecodingError {
     var err = StderrStream()
     print("Error: \(formatDecodingError(error))", to: &err)

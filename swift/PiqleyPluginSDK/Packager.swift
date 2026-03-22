@@ -94,8 +94,10 @@ public struct Packager {
             }
         }
 
-        // 6. Zip the staged directory
-        let outputURL = directory.appendingPathComponent("\(pluginName).piqleyplugin")
+        // 6. Zip the staged directory into .build/
+        let buildDir = directory.appendingPathComponent(".build")
+        try fm.createDirectory(at: buildDir, withIntermediateDirectories: true)
+        let outputURL = buildDir.appendingPathComponent("\(buildManifest.identifier).piqleyplugin")
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
         process.arguments = ["-r", "-q", outputURL.path, pluginName]

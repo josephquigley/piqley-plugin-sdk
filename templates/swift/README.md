@@ -21,7 +21,7 @@ Build a `.piqleyplugin` package and install it:
 
 ```bash
 ./piqley-build.sh
-piqley plugin install __PLUGIN_PACKAGE_NAME__.piqleyplugin
+piqley plugin install .build/__PLUGIN_IDENTIFIER__.piqleyplugin
 ```
 
 Or install manually by copying the release binary and a `manifest.json` into `~/.config/piqley/plugins/__PLUGIN_IDENTIFIER__/`.

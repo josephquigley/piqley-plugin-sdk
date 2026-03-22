@@ -89,7 +89,8 @@ private func makePluginDirectory(
 
     let output = try Packager.package(directory: dir)
 
-    #expect(output.lastPathComponent == "test-plugin.piqleyplugin")
+    #expect(output.lastPathComponent == "com.test.test-plugin.piqleyplugin")
+    #expect(output.deletingLastPathComponent().lastPathComponent == ".build")
     #expect(FileManager.default.fileExists(atPath: output.path))
 
     // Clean up output
