@@ -7,6 +7,7 @@ let package = Package(
     platforms: [.macOS(.v15)],
     products: [
         .library(name: "PiqleyPluginSDK", targets: ["PiqleyPluginSDK"]),
+        .executable(name: "piqley-build", targets: ["piqley-build"]),
     ],
     dependencies: [
         .package(path: "../piqley-core"),
