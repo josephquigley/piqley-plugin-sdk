@@ -45,8 +45,8 @@ find_templates_dir() {
 
 sanitize_name() {
     local raw="$1"
-    # Lowercase and strip invalid characters
-    echo "$raw" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]//g'
+    # Lowercase, replace non-alphanumeric with hyphens, collapse, trim
+    echo "$raw" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-//;s/-$//'
 }
 
 validate_name() {
@@ -244,8 +244,7 @@ main() {
     prompt_identifier "$name"
     local identifier="$RESULT"
 
-    prompt_destination "$identifier"
-    local dest="$RESULT"
+    local dest="./$identifier"
 
     scaffold "$templates_dir" "$language" "$name" "$identifier" "$dest"
     print_next_steps "$language" "$dest"
