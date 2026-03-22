@@ -83,10 +83,8 @@ public struct BuildManifest: Codable, Sendable, Equatable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        // identifier defaults to pluginName for backward compatibility
-        let name = try container.decode(String.self, forKey: .pluginName)
-        self.identifier = try container.decodeIfPresent(String.self, forKey: .identifier) ?? name
-        self.pluginName = name
+        self.identifier = try container.decode(String.self, forKey: .identifier)
+        self.pluginName = try container.decode(String.self, forKey: .pluginName)
         self.pluginSchemaVersion = try container.decode(String.self, forKey: .pluginSchemaVersion)
         self.description = try container.decodeIfPresent(String.self, forKey: .description)
         self.pluginVersion = try container.decodeIfPresent(String.self, forKey: .pluginVersion)

@@ -27,7 +27,7 @@ import Foundation
     #expect(manifest.dependencies?.isEmpty ?? true)
 }
 
-@Test func decodesBuildManifestWithoutIdentifier() throws {
+@Test func decodesBuildManifestWithoutIdentifierThrows() {
     let json = """
     {
         "pluginName": "my-plugin",
@@ -38,10 +38,9 @@ import Foundation
     }
     """
     let data = Data(json.utf8)
-    let manifest = try JSONDecoder().decode(BuildManifest.self, from: data)
-
-    // identifier defaults to pluginName
-    #expect(manifest.identifier == "my-plugin")
+    #expect(throws: (any Error).self) {
+        try JSONDecoder().decode(BuildManifest.self, from: data)
+    }
 }
 
 // MARK: - Packager Tests
