@@ -17,14 +17,16 @@ The binary is produced at `.build/release/__PLUGIN_NAME__`.
 
 ## Install
 
-Package the plugin and install it into piqley:
+Copy the release binary and a `manifest.json` into piqley's plugin directory:
 
 ```bash
-piqley-build package
-piqley plugin install __PLUGIN_NAME__.piqleyplugin
+mkdir -p ~/.config/piqley/plugins/__PLUGIN_NAME__/bin
+cp .build/release/__PLUGIN_NAME__ ~/.config/piqley/plugins/__PLUGIN_NAME__/bin/
 ```
 
-Or manually copy the binary and create a `manifest.json` in `~/.config/piqley/plugins/__PLUGIN_NAME__/`.
+Then create `~/.config/piqley/plugins/__PLUGIN_NAME__/manifest.json` with your plugin's identity and config schema. See the [SDK README](https://github.com/josephquigley/piqley-plugin-sdk) for the manifest format.
+
+Add stage files (e.g. `stage-publish.json`) to configure which hooks run your binary.
 
 ## Develop
 
