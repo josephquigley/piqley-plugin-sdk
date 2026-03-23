@@ -91,7 +91,7 @@ sdk_for_platform() {
 }
 
 # Extract declared platform keys from the bin section.
-platforms=$(grep -oE '(macos-arm64|linux-amd64|linux-arm64)' "$MANIFEST")
+platforms=$(grep -oE '(macos-arm64|linux-amd64|linux-arm64)' "$MANIFEST" | sort -u)
 
 if [[ -z "$platforms" ]]; then
     echo "Error: No platforms found in $MANIFEST bin section." >&2

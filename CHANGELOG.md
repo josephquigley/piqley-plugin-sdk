@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Cross-compiled builds use separate scratch paths to avoid module cache conflicts with native builds
 - Removed `local` keyword from top-level loop in build script
+- Deduplicated platform grep matches in build script (paths containing platform names caused duplicates)
 - Build script SDK availability check uses bundle name instead of triple names
 - Build script exits before packaging if any platforms were skipped
 - Build script platform detection sed pattern replaced with grep for portability
