@@ -19,13 +19,13 @@ private func tempLogPath() -> String {
     defer { try? FileManager.default.removeItem(atPath: path) }
 
     let log = try ExecutionLog(path: path)
-    let entry = ExecutionLogEntry(filename: "photo.jpg", hook: .preProcess, success: true)
+    let entry = ExecutionLogEntry(filename: "photo.jpg", hook: StandardHook.preProcess, success: true)
     try log.append(entry)
 
     let results = try log.entries(for: "photo.jpg")
     #expect(results.count == 1)
     #expect(results[0].filename == "photo.jpg")
-    #expect(results[0].hook == .preProcess)
+    #expect(results[0].hook == "pre-process")
     #expect(results[0].success == true)
     #expect(results[0].metadata == nil)
 }
@@ -37,7 +37,7 @@ private func tempLogPath() -> String {
     defer { try? FileManager.default.removeItem(atPath: path) }
 
     let log = try ExecutionLog(path: path)
-    try log.append(ExecutionLogEntry(filename: "img.jpg", hook: .publish, success: true))
+    try log.append(ExecutionLogEntry(filename: "img.jpg", hook: StandardHook.publish, success: true))
 
     #expect(try log.contains(filename: "img.jpg") == true)
     #expect(try log.contains(filename: "other.jpg") == false)
@@ -50,18 +50,18 @@ private func tempLogPath() -> String {
     defer { try? FileManager.default.removeItem(atPath: path) }
 
     let log = try ExecutionLog(path: path)
-    try log.append(ExecutionLogEntry(filename: "a.jpg", hook: .preProcess, success: true))
-    try log.append(ExecutionLogEntry(filename: "b.jpg", hook: .postProcess, success: false))
-    try log.append(ExecutionLogEntry(filename: "a.jpg", hook: .publish, success: true))
+    try log.append(ExecutionLogEntry(filename: "a.jpg", hook: StandardHook.preProcess, success: true))
+    try log.append(ExecutionLogEntry(filename: "b.jpg", hook: StandardHook.postProcess, success: false))
+    try log.append(ExecutionLogEntry(filename: "a.jpg", hook: StandardHook.publish, success: true))
 
     let aEntries = try log.entries(for: "a.jpg")
     #expect(aEntries.count == 2)
-    #expect(aEntries[0].hook == .preProcess)
-    #expect(aEntries[1].hook == .publish)
+    #expect(aEntries[0].hook == "pre-process")
+    #expect(aEntries[1].hook == "publish")
 
     let bEntries = try log.entries(for: "b.jpg")
     #expect(bEntries.count == 1)
-    #expect(bEntries[0].hook == .postProcess)
+    #expect(bEntries[0].hook == "post-process")
     #expect(bEntries[0].success == false)
 }
 
@@ -73,7 +73,7 @@ private func tempLogPath() -> String {
 
     let log = try ExecutionLog(path: path)
     let metadata: [String: JSONValue] = ["score": .number(42), "label": .string("portrait")]
-    let entry = ExecutionLogEntry(filename: "meta.jpg", hook: .postProcess, success: true, metadata: metadata)
+    let entry = ExecutionLogEntry(filename: "meta.jpg", hook: StandardHook.postProcess, success: true, metadata: metadata)
     try log.append(entry)
 
     let results = try log.entries(for: "meta.jpg")
@@ -91,7 +91,7 @@ private func tempLogPath() -> String {
     #expect(!FileManager.default.fileExists(atPath: path))
 
     let log = try ExecutionLog(path: path)
-    try log.append(ExecutionLogEntry(filename: "new.jpg", hook: .preProcess, success: true))
+    try log.append(ExecutionLogEntry(filename: "new.jpg", hook: StandardHook.preProcess, success: true))
 
     #expect(FileManager.default.fileExists(atPath: path))
 }
@@ -104,7 +104,7 @@ private func tempLogPath() -> String {
 
     let before = Date().addingTimeInterval(-1) // allow 1s slack for ISO 8601 second truncation
     let log = try ExecutionLog(path: path)
-    let entry = ExecutionLogEntry(filename: "ts.jpg", hook: .publish, success: true)
+    let entry = ExecutionLogEntry(filename: "ts.jpg", hook: StandardHook.publish, success: true)
     try log.append(entry)
     let after = Date().addingTimeInterval(1)
 

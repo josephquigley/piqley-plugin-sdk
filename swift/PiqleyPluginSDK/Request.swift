@@ -3,8 +3,8 @@ import PiqleyCore
 
 // MARK: - PluginRequest
 
-public struct PluginRequest: Sendable {
-    public let hook: Hook
+public struct PluginRequest: @unchecked Sendable {
+    public let hook: any Hook
     public let imageFolderPath: String
     public let pluginConfig: [String: JSONValue]
     public let secrets: [String: String]
@@ -24,9 +24,12 @@ public struct PluginRequest: Sendable {
         "jpg", "jpeg", "jxl", "png", "tiff", "tif", "heic", "heif", "webp",
     ]
 
-    /// Internal init from payload.
-    init(payload: PluginInputPayload, io: PluginIO) {
-        self.hook = Hook(rawValue: payload.hook) ?? .preProcess
+    /// Internal init from payload. Throws if the hook string is unrecognized.
+    init(payload: PluginInputPayload, io: PluginIO, registry: HookRegistry) throws {
+        guard let hook = registry.resolve(payload.hook) else {
+            throw SDKError.unknownHook(payload.hook)
+        }
+        self.hook = hook
         self.imageFolderPath = payload.imageFolderPath
         self.pluginConfig = payload.pluginConfig
         self.secrets = payload.secrets
@@ -108,8 +111,9 @@ public final class CapturedOutput: Sendable {
 }
 
 extension PluginRequest {
+    /// Creates a mock request for testing. Uses ``StandardHook`` by default.
     public static func mock(
-        hook: Hook = .preProcess,
+        hook: any Hook = StandardHook.preProcess,
         imageFolderPath: String = "/tmp/test",
         pluginConfig: [String: JSONValue] = [:],
         secrets: [String: String] = [:],
@@ -123,8 +127,8 @@ extension PluginRequest {
         pipelineRunId: String? = nil
     ) -> (request: PluginRequest, output: CapturedOutput) {
         let io = CapturedIO()
-        let payload = PluginInputPayload(
-            hook: hook.rawValue,
+        let request = PluginRequest(
+            hook: hook,
             imageFolderPath: imageFolderPath,
             pluginConfig: pluginConfig,
             secrets: secrets,
@@ -132,12 +136,43 @@ extension PluginRequest {
             dataPath: dataPath,
             logPath: logPath,
             dryRun: dryRun,
-            state: state.rawDict,
+            state: state,
             pluginVersion: pluginVersion,
             lastExecutedVersion: lastExecutedVersion,
-            pipelineRunId: pipelineRunId
+            pipelineRunId: pipelineRunId,
+            io: io
         )
-        let request = PluginRequest(payload: payload, io: io)
         return (request, CapturedOutput(io: io))
+    }
+
+    /// Direct init for mock/test use (bypasses registry resolution).
+    private init(
+        hook: any Hook,
+        imageFolderPath: String,
+        pluginConfig: [String: JSONValue],
+        secrets: [String: String],
+        executionLogPath: String,
+        dataPath: String,
+        logPath: String,
+        dryRun: Bool,
+        state: ResolvedState,
+        pluginVersion: SemanticVersion,
+        lastExecutedVersion: SemanticVersion?,
+        pipelineRunId: String?,
+        io: PluginIO
+    ) {
+        self.hook = hook
+        self.imageFolderPath = imageFolderPath
+        self.pluginConfig = pluginConfig
+        self.secrets = secrets
+        self.executionLogPath = executionLogPath
+        self.dataPath = dataPath
+        self.logPath = logPath
+        self.dryRun = dryRun
+        self.state = state
+        self.pluginVersion = pluginVersion
+        self.lastExecutedVersion = lastExecutedVersion
+        self.pipelineRunId = pipelineRunId
+        self.io = io
     }
 }

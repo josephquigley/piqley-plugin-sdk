@@ -3,6 +3,6 @@ import Testing
 import PiqleyCore
 
 @Test func sdkImportsCore() {
-    let hook = Hook.publish
+    let hook: any Hook = StandardHook.publish
     #expect(hook.rawValue == "publish")
 }

@@ -28,6 +28,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- **BREAKING:** `PiqleyPlugin` protocol now requires a `registry: HookRegistry` property
+- **BREAKING:** `PluginRequest.hook` is now `any Hook` instead of the old `Hook` enum. Use `request.hook as? StandardHook` for type-casting switch dispatch.
+- **BREAKING:** `PluginRequest` init now throws on unrecognized hooks instead of silently falling back to `.preProcess`
+- **BREAKING:** `ExecutionLogEntry.hook` is now a `String` instead of the old `Hook` enum
+- Plugin template updated to use `HookRegistry` and type-casting switch pattern
 - Reverted `pluginSchemaVersion` back to `"1"` across all schemas, templates, tests, and docs (no production consumers)
 - Packager and PackagerTests use `PluginFile` and `PluginDirectory` constants from PiqleyCore instead of magic strings
 - `BuildManifest.bin` from `[String]` to `[String: [String]]` (platform-keyed dictionary)
@@ -37,6 +42,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `HookRegistry` for resolving hook strings into typed `Hook` protocol values with `register<H: Hook>(_:)` API
+- `AnyHookBox` internal type-erased container for hook type registration
+- `SDKError.unhandledHook` case for hooks the plugin didn't implement
+- `--create-stage-files <dir>` CLI flag on plugin binaries for build-time stage file generation
 - `plugin-update.sh` template to update plugin tooling to the latest SDK version
 - `-v, --version` flag to build script, reports SDK version from `.piqley-sdk-version`
 - `.piqley-sdk-version` stamp file created during scaffolding

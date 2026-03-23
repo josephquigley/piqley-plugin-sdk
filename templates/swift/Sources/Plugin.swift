@@ -1,25 +1,35 @@
 import PiqleyPluginSDK
+import PiqleyCore
 
 @main
 struct Plugin: PiqleyPlugin {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self)
+    }
+
     static func main() async {
         await Plugin().run()
     }
 
     func handle(_ request: PluginRequest) async throws -> PluginResponse {
         switch request.hook {
-        case .pipelineStart:
-            return try await pipelineStart(request)
-        case .preProcess:
-            return try await preProcess(request)
-        case .postProcess:
-            return try await postProcess(request)
-        case .publish:
-            return try await publish(request)
-        case .postPublish:
-            return try await postPublish(request)
-        case .pipelineFinished:
-            return try await pipelineFinished(request)
+        case let h as StandardHook:
+            switch h {
+            case .pipelineStart:
+                return try await pipelineStart(request)
+            case .preProcess:
+                return try await preProcess(request)
+            case .postProcess:
+                return try await postProcess(request)
+            case .publish:
+                return try await publish(request)
+            case .postPublish:
+                return try await postPublish(request)
+            case .pipelineFinished:
+                return try await pipelineFinished(request)
+            }
+        default:
+            throw SDKError.unhandledHook(request.hook.rawValue)
         }
     }
 

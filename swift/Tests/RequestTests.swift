@@ -5,6 +5,10 @@ import Foundation
 
 // MARK: - Fixtures
 
+private let standardRegistry = HookRegistry { r in
+    r.register(StandardHook.self)
+}
+
 private func makePayload(
     hook: String = "pre-process",
     imageFolderPath: String = "/tmp/photos",
@@ -35,73 +39,74 @@ private func makePayload(
 
 // MARK: - PluginRequest field mapping
 
-@Test func requestMapsHook() {
-    let req = PluginRequest(payload: makePayload(hook: "publish"), io: CapturedIO())
-    #expect(req.hook == .publish)
+@Test func requestMapsHook() throws {
+    let req = try PluginRequest(payload: makePayload(hook: "publish"), io: CapturedIO(), registry: standardRegistry)
+    #expect(req.hook as? StandardHook == .publish)
 }
 
-@Test func requestMapsUnknownHookToPreProcess() {
-    let req = PluginRequest(payload: makePayload(hook: "unknown-hook"), io: CapturedIO())
-    #expect(req.hook == .preProcess)
+@Test func requestThrowsOnUnknownHook() {
+    #expect(throws: SDKError.self) {
+        _ = try PluginRequest(payload: makePayload(hook: "unknown-hook"), io: CapturedIO(), registry: standardRegistry)
+    }
 }
 
-@Test func requestMapsImageFolderPath() {
-    let req = PluginRequest(payload: makePayload(imageFolderPath: "/my/folder"), io: CapturedIO())
+@Test func requestMapsImageFolderPath() throws {
+    let req = try PluginRequest(payload: makePayload(imageFolderPath: "/my/folder"), io: CapturedIO(), registry: standardRegistry)
     #expect(req.imageFolderPath == "/my/folder")
 }
 
-@Test func requestMapsPluginConfig() {
-    let req = PluginRequest(payload: makePayload(pluginConfig: ["level": .number(5)]), io: CapturedIO())
+@Test func requestMapsPluginConfig() throws {
+    let req = try PluginRequest(payload: makePayload(pluginConfig: ["level": .number(5)]), io: CapturedIO(), registry: standardRegistry)
     #expect(req.pluginConfig["level"] == .number(5))
 }
 
-@Test func requestMapsSecrets() {
-    let req = PluginRequest(payload: makePayload(secrets: ["TOKEN": "secret"]), io: CapturedIO())
+@Test func requestMapsSecrets() throws {
+    let req = try PluginRequest(payload: makePayload(secrets: ["TOKEN": "secret"]), io: CapturedIO(), registry: standardRegistry)
     #expect(req.secrets["TOKEN"] == "secret")
 }
 
-@Test func requestMapsPaths() {
+@Test func requestMapsPaths() throws {
     let payload = makePayload(
         executionLogPath: "/exec/log",
         dataPath: "/data/dir",
         logPath: "/log/dir"
     )
-    let req = PluginRequest(payload: payload, io: CapturedIO())
+    let req = try PluginRequest(payload: payload, io: CapturedIO(), registry: standardRegistry)
     #expect(req.executionLogPath == "/exec/log")
     #expect(req.dataPath == "/data/dir")
     #expect(req.logPath == "/log/dir")
 }
 
-@Test func requestMapsDryRun() {
-    let req = PluginRequest(payload: makePayload(dryRun: true), io: CapturedIO())
+@Test func requestMapsDryRun() throws {
+    let req = try PluginRequest(payload: makePayload(dryRun: true), io: CapturedIO(), registry: standardRegistry)
     #expect(req.dryRun == true)
 }
 
-@Test func requestMapsPluginVersion() {
-    let req = PluginRequest(payload: makePayload(pluginVersion: SemanticVersion(major: 2, minor: 3, patch: 4)), io: CapturedIO())
+@Test func requestMapsPluginVersion() throws {
+    let req = try PluginRequest(payload: makePayload(pluginVersion: SemanticVersion(major: 2, minor: 3, patch: 4)), io: CapturedIO(), registry: standardRegistry)
     #expect(req.pluginVersion == SemanticVersion(major: 2, minor: 3, patch: 4))
 }
 
-@Test func requestMapsLastExecutedVersion() {
-    let req = PluginRequest(payload: makePayload(lastExecutedVersion: SemanticVersion(major: 1, minor: 0, patch: 0)), io: CapturedIO())
+@Test func requestMapsLastExecutedVersion() throws {
+    let req = try PluginRequest(payload: makePayload(lastExecutedVersion: SemanticVersion(major: 1, minor: 0, patch: 0)), io: CapturedIO(), registry: standardRegistry)
     #expect(req.lastExecutedVersion == SemanticVersion(major: 1, minor: 0, patch: 0))
 }
 
-@Test func requestMapsNilLastExecutedVersion() {
-    let req = PluginRequest(payload: makePayload(lastExecutedVersion: nil), io: CapturedIO())
+@Test func requestMapsNilLastExecutedVersion() throws {
+    let req = try PluginRequest(payload: makePayload(lastExecutedVersion: nil), io: CapturedIO(), registry: standardRegistry)
     #expect(req.lastExecutedVersion == nil)
 }
 
-@Test func requestMapsState() {
+@Test func requestMapsState() throws {
     let stateData: [String: [String: [String: JSONValue]]] = [
         "img.jpg": ["original": ["TIFF:Make": .string("Nikon")]]
     ]
-    let req = PluginRequest(payload: makePayload(state: stateData), io: CapturedIO())
+    let req = try PluginRequest(payload: makePayload(state: stateData), io: CapturedIO(), registry: standardRegistry)
     #expect(req.state["img.jpg"].original.string("TIFF:Make") == "Nikon")
 }
 
-@Test func requestMapsNilStateToEmpty() {
-    let req = PluginRequest(payload: makePayload(state: nil), io: CapturedIO())
+@Test func requestMapsNilStateToEmpty() throws {
+    let req = try PluginRequest(payload: makePayload(state: nil), io: CapturedIO(), registry: standardRegistry)
     #expect(req.state.imageNames.isEmpty)
 }
 
@@ -109,7 +114,7 @@ private func makePayload(
 
 @Test func reportProgressWritesJSONLine() throws {
     let io = CapturedIO()
-    let req = PluginRequest(payload: makePayload(), io: io)
+    let req = try PluginRequest(payload: makePayload(), io: io, registry: standardRegistry)
     req.reportProgress("Processing image")
     #expect(io.lines.count == 1)
     let line = io.lines[0]
@@ -123,7 +128,7 @@ private func makePayload(
 
 @Test func reportImageResultSuccessWritesJSONLine() throws {
     let io = CapturedIO()
-    let req = PluginRequest(payload: makePayload(), io: io)
+    let req = try PluginRequest(payload: makePayload(), io: io, registry: standardRegistry)
     req.reportImageResult("photo.jpg", success: true)
     #expect(io.lines.count == 1)
     let decoded = try JSONDecoder().decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
@@ -135,7 +140,7 @@ private func makePayload(
 
 @Test func reportImageResultFailureWritesJSONLine() throws {
     let io = CapturedIO()
-    let req = PluginRequest(payload: makePayload(), io: io)
+    let req = try PluginRequest(payload: makePayload(), io: io, registry: standardRegistry)
     req.reportImageResult("photo.jpg", success: false, error: "conversion failed")
     #expect(io.lines.count == 1)
     let decoded = try JSONDecoder().decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
@@ -158,7 +163,7 @@ private func makePayload(
         FileManager.default.createFile(atPath: dir.appendingPathComponent(name).path, contents: nil)
     }
 
-    let req = PluginRequest(payload: makePayload(imageFolderPath: dir.path), io: CapturedIO())
+    let req = try PluginRequest(payload: makePayload(imageFolderPath: dir.path), io: CapturedIO(), registry: standardRegistry)
     let found = try req.imageFiles()
     let names = Set(found.map { $0.lastPathComponent })
     #expect(names.contains("a.jpg"))
@@ -170,4 +175,28 @@ private func makePayload(
     #expect(names.contains("h.heic"))
     #expect(names.contains("i.webp"))
     #expect(!names.contains("f.txt"))
+}
+
+// MARK: - HookRegistry
+
+@Test func hookRegistryResolvesStandardHook() {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self)
+    }
+    let hook = registry.resolve("pre-process")
+    #expect(hook as? StandardHook == .preProcess)
+}
+
+@Test func hookRegistryReturnsNilForUnknown() {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self)
+    }
+    #expect(registry.resolve("unknown") == nil)
+}
+
+@Test func hookRegistryAllHooks() {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self)
+    }
+    #expect(registry.allHooks.count == 6)
 }

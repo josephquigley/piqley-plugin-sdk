@@ -6,14 +6,22 @@ import PiqleyCore
 public struct ExecutionLogEntry: Codable, Sendable {
     public let filename: String
     public let timestamp: Date
-    public let hook: Hook
+    public let hook: String
     public let success: Bool
     public let metadata: [String: JSONValue]?
 
-    public init(filename: String, hook: Hook, success: Bool, metadata: [String: JSONValue]? = nil) {
+    public init(filename: String, hook: any Hook, success: Bool, metadata: [String: JSONValue]? = nil) {
         self.filename = filename
         self.timestamp = Date()
-        self.hook = hook
+        self.hook = hook.rawValue
+        self.success = success
+        self.metadata = metadata
+    }
+
+    public init(filename: String, hookName: String, success: Bool, metadata: [String: JSONValue]? = nil) {
+        self.filename = filename
+        self.timestamp = Date()
+        self.hook = hookName
         self.success = success
         self.metadata = metadata
     }

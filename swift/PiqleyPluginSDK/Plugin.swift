@@ -4,6 +4,7 @@ import PiqleyCore
 // MARK: - PiqleyPlugin
 
 public protocol PiqleyPlugin: Sendable {
+    var registry: HookRegistry { get }
     func handle(_ request: PluginRequest) async throws -> PluginResponse
 }
 
@@ -11,11 +12,34 @@ extension PiqleyPlugin {
 
     /// Call from `@main static func main() async`.
     public func run() async {
+        // Handle --piqley-info
         if CommandLine.arguments.contains("--piqley-info") {
             let info = #"{"piqleyPlugin":true,"schemaVersion":"1"}"#
             print(info)
             Foundation.exit(0)
         }
+
+        // Handle --create-stage-files <output-dir>
+        if let flagIndex = CommandLine.arguments.firstIndex(of: "--create-stage-files") {
+            let dirIndex = flagIndex + 1
+            guard dirIndex < CommandLine.arguments.count else {
+                FileHandle.standardError.write(
+                    Data("--create-stage-files requires an output directory argument\n".utf8)
+                )
+                exit(1)
+            }
+            let outputDir = URL(fileURLWithPath: CommandLine.arguments[dirIndex])
+            do {
+                try registry.writeStageFiles(to: outputDir)
+            } catch {
+                FileHandle.standardError.write(
+                    Data("Failed to write stage files: \(error)\n".utf8)
+                )
+                exit(1)
+            }
+            Foundation.exit(0)
+        }
+
         let inputData = FileHandle.standardInput.readDataToEndOfFile()
         let exitCode = await run(input: inputData, io: StdoutIO())
         exit(Int32(exitCode))
@@ -32,8 +56,14 @@ extension PiqleyPlugin {
             return 1
         }
 
-        // 2. Build request
-        let request = PluginRequest(payload: payload, io: io)
+        // 2. Build request (hook resolution can fail)
+        let request: PluginRequest
+        do {
+            request = try PluginRequest(payload: payload, io: io, registry: registry)
+        } catch {
+            writeError("Hook resolution failed: \(error)", io: io)
+            return 1
+        }
 
         // 3. Call handle()
         let response: PluginResponse

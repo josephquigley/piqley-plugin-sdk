@@ -6,6 +6,10 @@ import Foundation
 // MARK: - Test plugin implementations
 
 private struct SuccessPlugin: PiqleyPlugin {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self)
+    }
+
     func handle(_ request: PluginRequest) async throws -> PluginResponse {
         request.reportProgress("Starting")
         request.reportProgress("Done")
@@ -14,6 +18,10 @@ private struct SuccessPlugin: PiqleyPlugin {
 }
 
 private struct StatePlugin: PiqleyPlugin {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self)
+    }
+
     func handle(_ request: PluginRequest) async throws -> PluginResponse {
         var ps = PluginState()
         ps.set("processed", to: true)
@@ -22,6 +30,10 @@ private struct StatePlugin: PiqleyPlugin {
 }
 
 private struct FailPlugin: PiqleyPlugin {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self)
+    }
+
     func handle(_ request: PluginRequest) async throws -> PluginResponse {
         throw SDKError.unknownHook("crash")
     }
@@ -108,6 +120,20 @@ private func decodeLine(_ line: String) throws -> PluginOutputLine {
     #expect(result.error != nil)
 }
 
+@Test func pluginRunUnknownHookReturnsError() async throws {
+    let plugin = SuccessPlugin()
+    let input = try makePayloadData(hook: "unknown-hook")
+    let io = CapturedIO()
+    let exitCode = await plugin.run(input: input, io: io)
+
+    #expect(exitCode == 1)
+    #expect(io.lines.count == 1)
+    let result = try decodeLine(io.lines[0])
+    #expect(result.type == "result")
+    #expect(result.success == false)
+    #expect(result.error?.contains("unknown-hook") == true)
+}
+
 @Test func piqleyInfoResponse() throws {
     let json = #"{"piqleyPlugin":true,"schemaVersion":"1"}"#
     let data = json.data(using: .utf8)!
@@ -133,6 +159,9 @@ private func decodeLine(_ line: String) throws -> PluginOutputLine {
 
 @Test func pluginRunFailResponseExitOne() async throws {
     struct FailResponsePlugin: PiqleyPlugin {
+        let registry = HookRegistry { r in
+            r.register(StandardHook.self)
+        }
         func handle(_ request: PluginRequest) async throws -> PluginResponse {
             PluginResponse(success: false, error: "intentional failure")
         }

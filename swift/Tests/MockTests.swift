@@ -7,7 +7,7 @@ import Foundation
 
 @Test func mockDefaults() {
     let (req, _) = PluginRequest.mock()
-    #expect(req.hook == .preProcess)
+    #expect(req.hook as? StandardHook == .preProcess)
     #expect(req.imageFolderPath == "/tmp/test")
     #expect(req.pluginConfig.isEmpty)
     #expect(req.secrets.isEmpty)
@@ -23,8 +23,8 @@ import Foundation
 // MARK: - Mock with custom values
 
 @Test func mockCustomHook() {
-    let (req, _) = PluginRequest.mock(hook: .publish)
-    #expect(req.hook == .publish)
+    let (req, _) = PluginRequest.mock(hook: StandardHook.publish)
+    #expect(req.hook as? StandardHook == .publish)
 }
 
 @Test func mockCustomImageFolderPath() {
