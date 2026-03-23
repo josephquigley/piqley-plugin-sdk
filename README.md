@@ -5,7 +5,7 @@
 <h1 align="center">piqley plugin sdk</h1>
 
 <p align="center">
-  Libraries for building <a href="https://github.com/josephquigley/piqley">piqley</a> plugins in multiple languages.
+  Libraries for building <a href="https://github.com/josephquigley/piqley">piqley</a> plugins.
 </p>
 
 <p align="center">
@@ -27,9 +27,6 @@
 | Language | Path | Package |
 |----------|------|---------|
 | Swift | [`swift/`](swift/) | `PiqleyPluginSDK` (SPM) |
-| Python | [`python/`](python/) | `piqley-plugin-sdk` (pip) |
-| TypeScript / Node.js | [`node/`](node/) | `@piqley/plugin-sdk` (npm) |
-| Go | [`go/`](go/) | `github.com/josephquigley/piqley-plugin-sdk/go` |
 
 ## Getting Started
 
@@ -213,16 +210,6 @@ If a required SDK is missing, the script downloads and installs it automatically
 
 Cross-compiling to macOS from Linux is not currently supported by Swift (no macOS SDK bundle exists). If your plugin targets both macOS and Linux and you're building on Linux, the script builds what it can and warns about skipped platforms. Use a macOS CI runner for the macOS binary.
 
-**Go** plugins use the `GOOS` and `GOARCH` environment variables:
-
-```bash
-GOOS=darwin GOARCH=arm64 go build -o dist/my-plugin-macos-arm64
-GOOS=linux GOARCH=amd64 go build -o dist/my-plugin-linux-amd64
-GOOS=linux GOARCH=arm64 go build -o dist/my-plugin-linux-arm64
-```
-
-**Python and Node.js** plugins are interpreted, so the same scripts typically work across platforms. Use separate entry points per platform if you depend on platform-specific native modules or system APIs. Factor shared logic into common files that each entry point imports.
-
 ### Config
 
 Config entries come in two flavors:
@@ -237,23 +224,8 @@ Default values are supported. Piqley handles all prompting and persistence — p
 **Swift (SPM):**
 ```swift
 dependencies: [
-    .package(url: "https://github.com/josephquigley/piqley-plugin-sdk.git", from: "0.1.0")
+    .package(url: "https://github.com/josephquigley/piqley-plugin-sdk.git", from: "0.7.0")
 ]
-```
-
-**Python:**
-```bash
-pip install piqley-plugin-sdk
-```
-
-**Node.js:**
-```bash
-npm install @piqley/plugin-sdk
-```
-
-**Go:**
-```bash
-go get github.com/josephquigley/piqley-plugin-sdk/go
 ```
 
 ## License

@@ -107,19 +107,13 @@ prompt_language() {
     echo ""
     echo "Select a language:"
     echo "  1) swift"
-    echo "  2) python"
-    echo "  3) node (TypeScript)"
-    echo "  4) go"
     echo ""
     while true; do
-        printf "Language [1-4]: "
+        printf "Language [1]: "
         read -r choice < /dev/tty
         case "$choice" in
-            1|swift)  RESULT="swift"; return ;;
-            2|python) RESULT="python"; return ;;
-            3|node)   RESULT="node"; return ;;
-            4|go)     RESULT="go"; return ;;
-            *) echo "Invalid choice. Enter 1-4 or a language name." ;;
+            1|swift|"")  RESULT="swift"; return ;;
+            *) echo "Invalid choice. Only Swift is currently supported." ;;
         esac
     done
 }
@@ -248,7 +242,7 @@ scaffold() {
     local package_name
     package_name=$(echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-//;s/-$//')
 
-    # Rename __PLUGIN_IDENTIFIER__ directories (e.g. Python src package)
+    # Rename __PLUGIN_IDENTIFIER__ directories
     find "$dest" -depth -type d -name '__PLUGIN_IDENTIFIER__' | while read -r dir; do
         local parent
         parent="$(dirname "$dir")"
@@ -316,15 +310,6 @@ rewrite_build_manifest_platforms() {
                     linux-arm64) bin_path=".build-linux-arm64/release/${package_name}" ;;
                     *)           bin_path=".build/release/${package_name}" ;;
                 esac
-                ;;
-            go)
-                bin_path="${identifier}"
-                ;;
-            node)
-                bin_path="dist/index.js"
-                ;;
-            python)
-                bin_path="src/${identifier}/main.py"
                 ;;
             *)
                 bin_path="${identifier}"
@@ -467,26 +452,8 @@ print_next_steps() {
     echo "Plugin created at: $dest"
     echo ""
     echo "Next steps:"
-    case "$language" in
-        swift)
-            echo "  cd $dest"
-            echo "  swift build"
-            ;;
-        python)
-            echo "  cd $dest"
-            echo "  python -m venv .venv && source .venv/bin/activate"
-            echo "  pip install -e ."
-            ;;
-        node)
-            echo "  cd $dest"
-            echo "  npm install"
-            echo "  npm run build"
-            ;;
-        go)
-            echo "  cd $dest"
-            echo "  go build"
-            ;;
-    esac
+    echo "  cd $dest"
+    echo "  swift build"
     echo ""
 }
 

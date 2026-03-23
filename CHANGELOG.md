@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Removed
+
+- Python, Node.js/TypeScript, and Go language support (moved to `wip/*-support` branches)
+
 ### Fixed
 
 - Swift template uses sanitized package name for target and bin paths instead of dotted identifier
