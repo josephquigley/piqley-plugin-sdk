@@ -18,8 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Platform selection prompt in `create-plugin.sh` (macOS/Linux, Linux architecture choice)
-- Multi-platform `piqley-build.sh` template: detects host platform, builds natively, cross-compiles for other targets using Swift SDK bundles, auto-installs missing SDKs
-- `create-plugin.sh` offers to install Swift cross-compilation SDKs when targeting platforms other than the host
+- Multi-platform `piqley-build.sh` template: detects host platform, builds natively, cross-compiles for other targets using Swift SDK bundles, downloads and installs missing SDKs (version-matched)
+- `create-plugin.sh` offers to download and install Swift cross-compilation SDKs when targeting platforms other than the host
 - Validation that data platform keys are a subset of bin keys in BuildManifest decoder
 - `supportedPlatforms` array property in manifest schema for declaring platform compatibility
 - Schema version `"2"` support in `pluginSchemaVersion` (manifest schema)

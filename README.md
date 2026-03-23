@@ -173,7 +173,7 @@ The build script detects your host platform, builds natively for it, and cross-c
 # ✓ Built my-plugin.piqleyplugin
 ```
 
-If a required SDK is missing, the script offers to install it. On subsequent runs it proceeds without prompting.
+If a required SDK is missing, the script downloads and installs it automatically (matching your installed Swift version). On subsequent runs it proceeds without prompting.
 
 Cross-compiling to macOS from Linux is not currently supported by Swift (no macOS SDK bundle exists). If your plugin targets both macOS and Linux and you're building on Linux, the script builds what it can and warns about skipped platforms. Use a macOS CI runner for the macOS binary.
 

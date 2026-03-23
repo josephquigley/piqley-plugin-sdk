@@ -10,7 +10,6 @@ set -euo pipefail
 
 SDK_VERSION="0.1.0"
 SDK_REPO="https://github.com/josephquigley/piqley-plugin-sdk.git"
-STATIC_SDK_URL="https://download.swift.org/swift-6.0.3-release/static-sdk/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
 RESERVED_NAMES="original skip"
 
 # --- Cleanup ---
@@ -360,13 +359,40 @@ install_swift_cross_sdk_if_needed() {
     read -r choice < /dev/tty
     if [[ "$choice" =~ ^[Nn] ]]; then
         echo ""
-        echo "Skipped. You can install it later with:"
-        echo "  swift sdk install $STATIC_SDK_URL"
+        echo "Skipped. Install it later from:"
+        echo "  https://www.swift.org/documentation/articles/static-linux-getting-started.html"
         return
     fi
 
-    echo "Installing static Linux SDK (this may take a few minutes)..."
-    swift sdk install "$STATIC_SDK_URL"
+    # Build the download URL from the installed Swift version.
+    local swift_version
+    swift_version=$(swift --version 2>/dev/null | sed -n 's/.*Swift version \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')
+    if [[ -z "$swift_version" ]]; then
+        echo "Error: Could not detect Swift version." >&2
+        echo "Install the SDK manually from:" >&2
+        echo "  https://www.swift.org/documentation/articles/static-linux-getting-started.html" >&2
+        return
+    fi
+
+    local sdk_url="https://download.swift.org/swift-${swift_version}-release/static-sdk/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
+
+    echo "Downloading SDK for Swift $swift_version..."
+    local tmpfile
+    tmpfile="$(mktemp /tmp/swift-static-sdk.XXXXXX.tar.gz)"
+
+    if command -v curl &>/dev/null; then
+        curl -L --progress-bar -o "$tmpfile" "$sdk_url"
+    elif command -v wget &>/dev/null; then
+        wget -q --show-progress -O "$tmpfile" "$sdk_url"
+    else
+        echo "Error: curl or wget required." >&2
+        rm -f "$tmpfile"
+        return
+    fi
+
+    echo "Installing..."
+    swift sdk install "$tmpfile"
+    rm -f "$tmpfile"
     echo "Done."
 }
 

@@ -7,7 +7,6 @@
 set -euo pipefail
 
 MANIFEST="piqley-build-manifest.json"
-STATIC_SDK_URL="https://download.swift.org/swift-6.0.3-release/static-sdk/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
 
 if [[ ! -f "$MANIFEST" ]]; then
     echo "Error: $MANIFEST not found in $(pwd)" >&2
@@ -39,10 +38,49 @@ detect_host_platform() {
     esac
 }
 
+# Build the static Linux SDK download URL for the installed Swift version.
+static_linux_sdk_url() {
+    local swift_version
+    swift_version=$(swift --version 2>/dev/null | sed -n 's/.*Swift version \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')
+    if [[ -z "$swift_version" ]]; then
+        echo ""
+        return
+    fi
+    echo "https://download.swift.org/swift-${swift_version}-release/static-sdk/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
+}
+
+# Install the static Linux SDK by downloading to a temp file first
+# (local installs don't require a checksum).
+install_static_linux_sdk() {
+    local url
+    url="$(static_linux_sdk_url)"
+    if [[ -z "$url" ]]; then
+        echo "Error: Could not detect Swift version for SDK URL." >&2
+        echo "Install manually from https://www.swift.org/documentation/articles/static-linux-getting-started.html" >&2
+        return 1
+    fi
+
+    local tmpfile
+    tmpfile="$(mktemp /tmp/swift-static-sdk.XXXXXX.tar.gz)"
+    trap "rm -f '$tmpfile'" RETURN
+
+    echo "Downloading: $url"
+    if command -v curl &>/dev/null; then
+        curl -L --progress-bar -o "$tmpfile" "$url"
+    elif command -v wget &>/dev/null; then
+        wget -q --show-progress -O "$tmpfile" "$url"
+    else
+        echo "Error: curl or wget required to download the SDK." >&2
+        return 1
+    fi
+
+    echo "Installing..."
+    swift sdk install "$tmpfile"
+}
+
 HOST_PLATFORM="$(detect_host_platform)"
 
 # Map a target platform to its Swift SDK name (for cross-compilation).
-# Returns empty string if the target is the host (native build).
 sdk_for_platform() {
     local target="$1"
     case "$target" in
@@ -85,12 +123,12 @@ if [[ ${#missing_sdks[@]} -gt 0 ]]; then
     printf "Install the static Linux SDK now? [Y/n] "
     read -r choice < /dev/tty
     if [[ "$choice" =~ ^[Nn] ]]; then
-        echo "Aborting. Install manually:" >&2
-        echo "  swift sdk install $STATIC_SDK_URL" >&2
+        echo "Aborting. Install manually from:" >&2
+        echo "  https://www.swift.org/documentation/articles/static-linux-getting-started.html" >&2
         exit 1
     fi
-    echo "Installing static Linux SDK (this may take a few minutes)..."
-    swift sdk install "$STATIC_SDK_URL"
+    echo ""
+    install_static_linux_sdk
     echo ""
 fi
 
