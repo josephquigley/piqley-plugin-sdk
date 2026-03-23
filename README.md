@@ -157,28 +157,25 @@ Supported platforms: `macos-arm64`, `linux-amd64`, `linux-arm64`. At least one p
 
 #### Building for Each Platform
 
-**Swift** plugins cross-compile for Linux from macOS using [Swift SDK bundles](https://www.swift.org/documentation/articles/static-linux-getting-started.html). These produce statically-linked Linux binaries directly on your Mac, with no Docker or VM required.
+**Swift** plugins cross-compile using [Swift SDK bundles](https://www.swift.org/documentation/articles/static-linux-getting-started.html). From macOS you can produce statically-linked Linux binaries. From Linux you can target a different Linux architecture. Both `create-plugin.sh` and the generated `piqley-build.sh` detect what's needed and offer to install the SDK for you.
 
-If you select Linux as a target when creating a Swift plugin, `create-plugin.sh` offers to install the SDK for you during scaffolding. The generated `piqley-build.sh` also checks on each run and offers to install if missing:
+The build script detects your host platform, builds natively for it, and cross-compiles for other targets:
 
 ```bash
 ./piqley-build.sh
-# One or more Linux Swift SDKs are not installed.
-# Install the static Linux SDK now? [Y/n] y
-# Installing static Linux SDK (this may take a few minutes)...
-#
+# Host platform: macos-arm64
 # Building for: macos-arm64 linux-amd64 linux-arm64
 #
-# [macos-arm64] swift build -c release
+# [macos-arm64] swift build -c release (native)
 # [linux-amd64] swift build -c release --swift-sdk x86_64-swift-linux-musl
 # [linux-arm64] swift build -c release --swift-sdk aarch64-swift-linux-musl
 # Packaging...
 # ✓ Built my-plugin.piqleyplugin
 ```
 
-On subsequent runs, the SDK is already installed and the build proceeds without prompting.
+If a required SDK is missing, the script offers to install it. On subsequent runs it proceeds without prompting.
 
-Cross-compiling from Linux to macOS is not supported (Apple does not provide macOS SDK bundles for Linux). To produce macOS binaries from Linux, use a macOS CI runner.
+Cross-compiling to macOS from Linux is not currently supported by Swift (no macOS SDK bundle exists). If your plugin targets both macOS and Linux and you're building on Linux, the script builds what it can and warns about skipped platforms. Use a macOS CI runner for the macOS binary.
 
 **Go** plugins use the `GOOS` and `GOARCH` environment variables:
 

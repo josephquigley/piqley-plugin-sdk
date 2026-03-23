@@ -291,23 +291,47 @@ rewrite_build_manifest_platforms() {
 MANIFEST
 }
 
-install_swift_linux_sdk_if_needed() {
+install_swift_cross_sdk_if_needed() {
     local language="$1"
     local platforms="$2"
 
-    # Only relevant for Swift plugins targeting Linux
+    # Only relevant for Swift plugins
     if [[ "$language" != "swift" ]]; then
         return
     fi
 
-    local needs_sdk=false
+    # Detect host platform
+    local host_os host_arch
+    host_os="$(uname -s)"
+    host_arch="$(uname -m)"
+
+    # Determine which platforms need cross-compilation SDKs
+    local needs_linux_sdk=false
     for platform in $platforms; do
         case "$platform" in
-            linux-amd64|linux-arm64) needs_sdk=true ;;
+            linux-amd64|linux-arm64)
+                # Only need the SDK if we're not already on Linux
+                if [[ "$host_os" == "Darwin" ]]; then
+                    needs_linux_sdk=true
+                elif [[ "$host_os" == "Linux" ]]; then
+                    # On Linux, check if we're targeting a different arch
+                    case "$platform" in
+                        linux-amd64) [[ "$host_arch" != "x86_64" ]] && needs_linux_sdk=true ;;
+                        linux-arm64) [[ "$host_arch" != "aarch64" ]] && needs_linux_sdk=true ;;
+                    esac
+                fi
+                ;;
+            macos-arm64)
+                if [[ "$host_os" == "Linux" ]]; then
+                    echo ""
+                    echo "Note: Cross-compiling from Linux to macOS is not supported."
+                    echo "You will need to build the macOS binary on a Mac or in macOS CI."
+                fi
+                ;;
         esac
     done
 
-    if ! $needs_sdk; then
+    if ! $needs_linux_sdk; then
         return
     fi
 
@@ -331,7 +355,7 @@ install_swift_linux_sdk_if_needed() {
     fi
 
     echo ""
-    echo "Your plugin targets Linux, which requires the Swift static Linux SDK for cross-compilation."
+    echo "Cross-compiling to Linux requires the Swift static Linux SDK."
     printf "Install it now? [Y/n] "
     read -r choice < /dev/tty
     if [[ "$choice" =~ ^[Nn] ]]; then
@@ -402,7 +426,7 @@ main() {
 
     scaffold "$templates_dir" "$language" "$name" "$identifier" "$dest"
     rewrite_build_manifest_platforms "$dest" "$platforms"
-    install_swift_linux_sdk_if_needed "$language" "$platforms"
+    install_swift_cross_sdk_if_needed "$language" "$platforms"
     print_next_steps "$language" "$dest"
 }
 
