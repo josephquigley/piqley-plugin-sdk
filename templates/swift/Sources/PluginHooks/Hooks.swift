@@ -5,6 +5,8 @@ extension PluginDirectory {
     static let pluginBinary = "\(bin)/__PLUGIN_PACKAGE_NAME__"
 }
 
+public let pluginConfig = ConfigRegistry {}
+
 public let pluginRegistry = HookRegistry { r in
     r.register(StandardHook.self) { hook in
         switch hook {

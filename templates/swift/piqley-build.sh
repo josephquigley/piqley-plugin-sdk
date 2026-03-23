@@ -303,16 +303,16 @@ if [[ ${#skipped[@]} -gt 0 ]]; then
     exit 1
 fi
 
-# --- Stage file generation ---
+# --- Manifest generation (stage files + config entries) ---
 
-# Check if piqley-stage-gen target exists in this project
-if "$SWIFT" package describe --type json 2>/dev/null | grep -q '"name".*:.*"piqley-stage-gen"'; then
-    echo "Generating stage files..."
-    "$SWIFT" build -c release --product piqley-stage-gen
-    .build/release/piqley-stage-gen .
+# Check if piqley-manifest-gen target exists in this project
+if "$SWIFT" package describe --type json 2>/dev/null | grep -q '"name".*:.*"piqley-manifest-gen"'; then
+    echo "Generating manifest artifacts..."
+    "$SWIFT" build -c release --product piqley-manifest-gen
+    .build/release/piqley-manifest-gen .
     echo ""
 else
-    echo "Warning: No piqley-stage-gen target found. Stage files will not be auto-generated."
+    echo "Warning: No piqley-manifest-gen target found. Stage files will not be auto-generated."
     echo "Update your project layout to the latest SDK template for automatic stage generation."
     echo ""
 fi

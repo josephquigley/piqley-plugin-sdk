@@ -49,12 +49,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `BuildManifest.data` from `[String]` to `[String: [String]]` (platform-keyed dictionary)
 - Packager stages bin/data files into platform subdirectories
 - `toPluginManifest()` derives `supportedPlatforms` from bin keys
+- **BREAKING:** Renamed `piqley-stage-gen` template target to `piqley-manifest-gen`; directory renamed from `StageGen` to `ManifestGen`
+- `piqley-manifest-gen` now generates both stage files and `config-entries.json`
+- Build script detects and invokes `piqley-manifest-gen` instead of `piqley-stage-gen`
 
 ### Added
 
 - `ConfigRegistry` DSL for declaring plugin config values and secrets programmatically
 - `Config` typealias (for `Value`) and `Secret` conform to `ConfigComponent` for use in `ConfigRegistry`
 - `ConfigRegistry.writeConfigEntries(to:)` writes `config-entries.json` for build-time config generation
+- `pluginConfig` export in plugin template Hooks.swift for `ConfigRegistry` declarations
 - `HookRegistry.Registrar.register(_:stageConfig:)` overload for declaring stage configs via closure
 - `AnyHookBox.stageConfigCache` property for eager evaluation of override closures
 - `piqley-stage-gen` executable target in Swift plugin template for build-time stage file generation

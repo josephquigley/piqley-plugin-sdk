@@ -24,9 +24,9 @@ let package = Package(
             path: "Sources/__PLUGIN_PACKAGE_NAME__"
         ),
         .executableTarget(
-            name: "piqley-stage-gen",
+            name: "piqley-manifest-gen",
             dependencies: ["PluginHooks"],
-            path: "Sources/StageGen"
+            path: "Sources/ManifestGen"
         ),
     ]
 )
