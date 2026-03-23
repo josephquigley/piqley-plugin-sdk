@@ -91,7 +91,8 @@ sdk_for_platform() {
 }
 
 # Extract declared platform keys from the bin section.
-platforms=$(grep -oE '(macos-arm64|linux-amd64|linux-arm64)' "$MANIFEST" | sort -u)
+# Convert to a single space-separated line for clean iteration and display.
+platforms=$(grep -oE '(macos-arm64|linux-amd64|linux-arm64)' "$MANIFEST" | sort -u | tr '\n' ' ' | sed 's/ $//')
 
 if [[ -z "$platforms" ]]; then
     echo "Error: No platforms found in $MANIFEST bin section." >&2
@@ -135,12 +136,14 @@ if swift sdk list 2>/dev/null | grep -q "static-linux"; then
     has_linux_sdk=true
 fi
 
+# Build native platform first, then cross-compile others.
 skipped=()
-for platform in $platforms; do
+build_platform() {
+    local platform="$1"
     if [[ "$platform" == "$HOST_PLATFORM" ]]; then
         echo "[$platform] swift build -c release (native)"
         swift build -c release
-        continue
+        return
     fi
 
     sdk="$(sdk_for_platform "$platform")"
@@ -159,6 +162,19 @@ for platform in $platforms; do
     scratch=".build-${platform}"
     echo "[$platform] swift build -c release --swift-sdk $sdk --scratch-path $scratch"
     swift build -c release --swift-sdk "$sdk" --scratch-path "$scratch"
+}
+
+# Build host platform first
+for platform in $platforms; do
+    if [[ "$platform" == "$HOST_PLATFORM" ]]; then
+        build_platform "$platform"
+    fi
+done
+# Then cross-compile the rest
+for platform in $platforms; do
+    if [[ "$platform" != "$HOST_PLATFORM" ]]; then
+        build_platform "$platform"
+    fi
 done
 
 if [[ ${#skipped[@]} -gt 0 ]]; then

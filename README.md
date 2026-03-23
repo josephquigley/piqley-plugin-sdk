@@ -159,6 +159,8 @@ Supported platforms: `macos-arm64`, `linux-amd64`, `linux-arm64`. At least one p
 
 **Swift** plugins cross-compile using [Swift SDK bundles](https://www.swift.org/documentation/articles/static-linux-getting-started.html). From macOS you can produce statically-linked Linux binaries. From Linux you can target a different Linux architecture. Both `create-plugin.sh` and the generated `piqley-build.sh` detect what's needed and offer to install the SDK for you.
 
+**Important:** Cross-compilation requires the [open-source Swift toolchain](https://www.swift.org/install/), not the one bundled with Xcode. Apple's Swift and the open-source Swift have incompatible precompiled modules even at the same version number. Install the matching version from swift.org if you see "compiled module was created by a different version of the compiler" errors.
+
 The build script detects your host platform, builds natively for it, and cross-compiles for other targets:
 
 ```bash
