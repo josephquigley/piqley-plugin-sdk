@@ -60,20 +60,35 @@ public final class HookRegistry: Sendable {
     }
 }
 
-/// Writes stage files for all hooks in the registry to the given directory.
+/// Writes stage files for registered hooks to the given directory.
 ///
-/// Used by the SDK's `run()` method when the binary receives `--create-stage-files <dir>`.
+/// For hooks registered with a stage config override closure, the cached
+/// configs are used. For hooks without an override, falls back to
+/// ``Hook/stageConfig``. Effectively empty configs are skipped.
 extension HookRegistry {
-    func writeStageFiles(to directory: URL) throws {
+    public func writeStageFiles(to directory: URL) throws {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
 
-        for hook in allHooks {
-            let config = hook.stageConfig
-            guard !config.isEmpty else { continue }
-            let filename = "\(PluginFile.stagePrefix)\(hook.rawValue)\(PluginFile.stageSuffix)"
-            let data = try encoder.encode(config)
-            try data.write(to: directory.appendingPathComponent(filename), options: .atomic)
+        for box in boxes {
+            if let cache = box.stageConfigCache {
+                // Override path: write cached configs
+                for (hookName, config) in cache {
+                    guard !config.isEffectivelyEmpty else { continue }
+                    let filename = "\(PluginFile.stagePrefix)\(hookName)\(PluginFile.stageSuffix)"
+                    let data = try encoder.encode(config)
+                    try data.write(to: directory.appendingPathComponent(filename), options: .atomic)
+                }
+            } else {
+                // Fallback path: use hook.stageConfig
+                for hook in box.allHooks {
+                    let config = hook.stageConfig
+                    guard !config.isEffectivelyEmpty else { continue }
+                    let filename = "\(PluginFile.stagePrefix)\(hook.rawValue)\(PluginFile.stageSuffix)"
+                    let data = try encoder.encode(config)
+                    try data.write(to: directory.appendingPathComponent(filename), options: .atomic)
+                }
+            }
         }
     }
 }

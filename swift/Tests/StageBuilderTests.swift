@@ -114,3 +114,72 @@ import Foundation
     }
     #expect(stage.preRules?.count == 2)
 }
+
+@Test func writeStageFilesUsesOverrideCache() throws {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self) { hook in
+            switch hook {
+            case .publish:
+                return buildStage {
+                    Binary(command: "bin/test-plugin", protocol: .json)
+                }
+            default:
+                return nil
+            }
+        }
+    }
+
+    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: tempDir) }
+
+    try registry.writeStageFiles(to: tempDir)
+
+    // Only publish should have a stage file
+    let files = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+    #expect(files.count == 1)
+    #expect(files[0].lastPathComponent == "stage-publish.json")
+
+    let data = try Data(contentsOf: files[0])
+    let config = try JSONDecoder().decode(StageConfig.self, from: data)
+    #expect(config.binary?.command == "bin/test-plugin")
+    #expect(config.binary?.pluginProtocol == .json)
+}
+
+@Test func writeStageFilesFallbackProducesNothingForEmptyStageConfig() throws {
+    // StandardHook.stageConfig returns empty configs, so no files should be written
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self)
+    }
+
+    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: tempDir) }
+
+    try registry.writeStageFiles(to: tempDir)
+
+    let files = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+    #expect(files.isEmpty)
+}
+
+@Test func writeStageFilesSkipsEffectivelyEmpty() throws {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self) { hook in
+            switch hook {
+            case .publish:
+                return StageConfig(binary: HookConfig(command: ""))
+            default:
+                return nil
+            }
+        }
+    }
+
+    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: tempDir) }
+
+    try registry.writeStageFiles(to: tempDir)
+
+    let files = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+    #expect(files.isEmpty)
+}

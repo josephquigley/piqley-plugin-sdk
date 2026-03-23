@@ -30,7 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - **BREAKING:** Swift plugin template restructured to three-target layout (PluginHooks library, plugin executable, piqley-stage-gen executable)
 - `HookRegistry.writeStageFiles(to:)` promoted from `internal` to `public`
-- `writeStageFiles` uses `isEffectivelyEmpty` instead of `isEmpty` for consistency with CLI discovery
+- `writeStageFiles` prefers override cache when available, falls back to `Hook.stageConfig`, uses `isEffectivelyEmpty` instead of `isEmpty`
 - Removed `--create-stage-files` codepath from `PiqleyPlugin.run()`
 - Minimum PiqleyCore dependency bumped to 0.7.0 (Hook protocol)
 - **BREAKING:** `PiqleyPlugin` protocol now requires a `registry: HookRegistry` property
