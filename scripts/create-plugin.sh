@@ -244,6 +244,10 @@ scaffold() {
     # Copy template files (including dotfiles)
     cp -R "$template_src/." "$dest/"
 
+    # Derive sanitized package name: "Ghost & 365 Project" -> "ghost-365-project"
+    local package_name
+    package_name=$(echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-//;s/-$//')
+
     # Rename __PLUGIN_IDENTIFIER__ directories (e.g. Python src package)
     find "$dest" -depth -type d -name '__PLUGIN_IDENTIFIER__' | while read -r dir; do
         local parent
@@ -251,9 +255,12 @@ scaffold() {
         mv "$dir" "$parent/$identifier"
     done
 
-    # Derive sanitized package name: "Ghost & 365 Project" -> "ghost-365-project"
-    local package_name
-    package_name=$(echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-//;s/-$//')
+    # Rename __PLUGIN_PACKAGE_NAME__ directories (e.g. Swift executable target source dir)
+    find "$dest" -depth -type d -name '__PLUGIN_PACKAGE_NAME__' | while read -r dir; do
+        local parent
+        parent="$(dirname "$dir")"
+        mv "$dir" "$parent/$package_name"
+    done
 
     # Substitute placeholders in all files
     find "$dest" -type f | while read -r file; do

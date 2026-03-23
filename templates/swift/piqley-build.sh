@@ -303,6 +303,20 @@ if [[ ${#skipped[@]} -gt 0 ]]; then
     exit 1
 fi
 
+# --- Stage file generation ---
+
+# Check if piqley-stage-gen target exists in this project
+if "$SWIFT" package describe --type json 2>/dev/null | grep -q '"name":"piqley-stage-gen"'; then
+    echo "Generating stage files..."
+    "$SWIFT" build -c release --product piqley-stage-gen
+    .build/release/piqley-stage-gen .
+    echo ""
+else
+    echo "Warning: No piqley-stage-gen target found. Stage files will not be auto-generated."
+    echo "Update your project layout to the latest SDK template for automatic stage generation."
+    echo ""
+fi
+
 echo ""
 echo "Packaging..."
 if [[ -n "$OUTPUT_PATH" ]]; then

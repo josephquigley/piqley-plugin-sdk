@@ -28,7 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
-- **BREAKING:** Swift plugin template restructured to three-target layout (PluginHooks, plugin executable, piqley-stage-gen)
+- **BREAKING:** Swift plugin template restructured to three-target layout (PluginHooks library, plugin executable, piqley-stage-gen executable)
 - `HookRegistry.writeStageFiles(to:)` promoted from `internal` to `public`
 - `writeStageFiles` uses `isEffectivelyEmpty` instead of `isEmpty` for consistency with CLI discovery
 - Removed `--create-stage-files` codepath from `PiqleyPlugin.run()`
@@ -48,7 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - `HookRegistry.Registrar.register(_:stageConfig:)` overload for declaring stage configs via override closure
-- `AnyHookBox` stage config cache for eager evaluation of override closures
+- `AnyHookBox.stageConfigCache` property for eager evaluation of override closures
 - `piqley-stage-gen` executable target in Swift plugin template for build-time stage file generation
 - `piqley-build.sh` auto-detects and invokes `piqley-stage-gen` before packaging
 - `create-plugin.sh` renames `__PLUGIN_PACKAGE_NAME__` directories during scaffolding
