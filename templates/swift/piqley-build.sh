@@ -156,7 +156,7 @@ for platform in $platforms; do
         continue
     fi
 
-    local scratch=".build-${platform}"
+    scratch=".build-${platform}"
     echo "[$platform] swift build -c release --swift-sdk $sdk --scratch-path $scratch"
     swift build -c release --swift-sdk "$sdk" --scratch-path "$scratch"
 done
