@@ -111,33 +111,29 @@ prompt_name() {
 
 prompt_identifier() {
     local display_name="$1"
-    # Synthesize a default identifier from the display name
-    local default_id
-    default_id="$(sanitize_name "$display_name")"
+    # Synthesize a default reverse-TLD identifier from the display name
+    local slug
+    slug="$(sanitize_name "$display_name")"
+    local default_id="com.example.${slug}"
 
     while true; do
-        printf "Plugin identifier [%s]: " "$default_id"
+        printf "Plugin identifier (reverse TLD, e.g. com.example.my-plugin) [%s]: " "$default_id"
         read -r raw_id < /dev/tty
         if [[ -z "$raw_id" ]]; then
             raw_id="$default_id"
         fi
 
-        local sanitized
-        sanitized="$(sanitize_name "$raw_id")"
-
-        if ! validate_name "$sanitized"; then
+        # Validate reverse TLD format: at least two dot-separated segments
+        if ! echo "$raw_id" | grep -qE '^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+$'; then
+            echo "Identifier must be in reverse TLD format (e.g. com.example.my-plugin)."
             continue
         fi
 
-        if [[ "$sanitized" != "$raw_id" ]]; then
-            printf "Sanitized to: %s. Use this? [Y/n] " "$sanitized"
-            read -r confirm < /dev/tty
-            if [[ "$confirm" =~ ^[Nn] ]]; then
-                continue
-            fi
+        if ! validate_name "$raw_id"; then
+            continue
         fi
 
-        RESULT="$sanitized"
+        RESULT="$raw_id"
         return
     done
 }
