@@ -10,6 +10,15 @@ set -euo pipefail
 MANIFEST="piqley-build-manifest.json"
 SWIFTLY_BIN="${HOME}/.swiftly/bin"
 
+# --- Clean ---
+
+if [[ "${1:-}" == "clean" ]]; then
+    echo "Cleaning build artifacts..."
+    rm -rf .build .build-linux-amd64 .build-linux-arm64
+    echo "Done."
+    exit 0
+fi
+
 if [[ ! -f "$MANIFEST" ]]; then
     echo "Error: $MANIFEST not found in $(pwd)" >&2
     exit 1
