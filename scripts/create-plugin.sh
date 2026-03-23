@@ -25,10 +25,10 @@ resolve_sdk_version() {
         fi
     fi
 
-    # Fall back to GitHub API
+    # Fall back to git ls-remote (no auth required, semver-sorted)
     local tag
-    tag=$(curl -sfL "https://api.github.com/repos/${SDK_REPO_SLUG}/releases/latest" \
-        | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/') || true
+    tag=$(git ls-remote --tags --sort=-v:refname "${SDK_REPO}" 2>/dev/null \
+        | head -1 | sed 's/.*refs\/tags\///') || true
     if [[ -n "$tag" ]]; then
         echo "$tag"
         return

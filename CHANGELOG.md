@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- SDK version resolution uses `git ls-remote --tags` instead of GitHub Releases API (repo uses tags, not releases)
 - Cross-compiled builds use separate scratch paths to avoid module cache conflicts with native builds
 - Removed `local` keyword from top-level loop in build script
 - Deduplicated platform grep matches in build script (paths containing platform names caused duplicates)

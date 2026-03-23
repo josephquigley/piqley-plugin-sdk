@@ -14,6 +14,7 @@
 #   - piqley-build-manifest.json
 set -euo pipefail
 
+SDK_REPO="https://github.com/josephquigley/piqley-plugin-sdk.git"
 SDK_REPO_SLUG="josephquigley/piqley-plugin-sdk"
 VERSION_FILE=".piqley-sdk-version"
 
@@ -27,8 +28,8 @@ current_version() {
 
 latest_version() {
     local tag
-    tag=$(curl -sfL "https://api.github.com/repos/${SDK_REPO_SLUG}/releases/latest" \
-        | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/') || true
+    tag=$(git ls-remote --tags --sort=-v:refname "${SDK_REPO}" 2>/dev/null \
+        | head -1 | sed 's/.*refs\/tags\///') || true
     if [[ -z "$tag" ]]; then
         echo "Error: Could not fetch latest version from GitHub." >&2
         exit 1
