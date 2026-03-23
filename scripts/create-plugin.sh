@@ -276,10 +276,10 @@ rewrite_build_manifest_platforms() {
         case "$language" in
             swift)
                 case "$platform" in
-                    macos-arm64) bin_path=".build/arm64-apple-macosx/release/${package_name}" ;;
-                    linux-amd64) bin_path=".build-linux-amd64/release/${package_name}" ;;
-                    linux-arm64) bin_path=".build-linux-arm64/release/${package_name}" ;;
-                    *)           bin_path=".build/release/${package_name}" ;;
+                    macos-arm64) bin_path=".build/arm64-apple-macosx/release/${identifier}" ;;
+                    linux-amd64) bin_path=".build-linux-amd64/release/${identifier}" ;;
+                    linux-arm64) bin_path=".build-linux-arm64/release/${identifier}" ;;
+                    *)           bin_path=".build/release/${identifier}" ;;
                 esac
                 ;;
             go)
