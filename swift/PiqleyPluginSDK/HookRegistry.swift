@@ -7,8 +7,14 @@ import PiqleyCore
 /// Create a registry at your plugin's entry point:
 /// ```swift
 /// let registry = HookRegistry { r in
-///     r.register(StandardHook.self)
-///     r.register(MyCustomHook.self)
+///     r.register(StandardHook.self) { hook in
+///         switch hook {
+///         case .publish:
+///             return buildStage { Binary(command: "bin/my-plugin") }
+///         default:
+///             return nil
+///         }
+///     }
 /// }
 /// ```
 public final class HookRegistry: Sendable {
@@ -43,6 +49,13 @@ public final class HookRegistry: Sendable {
         /// Register a ``Hook``-conforming enum type.
         public func register<H: Hook>(_ type: H.Type) {
             boxes.append(AnyHookBox(type))
+        }
+
+        /// Register a ``Hook``-conforming enum type with a stage config override.
+        /// The closure is evaluated eagerly for each case. Return a ``StageConfig``
+        /// for hooks the plugin handles, or `nil` to skip.
+        public func register<H: Hook>(_ type: H.Type, stageConfig: @escaping (H) -> StageConfig?) {
+            boxes.append(AnyHookBox(type, stageConfigProvider: stageConfig))
         }
     }
 }

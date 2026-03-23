@@ -25,3 +25,23 @@ import PiqleyCore
     let box = AnyHookBox(StandardHook.self)
     #expect(box.stageConfigCache == nil)
 }
+
+@Test func registryWithStageConfigOverride() {
+    let registry = HookRegistry { r in
+        r.register(StandardHook.self) { hook in
+            switch hook {
+            case .publish:
+                return StageConfig(binary: HookConfig(command: "bin/test-plugin"))
+            default:
+                return nil
+            }
+        }
+    }
+    // Resolve still works
+    let hook = registry.resolve("publish")
+    #expect(hook != nil)
+    #expect(hook?.rawValue == "publish")
+
+    // All hooks still enumerated
+    #expect(registry.allHooks.count == StandardHook.allCases.count)
+}
