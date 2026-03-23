@@ -156,8 +156,9 @@ for platform in $platforms; do
         continue
     fi
 
-    echo "[$platform] swift build -c release --swift-sdk $sdk"
-    swift build -c release --swift-sdk "$sdk"
+    local scratch=".build-${platform}"
+    echo "[$platform] swift build -c release --swift-sdk $sdk --scratch-path $scratch"
+    swift build -c release --swift-sdk "$sdk" --scratch-path "$scratch"
 done
 
 if [[ ${#skipped[@]} -gt 0 ]]; then

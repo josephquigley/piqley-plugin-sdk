@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- Cross-compiled builds use separate scratch paths to avoid module cache conflicts with native builds
 - Build script SDK availability check uses bundle name instead of triple names
 - Build script exits before packaging if any platforms were skipped
 - Build script platform detection sed pattern replaced with grep for portability
