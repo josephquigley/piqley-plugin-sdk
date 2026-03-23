@@ -126,23 +126,31 @@ ensure_static_linux_sdk() {
         exit 1
     fi
 
-    local url="https://download.swift.org/swift-${swift_version}-release/static-sdk/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
-
-    echo "Downloading static Linux SDK for Swift ${swift_version}..."
+    # Try known SDK artifact versions (newer first).
+    local base="https://download.swift.org/swift-${swift_version}-release/static-sdk/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE_static-linux"
     local tmpfile
     tmpfile="$(mktemp /tmp/swift-static-sdk.XXXXXX.tar.gz)"
 
-    if ! curl -fL --progress-bar -o "$tmpfile" "$url"; then
-        rm -f "$tmpfile"
-        echo "Error: Failed to download SDK from $url" >&2
-        echo "The SDK version may not match your Swift version. Check:" >&2
+    local installed=false
+    for sdk_ver in 0.1.0 0.0.1; do
+        local url="${base}-${sdk_ver}.artifactbundle.tar.gz"
+        echo "Trying SDK artifact version ${sdk_ver}..."
+        if curl -fL --progress-bar -o "$tmpfile" "$url" 2>/dev/null; then
+            echo "Installing..."
+            "${SWIFTLY_BIN}/swift" sdk install "$tmpfile"
+            installed=true
+            break
+        fi
+    done
+
+    rm -f "$tmpfile"
+
+    if ! $installed; then
+        echo "Error: Could not find a static Linux SDK for Swift ${swift_version}." >&2
+        echo "Install manually from:" >&2
         echo "  https://www.swift.org/documentation/articles/static-linux-getting-started.html" >&2
         exit 1
     fi
-
-    echo "Installing..."
-    "${SWIFTLY_BIN}/swift" sdk install "$tmpfile"
-    rm -f "$tmpfile"
     echo ""
 }
 

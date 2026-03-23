@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Deduplicated platform grep matches in build script (paths containing platform names caused duplicates)
 - Build script now builds native platform first, then cross-compiles
 - Fixed multiline platform output formatting
+- SDK download tries multiple artifact versions (0.1.0, 0.0.1) since the version varies across Swift releases
 - Build script SDK availability check uses bundle name instead of triple names
 - Build script exits before packaging if any platforms were skipped
 - Build script platform detection sed pattern replaced with grep for portability

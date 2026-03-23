@@ -396,17 +396,27 @@ setup_swift_cross_compilation() {
             return
         fi
 
-        local url="https://download.swift.org/swift-${swift_version}-release/static-sdk/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
-        echo "Downloading static Linux SDK for Swift ${swift_version}..."
+        local base="https://download.swift.org/swift-${swift_version}-release/static-sdk/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE_static-linux"
         local tmpfile
         tmpfile="$(mktemp /tmp/swift-static-sdk.XXXXXX.tar.gz)"
-        if curl -fL --progress-bar -o "$tmpfile" "$url"; then
-            "${swiftly_bin}/swift" sdk install "$tmpfile"
-            rm -f "$tmpfile"
+
+        local installed=false
+        for sdk_ver in 0.1.0 0.0.1; do
+            local url="${base}-${sdk_ver}.artifactbundle.tar.gz"
+            echo "Trying SDK artifact version ${sdk_ver}..."
+            if curl -fL --progress-bar -o "$tmpfile" "$url" 2>/dev/null; then
+                "${swiftly_bin}/swift" sdk install "$tmpfile"
+                installed=true
+                break
+            fi
+        done
+        rm -f "$tmpfile"
+
+        if $installed; then
             echo "Done."
         else
-            rm -f "$tmpfile"
-            echo "Failed to download SDK. Install manually from:"
+            echo "Could not find a static Linux SDK for Swift ${swift_version}."
+            echo "Install manually from:"
             echo "  https://www.swift.org/documentation/articles/static-linux-getting-started.html"
         fi
     else
