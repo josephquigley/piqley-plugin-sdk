@@ -35,6 +35,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `-o <path>` option to build script and packager for custom output path
+- `--help` flag to build script with usage documentation
 - Platform selection prompt in `create-plugin.sh` (macOS/Linux, Linux architecture choice)
 - Automatic swiftly and open-source Swift toolchain setup in `piqley-build.sh` and `create-plugin.sh` for cross-compilation
 - `./piqley-build.sh clean` to remove all build artifacts

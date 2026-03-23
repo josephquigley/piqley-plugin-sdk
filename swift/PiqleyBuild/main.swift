@@ -7,9 +7,30 @@ struct StderrStream: TextOutputStream {
     }
 }
 
+var outputPath: URL? = nil
+var args = Array(CommandLine.arguments.dropFirst())
+
+while !args.isEmpty {
+    let arg = args.removeFirst()
+    switch arg {
+    case "-o":
+        guard !args.isEmpty else {
+            var err = StderrStream()
+            print("Error: -o requires a path argument", to: &err)
+            exit(1)
+        }
+        let path = args.removeFirst()
+        outputPath = URL(fileURLWithPath: path, relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
+    default:
+        var err = StderrStream()
+        print("Error: Unknown argument '\(arg)'", to: &err)
+        exit(1)
+    }
+}
+
 let directory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 do {
-    let outputURL = try Packager.package(directory: directory)
+    let outputURL = try Packager.package(directory: directory, outputPath: outputPath)
     print("\u{2713} Built \(outputURL.lastPathComponent)")
     print("")
     print("Install with:")

@@ -16,7 +16,7 @@ public struct Packager {
     /// The directory must contain `piqley-build-manifest.json`. The packager generates
     /// `manifest.json` from the build manifest. If `config.json` exists it is copied;
     /// otherwise an empty one is created.
-    public static func package(directory: URL) throws -> URL {
+    public static func package(directory: URL, outputPath: URL? = nil) throws -> URL {
         let fm = FileManager.default
 
         // 1. Load build manifest
@@ -104,10 +104,17 @@ public struct Packager {
             }
         }
 
-        // 6. Zip the staged directory into .build/
-        let buildDir = directory.appendingPathComponent(".build")
-        try fm.createDirectory(at: buildDir, withIntermediateDirectories: true)
-        let outputURL = buildDir.appendingPathComponent("\(buildManifest.identifier).piqleyplugin")
+        // 6. Zip the staged directory
+        let outputURL: URL
+        if let outputPath {
+            let parent = outputPath.deletingLastPathComponent()
+            try fm.createDirectory(at: parent, withIntermediateDirectories: true)
+            outputURL = outputPath
+        } else {
+            let buildDir = directory.appendingPathComponent(".build")
+            try fm.createDirectory(at: buildDir, withIntermediateDirectories: true)
+            outputURL = buildDir.appendingPathComponent("\(buildManifest.identifier).piqleyplugin")
+        }
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
         process.arguments = ["-r", "-q", outputURL.path, pluginName]

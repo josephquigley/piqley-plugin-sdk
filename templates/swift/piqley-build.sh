@@ -9,15 +9,58 @@ set -euo pipefail
 
 MANIFEST="piqley-build-manifest.json"
 SWIFTLY_BIN="${HOME}/.swiftly/bin"
+OUTPUT_PATH=""
 
-# --- Clean ---
+# --- Usage ---
 
-if [[ "${1:-}" == "clean" ]]; then
-    echo "Cleaning build artifacts..."
-    rm -rf .build .build-linux-amd64 .build-linux-arm64
-    echo "Done."
+usage() {
+    cat <<EOF
+Usage: ./piqley-build.sh [options] [command]
+
+Commands:
+  clean           Remove all build artifacts (.build, .build-linux-*)
+
+Options:
+  -o <path>       Output path for the .piqleyplugin archive
+  -h, --help      Show this help message
+
+Examples:
+  ./piqley-build.sh                          Build and package to .build/
+  ./piqley-build.sh -o ~/plugins/my.piqleyplugin   Build with custom output
+  ./piqley-build.sh clean                    Remove build artifacts
+EOF
     exit 0
-fi
+}
+
+# --- Argument parsing ---
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            usage
+            ;;
+        -o)
+            shift
+            if [[ $# -eq 0 ]]; then
+                echo "Error: -o requires a path argument" >&2
+                exit 1
+            fi
+            OUTPUT_PATH="$1"
+            shift
+            ;;
+        clean)
+            echo "Cleaning build artifacts..."
+            rm -rf .build .build-linux-amd64 .build-linux-arm64
+            echo "Done."
+            exit 0
+            ;;
+        *)
+            echo "Error: Unknown argument '$1'" >&2
+            echo "Run './piqley-build.sh --help' for usage." >&2
+            exit 1
+            ;;
+    esac
+done
 
 if [[ ! -f "$MANIFEST" ]]; then
     echo "Error: $MANIFEST not found in $(pwd)" >&2
@@ -253,4 +296,8 @@ fi
 
 echo ""
 echo "Packaging..."
-"$SWIFT" run piqley-build
+if [[ -n "$OUTPUT_PATH" ]]; then
+    "$SWIFT" run piqley-build -- -o "$OUTPUT_PATH"
+else
+    "$SWIFT" run piqley-build
+fi
