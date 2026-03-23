@@ -54,6 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `HookRegistry.Registrar.register(_:stageConfig:)` overload for declaring stage configs via closure
 - `AnyHookBox.stageConfigCache` property for eager evaluation of override closures
 - `piqley-stage-gen` executable target in Swift plugin template for build-time stage file generation
+- `PluginDirectory.pluginBinary` constant in Hooks.swift template, derived from `__PLUGIN_PACKAGE_NAME__` to avoid magic strings in stage configs
 - `piqley-build.sh` auto-detects and invokes `piqley-stage-gen` before packaging
 - `create-plugin.sh` renames `__PLUGIN_PACKAGE_NAME__` directories during scaffolding
 - `HookRegistry` for resolving hook strings into typed `Hook` protocol values with `register<H: Hook>(_:)` API

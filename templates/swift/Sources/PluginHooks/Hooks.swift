@@ -1,6 +1,10 @@
 import PiqleyPluginSDK
 import PiqleyCore
 
+extension PluginDirectory {
+    static let pluginBinary = "\(bin)/__PLUGIN_PACKAGE_NAME__"
+}
+
 public let pluginRegistry = HookRegistry { r in
     r.register(StandardHook.self) { hook in
         switch hook {
