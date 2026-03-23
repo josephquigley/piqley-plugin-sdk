@@ -137,6 +137,49 @@ prompt_identifier() {
     done
 }
 
+prompt_platforms() {
+    # Returns space-separated platform triples in RESULT
+    local platforms=""
+
+    printf "Target macOS (arm64)? [Y/n] "
+    read -r macos_choice < /dev/tty
+    if [[ ! "$macos_choice" =~ ^[Nn] ]]; then
+        platforms="macos-arm64"
+    fi
+
+    printf "Target Linux? [y/N] "
+    read -r linux_choice < /dev/tty
+    if [[ "$linux_choice" =~ ^[Yy] ]]; then
+        echo ""
+        echo "  Linux architectures:"
+        echo "    1) amd64"
+        echo "    2) arm64"
+        echo "    3) both"
+        echo ""
+        while true; do
+            printf "  Architecture [1-3]: "
+            read -r arch_choice < /dev/tty
+            case "$arch_choice" in
+                1|amd64)  platforms="$platforms linux-amd64"; break ;;
+                2|arm64)  platforms="$platforms linux-arm64"; break ;;
+                3|both)   platforms="$platforms linux-amd64 linux-arm64"; break ;;
+                *) echo "  Invalid choice. Enter 1-3." ;;
+            esac
+        done
+    fi
+
+    # Trim leading space
+    platforms="$(echo "$platforms" | sed 's/^ //')"
+
+    if [[ -z "$platforms" ]]; then
+        echo "Error: At least one platform must be selected." >&2
+        prompt_platforms
+        return
+    fi
+
+    RESULT="$platforms"
+}
+
 prompt_destination() {
     local default="$1"
     printf "Destination directory [./%s]: " "$default"
@@ -195,6 +238,58 @@ scaffold() {
     done
 }
 
+rewrite_build_manifest_platforms() {
+    local dest="$1"
+    local platforms="$2"
+    local manifest="$dest/piqley-build-manifest.json"
+
+    if [[ ! -f "$manifest" ]]; then
+        return
+    fi
+
+    # Extract the bin array value for the template default (macos-arm64)
+    local bin_value
+    bin_value=$(sed -n 's/.*"macos-arm64": \(\[.*\]\).*/\1/p' "$manifest")
+
+    if [[ -z "$bin_value" ]]; then
+        return
+    fi
+
+    # Extract non-bin fields from the manifest
+    local identifier pluginName schemaVersion pluginVersion
+    identifier=$(sed -n 's/.*"identifier": "\(.*\)".*/\1/p' "$manifest")
+    pluginName=$(sed -n 's/.*"pluginName": "\(.*\)".*/\1/p' "$manifest")
+    schemaVersion=$(sed -n 's/.*"pluginSchemaVersion": "\(.*\)".*/\1/p' "$manifest")
+    pluginVersion=$(sed -n 's/.*"pluginVersion": "\(.*\)".*/\1/p' "$manifest")
+
+    # Build the bin block with selected platforms
+    local bin_block=""
+    local first=true
+    for platform in $platforms; do
+        if $first; then
+            first=false
+        else
+            bin_block="${bin_block},"
+        fi
+        bin_block="${bin_block}
+    \"${platform}\": ${bin_value}"
+    done
+
+    # Write the manifest from scratch
+    cat > "$manifest" << MANIFEST
+{
+  "identifier": "${identifier}",
+  "pluginName": "${pluginName}",
+  "pluginSchemaVersion": "${schemaVersion}",
+  "pluginVersion": "${pluginVersion}",
+  "bin": {${bin_block}
+  },
+  "data": {},
+  "dependencies": []
+}
+MANIFEST
+}
+
 print_next_steps() {
     local language="$1"
     local dest="$2"
@@ -244,9 +339,13 @@ main() {
     prompt_identifier "$name"
     local identifier="$RESULT"
 
+    prompt_platforms
+    local platforms="$RESULT"
+
     local dest="./$identifier"
 
     scaffold "$templates_dir" "$language" "$name" "$identifier" "$dest"
+    rewrite_build_manifest_platforms "$dest" "$platforms"
     print_next_steps "$language" "$dest"
 }
 
