@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `create-plugin.sh` cleans up the scaffolded project directory on failure or user interrupt
 - `create-plugin.sh` identifier prompt now defaults to reverse TLD format (e.g. `com.example.my-plugin`)
 - SDK detection uses bundle name (`static-linux`) instead of architecture triples, preventing duplicate install attempts
+- Build script stage-gen target detection grep pattern now handles SPM's JSON spacing
 - Swift build manifest now uses correct platform-specific output paths (e.g. `.build/x86_64-swift-linux-musl/release/`) instead of duplicating the native path for all platforms
 
 ### Changed

@@ -306,7 +306,7 @@ fi
 # --- Stage file generation ---
 
 # Check if piqley-stage-gen target exists in this project
-if "$SWIFT" package describe --type json 2>/dev/null | grep -q '"name":"piqley-stage-gen"'; then
+if "$SWIFT" package describe --type json 2>/dev/null | grep -q '"name".*:.*"piqley-stage-gen"'; then
     echo "Generating stage files..."
     "$SWIFT" build -c release --product piqley-stage-gen
     .build/release/piqley-stage-gen .
