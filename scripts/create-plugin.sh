@@ -315,36 +315,23 @@ rewrite_build_manifest_platforms() {
 MANIFEST
 }
 
-install_swift_cross_sdk_if_needed() {
+setup_swift_cross_compilation() {
     local language="$1"
     local platforms="$2"
+    local swiftly_bin="${HOME}/.swiftly/bin"
 
-    # Only relevant for Swift plugins
+    # Only relevant for Swift plugins targeting non-host platforms
     if [[ "$language" != "swift" ]]; then
         return
     fi
 
-    # Detect host platform
-    local host_os host_arch
+    local needs_cross=false
+    local host_os
     host_os="$(uname -s)"
-    host_arch="$(uname -m)"
 
-    # Determine which platforms need cross-compilation SDKs
-    local needs_linux_sdk=false
     for platform in $platforms; do
         case "$platform" in
-            linux-amd64|linux-arm64)
-                # Only need the SDK if we're not already on Linux
-                if [[ "$host_os" == "Darwin" ]]; then
-                    needs_linux_sdk=true
-                elif [[ "$host_os" == "Linux" ]]; then
-                    # On Linux, check if we're targeting a different arch
-                    case "$platform" in
-                        linux-amd64) [[ "$host_arch" != "x86_64" ]] && needs_linux_sdk=true ;;
-                        linux-arm64) [[ "$host_arch" != "aarch64" ]] && needs_linux_sdk=true ;;
-                    esac
-                fi
-                ;;
+            linux-amd64|linux-arm64) needs_cross=true ;;
             macos-arm64)
                 if [[ "$host_os" == "Linux" ]]; then
                     echo ""
@@ -355,56 +342,76 @@ install_swift_cross_sdk_if_needed() {
         esac
     done
 
-    if ! $needs_linux_sdk; then
+    if ! $needs_cross; then
         return
     fi
 
-    # The SDK bundle contains both architectures, so check once for "static-linux".
-    if swift sdk list 2>/dev/null | grep -q "static-linux"; then
-        return
-    fi
-
+    # Cross-compilation requires the open-source Swift toolchain (not Xcode's).
+    # swiftly manages open-source toolchains.
     echo ""
-    echo "Cross-compiling to Linux requires the Swift static Linux SDK."
-    printf "Install it now? [Y/n] "
-    read -r choice < /dev/tty
-    if [[ "$choice" =~ ^[Nn] ]]; then
-        echo ""
-        echo "Skipped. Install it later from:"
-        echo "  https://www.swift.org/documentation/articles/static-linux-getting-started.html"
-        return
+    echo "Cross-compilation requires the open-source Swift toolchain (managed by swiftly)."
+
+    if [[ ! -x "${swiftly_bin}/swiftly" ]]; then
+        printf "Install swiftly now? [Y/n] "
+        read -r choice < /dev/tty
+        if [[ "$choice" =~ ^[Nn] ]]; then
+            echo "Skipped. The generated piqley-build.sh will set this up on first run."
+            return
+        fi
+
+        echo "Installing swiftly..."
+        case "$host_os" in
+            Darwin)
+                local pkg="/tmp/swiftly-$$.pkg"
+                curl -sL https://download.swift.org/swiftly/darwin/swiftly.pkg -o "$pkg"
+                installer -pkg "$pkg" -target CurrentUserHomeDirectory
+                rm -f "$pkg"
+                "${swiftly_bin}/swiftly" init --assume-yes
+                ;;
+            Linux)
+                local arch tarball
+                arch="$(uname -m)"
+                tarball="/tmp/swiftly-$$.tar.gz"
+                curl -sL "https://download.swift.org/swiftly/linux/swiftly-${arch}.tar.gz" -o "$tarball"
+                tar xzf "$tarball" -C /tmp
+                rm -f "$tarball"
+                /tmp/swiftly init --assume-yes
+                rm -f /tmp/swiftly
+                ;;
+        esac
     fi
 
-    # Build the download URL from the installed Swift version.
-    local swift_version
-    swift_version=$(swift --version 2>/dev/null | sed -n 's/.*Swift version \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')
-    if [[ -z "$swift_version" ]]; then
-        echo "Error: Could not detect Swift version." >&2
-        echo "Install the SDK manually from:" >&2
-        echo "  https://www.swift.org/documentation/articles/static-linux-getting-started.html" >&2
-        return
+    # Ensure a Swift toolchain is installed
+    if ! "${swiftly_bin}/swift" --version &>/dev/null; then
+        echo "Installing latest Swift toolchain..."
+        "${swiftly_bin}/swiftly" install latest --use
     fi
 
-    local sdk_url="https://download.swift.org/swift-${swift_version}-release/static-sdk/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
+    # Install the static Linux SDK if needed
+    if ! "${swiftly_bin}/swift" sdk list 2>/dev/null | grep -q "static-linux"; then
+        local swift_version
+        swift_version=$("${swiftly_bin}/swift" --version 2>/dev/null | sed -n 's/.*Swift version \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')
+        if [[ -z "$swift_version" ]]; then
+            echo "Could not detect Swift version. Install the static Linux SDK manually."
+            return
+        fi
 
-    echo "Downloading SDK for Swift $swift_version..."
-    local tmpfile
-    tmpfile="$(mktemp /tmp/swift-static-sdk.XXXXXX.tar.gz)"
-
-    if command -v curl &>/dev/null; then
-        curl -L --progress-bar -o "$tmpfile" "$sdk_url"
-    elif command -v wget &>/dev/null; then
-        wget -q --show-progress -O "$tmpfile" "$sdk_url"
+        local url="https://download.swift.org/swift-${swift_version}-release/static-sdk/swift-${swift_version}-RELEASE/swift-${swift_version}-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
+        echo "Downloading static Linux SDK for Swift ${swift_version}..."
+        local tmpfile
+        tmpfile="$(mktemp /tmp/swift-static-sdk.XXXXXX.tar.gz)"
+        if curl -fL --progress-bar -o "$tmpfile" "$url"; then
+            "${swiftly_bin}/swift" sdk install "$tmpfile"
+            rm -f "$tmpfile"
+            echo "Done."
+        else
+            rm -f "$tmpfile"
+            echo "Failed to download SDK. Install manually from:"
+            echo "  https://www.swift.org/documentation/articles/static-linux-getting-started.html"
+        fi
     else
-        echo "Error: curl or wget required." >&2
-        rm -f "$tmpfile"
-        return
+        echo "Static Linux SDK already installed."
     fi
-
-    echo "Installing..."
-    swift sdk install "$tmpfile"
-    rm -f "$tmpfile"
-    echo "Done."
 }
 
 print_next_steps() {
@@ -464,7 +471,7 @@ main() {
 
     scaffold "$templates_dir" "$language" "$name" "$identifier" "$dest"
     rewrite_build_manifest_platforms "$dest" "$platforms" "$language"
-    install_swift_cross_sdk_if_needed "$language" "$platforms"
+    setup_swift_cross_compilation "$language" "$platforms"
 
     SCAFFOLD_COMPLETE=true
     print_next_steps "$language" "$dest"
