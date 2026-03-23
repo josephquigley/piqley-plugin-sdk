@@ -241,17 +241,10 @@ scaffold() {
 rewrite_build_manifest_platforms() {
     local dest="$1"
     local platforms="$2"
+    local language="$3"
     local manifest="$dest/piqley-build-manifest.json"
 
     if [[ ! -f "$manifest" ]]; then
-        return
-    fi
-
-    # Extract the bin array value for the template default (macos-arm64)
-    local bin_value
-    bin_value=$(sed -n 's/.*"macos-arm64": \(\[.*\]\).*/\1/p' "$manifest")
-
-    if [[ -z "$bin_value" ]]; then
         return
     fi
 
@@ -262,7 +255,13 @@ rewrite_build_manifest_platforms() {
     schemaVersion=$(sed -n 's/.*"pluginSchemaVersion": "\(.*\)".*/\1/p' "$manifest")
     pluginVersion=$(sed -n 's/.*"pluginVersion": "\(.*\)".*/\1/p' "$manifest")
 
-    # Build the bin block with selected platforms
+    # Derive the package name (same logic as scaffold)
+    local package_name
+    package_name=$(echo "$pluginName" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\{2,\}/-/g' | sed 's/^-//;s/-$//')
+
+    # Build the bin block with platform-specific paths.
+    # Swift cross-compilation outputs to different directories per SDK triple.
+    # Other languages use the same path for all platforms.
     local bin_block=""
     local first=true
     for platform in $platforms; do
@@ -271,8 +270,33 @@ rewrite_build_manifest_platforms() {
         else
             bin_block="${bin_block},"
         fi
+
+        local bin_path
+        case "$language" in
+            swift)
+                case "$platform" in
+                    macos-arm64) bin_path=".build/arm64-apple-macosx/release/${package_name}" ;;
+                    linux-amd64) bin_path=".build/x86_64-swift-linux-musl/release/${package_name}" ;;
+                    linux-arm64) bin_path=".build/aarch64-swift-linux-musl/release/${package_name}" ;;
+                    *)           bin_path=".build/release/${package_name}" ;;
+                esac
+                ;;
+            go)
+                bin_path="${identifier}"
+                ;;
+            node)
+                bin_path="dist/index.js"
+                ;;
+            python)
+                bin_path="src/${identifier}/main.py"
+                ;;
+            *)
+                bin_path="${identifier}"
+                ;;
+        esac
+
         bin_block="${bin_block}
-    \"${platform}\": ${bin_value}"
+    \"${platform}\": [\"${bin_path}\"]"
     done
 
     # Write the manifest from scratch
@@ -451,7 +475,7 @@ main() {
     local dest="./$identifier"
 
     scaffold "$templates_dir" "$language" "$name" "$identifier" "$dest"
-    rewrite_build_manifest_platforms "$dest" "$platforms"
+    rewrite_build_manifest_platforms "$dest" "$platforms" "$language"
     install_swift_cross_sdk_if_needed "$language" "$platforms"
     print_next_steps "$language" "$dest"
 }

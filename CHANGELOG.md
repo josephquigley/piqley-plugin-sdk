@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Fixed
+
+- Swift build manifest now uses correct platform-specific output paths (e.g. `.build/x86_64-swift-linux-musl/release/`) instead of duplicating the native path for all platforms
+
 ### Changed
 
 - Reverted `pluginSchemaVersion` back to `"1"` across all schemas, templates, tests, and docs (no production consumers)
