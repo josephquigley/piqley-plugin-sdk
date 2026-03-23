@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- Minimum PiqleyCore dependency bumped to 0.7.0 (Hook protocol)
 - **BREAKING:** `PiqleyPlugin` protocol now requires a `registry: HookRegistry` property
 - **BREAKING:** `PluginRequest.hook` is now `any Hook` instead of the old `Hook` enum. Use `request.hook as? StandardHook` for type-casting switch dispatch.
 - **BREAKING:** `PluginRequest` init now throws on unrecognized hooks instead of silently falling back to `.preProcess`
