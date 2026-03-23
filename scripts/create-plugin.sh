@@ -358,22 +358,8 @@ install_swift_cross_sdk_if_needed() {
         return
     fi
 
-    local installed_sdks
-    installed_sdks=$(swift sdk list 2>/dev/null || true)
-
-    local missing=false
-    for platform in $platforms; do
-        case "$platform" in
-            linux-amd64)
-                if ! echo "$installed_sdks" | grep -q "x86_64-swift-linux-musl"; then missing=true; fi
-                ;;
-            linux-arm64)
-                if ! echo "$installed_sdks" | grep -q "aarch64-swift-linux-musl"; then missing=true; fi
-                ;;
-        esac
-    done
-
-    if ! $missing; then
+    # The SDK bundle contains both architectures, so check once for "static-linux".
+    if swift sdk list 2>/dev/null | grep -q "static-linux"; then
         return
     fi
 

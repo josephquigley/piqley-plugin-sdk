@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- SDK detection uses bundle name (`static-linux`) instead of architecture triples, preventing duplicate install attempts
 - Swift build manifest now uses correct platform-specific output paths (e.g. `.build/x86_64-swift-linux-musl/release/`) instead of duplicating the native path for all platforms
 
 ### Changed

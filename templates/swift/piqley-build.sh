@@ -98,29 +98,22 @@ if [[ -z "$platforms" ]]; then
     exit 1
 fi
 
-# Check for needed SDKs and offer to install them.
-missing_sdks=()
+# Check if the static Linux SDK is needed and installed.
+# The SDK bundle contains both architectures (x86_64 and aarch64),
+# so we only need to check once for "static-linux" in the bundle name.
+needs_linux_sdk=false
 for platform in $platforms; do
     if [[ "$platform" == "$HOST_PLATFORM" ]]; then
         continue
     fi
-
-    sdk="$(sdk_for_platform "$platform")"
-    if [[ -z "$sdk" ]]; then
-        continue
-    fi
-
-    if ! swift sdk list 2>/dev/null | grep -q "$sdk"; then
-        missing_sdks+=("$sdk")
-    fi
+    case "$platform" in
+        linux-amd64|linux-arm64) needs_linux_sdk=true ;;
+    esac
 done
 
-if [[ ${#missing_sdks[@]} -gt 0 ]]; then
-    # Deduplicate (both linux targets share the same SDK bundle)
-    unique_missing=($(printf '%s\n' "${missing_sdks[@]}" | sort -u))
-
-    echo "Required Swift SDK(s) not installed: ${unique_missing[*]}"
-    printf "Install the static Linux SDK now? [Y/n] "
+if $needs_linux_sdk && ! swift sdk list 2>/dev/null | grep -q "static-linux"; then
+    echo "Static Linux SDK not installed (required for cross-compilation)."
+    printf "Install it now? [Y/n] "
     read -r choice < /dev/tty
     if [[ "$choice" =~ ^[Nn] ]]; then
         echo "Aborting. Install manually from:" >&2
