@@ -1,0 +1,1 @@
+await Plugin().run()

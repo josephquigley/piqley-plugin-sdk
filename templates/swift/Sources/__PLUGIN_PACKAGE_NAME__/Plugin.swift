@@ -1,15 +1,9 @@
 import PiqleyPluginSDK
 import PiqleyCore
+import PluginHooks
 
-@main
 struct Plugin: PiqleyPlugin {
-    let registry = HookRegistry { r in
-        r.register(StandardHook.self)
-    }
-
-    static func main() async {
-        await Plugin().run()
-    }
+    let registry = pluginRegistry
 
     func handle(_ request: PluginRequest) async throws -> PluginResponse {
         switch request.hook {

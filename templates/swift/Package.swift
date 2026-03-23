@@ -11,11 +11,22 @@ let package = Package(
         ),
     ],
     targets: [
-        .executableTarget(
-            name: "__PLUGIN_PACKAGE_NAME__",
+        .target(
+            name: "PluginHooks",
             dependencies: [
                 .product(name: "PiqleyPluginSDK", package: "piqley-plugin-sdk"),
-            ]
+            ],
+            path: "Sources/PluginHooks"
+        ),
+        .executableTarget(
+            name: "__PLUGIN_PACKAGE_NAME__",
+            dependencies: ["PluginHooks"],
+            path: "Sources/__PLUGIN_PACKAGE_NAME__"
+        ),
+        .executableTarget(
+            name: "piqley-stage-gen",
+            dependencies: ["PluginHooks"],
+            path: "Sources/StageGen"
         ),
     ]
 )

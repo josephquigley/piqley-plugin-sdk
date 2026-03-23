@@ -28,6 +28,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- **BREAKING:** Swift plugin template restructured to three-target layout (PluginHooks, plugin executable, piqley-stage-gen)
+- `HookRegistry.writeStageFiles(to:)` promoted from `internal` to `public`
+- `writeStageFiles` uses `isEffectivelyEmpty` instead of `isEmpty` for consistency with CLI discovery
+- Removed `--create-stage-files` codepath from `PiqleyPlugin.run()`
 - Minimum PiqleyCore dependency bumped to 0.7.0 (Hook protocol)
 - **BREAKING:** `PiqleyPlugin` protocol now requires a `registry: HookRegistry` property
 - **BREAKING:** `PluginRequest.hook` is now `any Hook` instead of the old `Hook` enum. Use `request.hook as? StandardHook` for type-casting switch dispatch.
@@ -43,6 +47,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `HookRegistry.Registrar.register(_:stageConfig:)` overload for declaring stage configs via override closure
+- `AnyHookBox` stage config cache for eager evaluation of override closures
+- `piqley-stage-gen` executable target in Swift plugin template for build-time stage file generation
+- `piqley-build.sh` auto-detects and invokes `piqley-stage-gen` before packaging
+- `create-plugin.sh` renames `__PLUGIN_PACKAGE_NAME__` directories during scaffolding
 - `HookRegistry` for resolving hook strings into typed `Hook` protocol values with `register<H: Hook>(_:)` API
 - `AnyHookBox` internal type-erased container for hook type registration
 - `SDKError.unhandledHook` case for hooks the plugin didn't implement

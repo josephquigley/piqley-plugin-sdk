@@ -63,6 +63,40 @@ A piqley plugin is a directory inside `~/.config/piqley/plugins/<plugin-name>/` 
 └── bin/                    # Plugin executables (optional)
 ```
 
+### Swift Plugin Structure
+
+Swift plugins built with the SDK use a three-target layout:
+
+```
+Sources/
+├── PluginHooks/        # Hook registry + stage configs (SDK-only deps)
+│   └── Hooks.swift
+├── <plugin-name>/      # Plugin binary (business logic)
+│   ├── main.swift
+│   └── Plugin.swift
+└── StageGen/           # Stage file generator (built at package time)
+    └── main.swift
+```
+
+The `PluginHooks` target declares which hooks your plugin handles and their stage configurations using the SDK's DSL:
+
+```swift
+public let pluginRegistry = HookRegistry { r in
+    r.register(StandardHook.self) { hook in
+        switch hook {
+        case .publish:
+            return buildStage {
+                Binary(command: "bin/my-plugin", protocol: .json)
+            }
+        default:
+            return nil
+        }
+    }
+}
+```
+
+Stage files are generated automatically during `./piqley-build.sh`. The `piqley-stage-gen` binary builds for the host platform and writes `stage-*.json` files before packaging.
+
 ### Manifest
 
 The `manifest.json` declares the plugin's identity, config schema, supported platforms, and optional setup command:

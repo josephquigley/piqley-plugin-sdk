@@ -19,27 +19,6 @@ extension PiqleyPlugin {
             Foundation.exit(0)
         }
 
-        // Handle --create-stage-files <output-dir>
-        if let flagIndex = CommandLine.arguments.firstIndex(of: "--create-stage-files") {
-            let dirIndex = flagIndex + 1
-            guard dirIndex < CommandLine.arguments.count else {
-                FileHandle.standardError.write(
-                    Data("--create-stage-files requires an output directory argument\n".utf8)
-                )
-                exit(1)
-            }
-            let outputDir = URL(fileURLWithPath: CommandLine.arguments[dirIndex])
-            do {
-                try registry.writeStageFiles(to: outputDir)
-            } catch {
-                FileHandle.standardError.write(
-                    Data("Failed to write stage files: \(error)\n".utf8)
-                )
-                exit(1)
-            }
-            Foundation.exit(0)
-        }
-
         let inputData = FileHandle.standardInput.readDataToEndOfFile()
         let exitCode = await run(input: inputData, io: StdoutIO())
         exit(Int32(exitCode))
