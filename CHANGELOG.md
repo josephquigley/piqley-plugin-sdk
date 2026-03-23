@@ -52,6 +52,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `ConfigRegistry` DSL for declaring plugin config values and secrets programmatically
+- `Config` typealias (for `Value`) and `Secret` conform to `ConfigComponent` for use in `ConfigRegistry`
+- `ConfigRegistry.writeConfigEntries(to:)` writes `config-entries.json` for build-time config generation
 - `HookRegistry.Registrar.register(_:stageConfig:)` overload for declaring stage configs via closure
 - `AnyHookBox.stageConfigCache` property for eager evaluation of override closures
 - `piqley-stage-gen` executable target in Swift plugin template for build-time stage file generation

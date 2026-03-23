@@ -43,14 +43,14 @@ public struct ConfigEntries: ManifestComponent {
     }
 }
 
-public struct Value: Sendable {
+public struct Value: ConfigComponent {
     let entry: ConfigEntry
     public init(_ key: String, type: ConfigValueType, default defaultValue: JSONValue = .null) {
         self.entry = .value(key: key, type: type, value: defaultValue)
     }
 }
 
-public struct Secret: Sendable {
+public struct Secret: ConfigComponent {
     let entry: ConfigEntry
     public init(_ secretKey: String, type: ConfigValueType) {
         self.entry = .secret(secretKey: secretKey, type: type)
