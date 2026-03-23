@@ -10,6 +10,7 @@ set -euo pipefail
 
 SDK_VERSION="0.1.0"
 SDK_REPO="https://github.com/josephquigley/piqley-plugin-sdk.git"
+STATIC_SDK_URL="https://download.swift.org/swift-6.0.3-release/static-sdk/swift-6.0.3-RELEASE/swift-6.0.3-RELEASE_static-linux-0.0.1.artifactbundle.tar.gz"
 RESERVED_NAMES="original skip"
 
 # --- Cleanup ---
@@ -290,6 +291,61 @@ rewrite_build_manifest_platforms() {
 MANIFEST
 }
 
+install_swift_linux_sdk_if_needed() {
+    local language="$1"
+    local platforms="$2"
+
+    # Only relevant for Swift plugins targeting Linux
+    if [[ "$language" != "swift" ]]; then
+        return
+    fi
+
+    local needs_sdk=false
+    for platform in $platforms; do
+        case "$platform" in
+            linux-amd64|linux-arm64) needs_sdk=true ;;
+        esac
+    done
+
+    if ! $needs_sdk; then
+        return
+    fi
+
+    local installed_sdks
+    installed_sdks=$(swift sdk list 2>/dev/null || true)
+
+    local missing=false
+    for platform in $platforms; do
+        case "$platform" in
+            linux-amd64)
+                if ! echo "$installed_sdks" | grep -q "x86_64-swift-linux-musl"; then missing=true; fi
+                ;;
+            linux-arm64)
+                if ! echo "$installed_sdks" | grep -q "aarch64-swift-linux-musl"; then missing=true; fi
+                ;;
+        esac
+    done
+
+    if ! $missing; then
+        return
+    fi
+
+    echo ""
+    echo "Your plugin targets Linux, which requires the Swift static Linux SDK for cross-compilation."
+    printf "Install it now? [Y/n] "
+    read -r choice < /dev/tty
+    if [[ "$choice" =~ ^[Nn] ]]; then
+        echo ""
+        echo "Skipped. You can install it later with:"
+        echo "  swift sdk install $STATIC_SDK_URL"
+        return
+    fi
+
+    echo "Installing static Linux SDK (this may take a few minutes)..."
+    swift sdk install "$STATIC_SDK_URL"
+    echo "Done."
+}
+
 print_next_steps() {
     local language="$1"
     local dest="$2"
@@ -346,6 +402,7 @@ main() {
 
     scaffold "$templates_dir" "$language" "$name" "$identifier" "$dest"
     rewrite_build_manifest_platforms "$dest" "$platforms"
+    install_swift_linux_sdk_if_needed "$language" "$platforms"
     print_next_steps "$language" "$dest"
 }
 

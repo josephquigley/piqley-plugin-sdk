@@ -157,18 +157,28 @@ Supported platforms: `macos-arm64`, `linux-amd64`, `linux-arm64`. At least one p
 
 #### Building for Each Platform
 
-**Swift** plugins can cross-compile for Linux using the Swift SDK bundles:
+**Swift** plugins cross-compile for Linux from macOS using [Swift SDK bundles](https://www.swift.org/documentation/articles/static-linux-getting-started.html). These produce statically-linked Linux binaries directly on your Mac, with no Docker or VM required.
+
+If you select Linux as a target when creating a Swift plugin, `create-plugin.sh` offers to install the SDK for you during scaffolding. The generated `piqley-build.sh` also checks on each run and offers to install if missing:
 
 ```bash
-# Install a Linux SDK (one-time)
-swift sdk install <linux-sdk-bundle-url>
-
-# Build for Linux
-swift build -c release --swift-sdk x86_64-swift-linux-musl
-swift build -c release --swift-sdk aarch64-swift-linux-musl
+./piqley-build.sh
+# One or more Linux Swift SDKs are not installed.
+# Install the static Linux SDK now? [Y/n] y
+# Installing static Linux SDK (this may take a few minutes)...
+#
+# Building for: macos-arm64 linux-amd64 linux-arm64
+#
+# [macos-arm64] swift build -c release
+# [linux-amd64] swift build -c release --swift-sdk x86_64-swift-linux-musl
+# [linux-arm64] swift build -c release --swift-sdk aarch64-swift-linux-musl
+# Packaging...
+# ✓ Built my-plugin.piqleyplugin
 ```
 
-Alternatively, build inside a Docker container or use CI runners for each target platform.
+On subsequent runs, the SDK is already installed and the build proceeds without prompting.
+
+Cross-compiling from Linux to macOS is not supported (Apple does not provide macOS SDK bundles for Linux). To produce macOS binaries from Linux, use a macOS CI runner.
 
 **Go** plugins use the `GOOS` and `GOARCH` environment variables:
 
@@ -179,27 +189,6 @@ GOOS=linux GOARCH=arm64 go build -o dist/my-plugin-linux-arm64
 ```
 
 **Python and Node.js** plugins are interpreted, so the same scripts typically work across platforms. Use separate entry points per platform if you depend on platform-specific native modules or system APIs. Factor shared logic into common files that each entry point imports.
-
-#### CI Example (GitHub Actions)
-
-A typical multi-platform build matrix:
-
-```yaml
-strategy:
-  matrix:
-    include:
-      - os: macos-latest
-        platform: macos-arm64
-      - os: ubuntu-latest
-        platform: linux-amd64
-
-steps:
-  - uses: actions/checkout@v4
-  - run: swift build -c release
-  - run: cp .build/release/my-plugin dist/${{ matrix.platform }}/my-plugin
-```
-
-After the matrix completes, collect artifacts and run `piqley-build` to produce the final `.piqleyplugin` package.
 
 ### Config
 
