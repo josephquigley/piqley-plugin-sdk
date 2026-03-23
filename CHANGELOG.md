@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Removed
 
+- `config.json` sidecar is no longer created or included in `.piqleyplugin` archives
 - Python, Node.js/TypeScript, and Go language support (moved to `wip/*-support` branches)
 
 ### Fixed
@@ -52,6 +53,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **BREAKING:** Renamed `piqley-stage-gen` template target to `piqley-manifest-gen`; directory renamed from `StageGen` to `ManifestGen`
 - `piqley-manifest-gen` now generates both stage files and `config-entries.json`
 - Build script detects and invokes `piqley-manifest-gen` instead of `piqley-stage-gen`
+- Packager loads `config-entries.json` from plugin directory for manifest config instead of `BuildManifest.config`
+- `BuildManifest.toPluginManifest()` accepts optional `configOverride` parameter
 
 ### Added
 

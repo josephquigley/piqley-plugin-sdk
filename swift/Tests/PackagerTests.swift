@@ -83,7 +83,8 @@ private func makePluginDirectory(
     pluginName: String = "test-plugin",
     identifier: String? = nil,
     includeBin: Bool = true,
-    includeConfig: Bool = false
+    includeConfig: Bool = false,
+    configEntries: [ConfigEntry]? = nil
 ) throws -> URL {
     let fm = FileManager.default
     let dir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -105,10 +106,18 @@ private func makePluginDirectory(
     let buildManifestData = try JSONSerialization.data(withJSONObject: buildManifestDict)
     try buildManifestData.write(to: dir.appendingPathComponent("piqley-build-manifest.json"))
 
-    // config.json (optional)
+    // config.json (optional, legacy)
     if includeConfig {
         let configData = Data("{}".utf8)
         try configData.write(to: dir.appendingPathComponent(PluginFile.config))
+    }
+
+    // config-entries.json (optional)
+    if let configEntries {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let data = try encoder.encode(configEntries)
+        try data.write(to: dir.appendingPathComponent("config-entries.json"))
     }
 
     // Binary file
@@ -166,15 +175,14 @@ private func makePluginDirectory(
     #expect(manifest.supportedPlatforms == ["macos-arm64"])
 }
 
-@Test func packagerGeneratesEmptyConfigWhenMissing() throws {
+@Test func packagerDoesNotIncludeConfigJson() throws {
     let dir = try makePluginDirectory(includeConfig: false)
     defer { try? FileManager.default.removeItem(at: dir) }
 
-    // Should not throw even without config.json
     let output = try Packager.package(directory: dir)
     defer { try? FileManager.default.removeItem(at: output) }
 
-    // Unzip and verify config.json exists
+    // Unzip and verify config.json is NOT in the archive
     let fm = FileManager.default
     let unzipDir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     try fm.createDirectory(at: unzipDir, withIntermediateDirectories: true)
@@ -189,7 +197,42 @@ private func makePluginDirectory(
     let configURL = unzipDir
         .appendingPathComponent("test-plugin")
         .appendingPathComponent(PluginFile.config)
-    #expect(fm.fileExists(atPath: configURL.path))
+    #expect(!fm.fileExists(atPath: configURL.path))
+}
+
+@Test func packagerUsesConfigEntriesInManifest() throws {
+    let entries: [ConfigEntry] = [
+        .value(key: "siteUrl", type: .string, value: .string("https://example.com")),
+        .secret(secretKey: "API_KEY", type: .string),
+    ]
+    let dir = try makePluginDirectory(
+        pluginName: "config-test",
+        identifier: "com.test.config-test",
+        configEntries: entries
+    )
+    defer { try? FileManager.default.removeItem(at: dir) }
+
+    let output = try Packager.package(directory: dir)
+    defer { try? FileManager.default.removeItem(at: output) }
+
+    // Unzip and read manifest.json
+    let fm = FileManager.default
+    let unzipDir = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try fm.createDirectory(at: unzipDir, withIntermediateDirectories: true)
+    defer { try? fm.removeItem(at: unzipDir) }
+
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
+    process.arguments = ["-q", output.path, "-d", unzipDir.path]
+    try process.run()
+    process.waitUntilExit()
+
+    let manifestURL = unzipDir
+        .appendingPathComponent("config-test")
+        .appendingPathComponent(PluginFile.manifest)
+    let data = try Data(contentsOf: manifestURL)
+    let manifest = try JSONDecoder().decode(PluginManifest.self, from: data)
+    #expect(manifest.config == entries)
 }
 
 @Test func packagerFailsOnMissingBinPath() throws {

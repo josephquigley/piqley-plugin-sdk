@@ -14,8 +14,9 @@ public struct Packager {
     /// Packages the plugin in `directory` and returns the URL of the produced `.piqleyplugin` file.
     ///
     /// The directory must contain `piqley-build-manifest.json`. The packager generates
-    /// `manifest.json` from the build manifest. If `config.json` exists it is copied;
-    /// otherwise an empty one is created.
+    /// `manifest.json` from the build manifest. If `config-entries.json` exists, its
+    /// entries are used as the manifest's config; otherwise the build manifest's config
+    /// field is used.
     public static func package(directory: URL, outputPath: URL? = nil) throws -> URL {
         let fm = FileManager.default
 
@@ -26,8 +27,16 @@ public struct Packager {
         }
         let buildManifest = try BuildManifest.load(from: directory)
 
-        // 2. Generate PluginManifest from build manifest
-        let pluginManifest = try buildManifest.toPluginManifest()
+        // 2. Load config-entries.json if it exists, then generate PluginManifest
+        let configEntriesURL = directory.appendingPathComponent("config-entries.json")
+        let configOverride: [ConfigEntry]?
+        if fm.fileExists(atPath: configEntriesURL.path) {
+            let configData = try Data(contentsOf: configEntriesURL)
+            configOverride = try JSONDecoder().decode([ConfigEntry].self, from: configData)
+        } else {
+            configOverride = nil
+        }
+        let pluginManifest = try buildManifest.toPluginManifest(configOverride: configOverride)
 
         // 3. Verify all bin paths exist
         for (_, paths) in buildManifest.bin {
@@ -58,14 +67,6 @@ public struct Packager {
         // Write generated manifest.json
         let manifestData = try pluginManifest.encode()
         try manifestData.write(to: pluginDir.appendingPathComponent(PluginFile.manifest))
-
-        // Copy config.json if it exists, otherwise write an empty one
-        let configURL = directory.appendingPathComponent(PluginFile.config)
-        if fm.fileExists(atPath: configURL.path) {
-            try fm.copyItem(at: configURL, to: pluginDir.appendingPathComponent(PluginFile.config))
-        } else {
-            try Data("{}".utf8).write(to: pluginDir.appendingPathComponent(PluginFile.config))
-        }
 
         // Copy stage-*.json files
         let dirContents = try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
