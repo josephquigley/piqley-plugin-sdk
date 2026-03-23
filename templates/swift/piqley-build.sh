@@ -23,6 +23,7 @@ Commands:
 Options:
   -o <path>       Output path for the .piqleyplugin archive
   -h, --help      Show this help message
+  -v, --version   Show the SDK version this project was created with
 
 Examples:
   ./piqley-build.sh                          Build and package to .build/
@@ -38,6 +39,14 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         -h|--help)
             usage
+            ;;
+        -v|--version)
+            if [[ -f .piqley-sdk-version ]]; then
+                echo "piqley-build (SDK version $(cat .piqley-sdk-version))"
+            else
+                echo "piqley-build (SDK version unknown)"
+            fi
+            exit 0
             ;;
         -o)
             shift

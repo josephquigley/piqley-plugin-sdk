@@ -35,6 +35,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `plugin-update.sh` template to update plugin tooling to the latest SDK version
+- `-v, --version` flag to build script, reports SDK version from `.piqley-sdk-version`
+- `.piqley-sdk-version` stamp file created during scaffolding
+- Dynamic SDK version resolution in `create-plugin.sh` (from git tags or GitHub API)
 - `-o <path>` option to build script and packager for custom output path
 - `--help` flag to build script with usage documentation
 - Platform selection prompt in `create-plugin.sh` (macOS/Linux, Linux architecture choice)

@@ -8,9 +8,37 @@
 #
 set -euo pipefail
 
-SDK_VERSION="0.1.0"
 SDK_REPO="https://github.com/josephquigley/piqley-plugin-sdk.git"
+SDK_REPO_SLUG="josephquigley/piqley-plugin-sdk"
 RESERVED_NAMES="original skip"
+
+resolve_sdk_version() {
+    # Try local git tag first (running from a clone)
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)" || true
+    if [[ -n "$script_dir" ]] && git -C "$script_dir" rev-parse --git-dir &>/dev/null; then
+        local tag
+        tag=$(git -C "$script_dir" describe --tags --abbrev=0 2>/dev/null) || true
+        if [[ -n "$tag" ]]; then
+            echo "$tag"
+            return
+        fi
+    fi
+
+    # Fall back to GitHub API
+    local tag
+    tag=$(curl -sfL "https://api.github.com/repos/${SDK_REPO_SLUG}/releases/latest" \
+        | grep '"tag_name"' | head -1 | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/') || true
+    if [[ -n "$tag" ]]; then
+        echo "$tag"
+        return
+    fi
+
+    echo "Error: Could not resolve SDK version from git tags or GitHub API." >&2
+    exit 1
+}
+
+SDK_VERSION="$(resolve_sdk_version)"
 
 # --- Cleanup ---
 
@@ -276,10 +304,10 @@ rewrite_build_manifest_platforms() {
         case "$language" in
             swift)
                 case "$platform" in
-                    macos-arm64) bin_path=".build/arm64-apple-macosx/release/${identifier}" ;;
-                    linux-amd64) bin_path=".build-linux-amd64/release/${identifier}" ;;
-                    linux-arm64) bin_path=".build-linux-arm64/release/${identifier}" ;;
-                    *)           bin_path=".build/release/${identifier}" ;;
+                    macos-arm64) bin_path=".build/arm64-apple-macosx/release/${package_name}" ;;
+                    linux-amd64) bin_path=".build-linux-amd64/release/${package_name}" ;;
+                    linux-arm64) bin_path=".build-linux-arm64/release/${package_name}" ;;
+                    *)           bin_path=".build/release/${package_name}" ;;
                 esac
                 ;;
             go)
@@ -482,6 +510,9 @@ main() {
     scaffold "$templates_dir" "$language" "$name" "$identifier" "$dest"
     rewrite_build_manifest_platforms "$dest" "$platforms" "$language"
     setup_swift_cross_compilation "$language" "$platforms"
+
+    # Stamp the SDK version used to create this project
+    echo "$SDK_VERSION" > "$dest/.piqley-sdk-version"
 
     SCAFFOLD_COMPLETE=true
     print_next_steps "$language" "$dest"
