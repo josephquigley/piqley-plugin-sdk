@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- Build script SDK availability check uses bundle name instead of triple names
+- Build script exits before packaging if any platforms were skipped
 - Build script platform detection sed pattern replaced with grep for portability
 - `create-plugin.sh` cleans up the scaffolded project directory on failure or user interrupt
 - `create-plugin.sh` identifier prompt now defaults to reverse TLD format (e.g. `com.example.my-plugin`)

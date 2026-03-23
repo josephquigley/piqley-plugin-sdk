@@ -129,6 +129,12 @@ echo "Host platform: $HOST_PLATFORM"
 echo "Building for: $platforms"
 echo ""
 
+# Check once whether the static Linux SDK is installed.
+has_linux_sdk=false
+if swift sdk list 2>/dev/null | grep -q "static-linux"; then
+    has_linux_sdk=true
+fi
+
 skipped=()
 for platform in $platforms; do
     if [[ "$platform" == "$HOST_PLATFORM" ]]; then
@@ -144,8 +150,8 @@ for platform in $platforms; do
         continue
     fi
 
-    if ! swift sdk list 2>/dev/null | grep -q "$sdk"; then
-        echo "[$platform] SDK '$sdk' not available. Skipping." >&2
+    if ! $has_linux_sdk; then
+        echo "[$platform] Static Linux SDK not installed. Skipping." >&2
         skipped+=("$platform")
         continue
     fi
@@ -156,8 +162,10 @@ done
 
 if [[ ${#skipped[@]} -gt 0 ]]; then
     echo ""
-    echo "Warning: Skipped platforms: ${skipped[*]}"
-    echo "Build binaries for these platforms on a native machine or in CI."
+    echo "Skipped platforms: ${skipped[*]}"
+    echo "Build binaries for these platforms on a native machine or in CI,"
+    echo "then run 'swift run piqley-build' to package."
+    exit 1
 fi
 
 echo ""
