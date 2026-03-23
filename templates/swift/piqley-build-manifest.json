@@ -4,7 +4,7 @@
   "pluginSchemaVersion": "1",
   "pluginVersion": "0.1.0",
   "bin": {
-    "macos-arm64": [".build/arm64-apple-macosx/release/__PLUGIN_IDENTIFIER__"]
+    "macos-arm64": [".build/arm64-apple-macosx/release/__PLUGIN_PACKAGE_NAME__"]
   },
   "data": {},
   "dependencies": []

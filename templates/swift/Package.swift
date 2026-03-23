@@ -12,7 +12,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "__PLUGIN_IDENTIFIER__",
+            name: "__PLUGIN_PACKAGE_NAME__",
             dependencies: [
                 .product(name: "PiqleyPluginSDK", package: "piqley-plugin-sdk"),
             ]
