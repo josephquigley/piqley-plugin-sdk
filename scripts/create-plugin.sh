@@ -15,12 +15,17 @@ RESERVED_NAMES="original skip"
 # --- Cleanup ---
 
 TEMP_CLONE=""
+PROJECT_DIR=""
+SCAFFOLD_COMPLETE=false
 cleanup() {
     if [[ -n "$TEMP_CLONE" && -d "$TEMP_CLONE" ]]; then
         rm -rf "$TEMP_CLONE"
     fi
+    if ! $SCAFFOLD_COMPLETE && [[ -n "$PROJECT_DIR" && -d "$PROJECT_DIR" ]]; then
+        rm -rf "$PROJECT_DIR"
+    fi
 }
-trap cleanup EXIT
+trap cleanup EXIT INT TERM
 
 # --- Find templates ---
 
@@ -459,10 +464,13 @@ main() {
     local platforms="$RESULT"
 
     local dest="./$identifier"
+    PROJECT_DIR="$dest"
 
     scaffold "$templates_dir" "$language" "$name" "$identifier" "$dest"
     rewrite_build_manifest_platforms "$dest" "$platforms" "$language"
     install_swift_cross_sdk_if_needed "$language" "$platforms"
+
+    SCAFFOLD_COMPLETE=true
     print_next_steps "$language" "$dest"
 }
 
