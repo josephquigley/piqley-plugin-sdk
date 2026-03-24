@@ -54,7 +54,7 @@ public struct PluginRequest: @unchecked Sendable {
     /// Writes a progress line to stdout immediately.
     public func reportProgress(_ message: String) {
         let line = PluginOutputLine(type: "progress", message: message)
-        if let data = try? JSONEncoder().encode(line), let string = String(data: data, encoding: .utf8) {
+        if let data = try? JSONEncoder.piqley.encode(line), let string = String(data: data, encoding: .utf8) {
             io.writeLine(string)
         }
     }
@@ -62,7 +62,7 @@ public struct PluginRequest: @unchecked Sendable {
     /// Writes an imageResult line to stdout immediately.
     public func reportImageResult(_ filename: String, success: Bool, error: String? = nil) {
         let line = PluginOutputLine(type: "imageResult", filename: filename, success: success, error: error)
-        if let data = try? JSONEncoder().encode(line), let string = String(data: data, encoding: .utf8) {
+        if let data = try? JSONEncoder.piqley.encode(line), let string = String(data: data, encoding: .utf8) {
             io.writeLine(string)
         }
     }
@@ -86,7 +86,7 @@ public final class CapturedOutput: Sendable {
         io.lines.compactMap { line -> String? in
             guard
                 let data = line.data(using: .utf8),
-                let decoded = try? JSONDecoder().decode(PluginOutputLine.self, from: data),
+                let decoded = try? JSONDecoder.piqley.decode(PluginOutputLine.self, from: data),
                 decoded.type == "progress",
                 let message = decoded.message
             else { return nil }
@@ -98,7 +98,7 @@ public final class CapturedOutput: Sendable {
         io.lines.compactMap { line -> ImageResult? in
             guard
                 let data = line.data(using: .utf8),
-                let decoded = try? JSONDecoder().decode(PluginOutputLine.self, from: data),
+                let decoded = try? JSONDecoder.piqley.decode(PluginOutputLine.self, from: data),
                 decoded.type == "imageResult",
                 let filename = decoded.filename,
                 let success = decoded.success

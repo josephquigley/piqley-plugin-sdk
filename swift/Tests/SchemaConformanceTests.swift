@@ -95,9 +95,7 @@ struct SchemaConformanceTests {
             }
         }
 
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        let data = try encoder.encode(config)
+        let data = try JSONEncoder.piqleyPrettyPrint.encode(config)
         let instance = try parseJSON(data)
         let result = try validate(instance, against: "config.schema.json")
         #expect(result.valid, "Config should conform to schema: \(result.errors)")

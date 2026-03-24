@@ -32,7 +32,7 @@ public struct Packager {
         let configOverride: [ConfigEntry]?
         if fm.fileExists(atPath: configEntriesURL.path) {
             let configData = try Data(contentsOf: configEntriesURL)
-            configOverride = try JSONDecoder().decode([ConfigEntry].self, from: configData)
+            configOverride = try JSONDecoder.piqley.decode([ConfigEntry].self, from: configData)
         } else {
             configOverride = nil
         }

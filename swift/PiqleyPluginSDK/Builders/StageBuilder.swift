@@ -88,9 +88,7 @@ public func buildStage(@StageComponentBuilder _ builder: () -> [any StageCompone
 extension StageConfig {
     /// Writes the stage config to a directory as `stage-<hookName>.json`.
     public func write(to directory: URL, hookName: String) throws {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        let data = try encoder.encode(self)
+        let data = try JSONEncoder.piqleyPrettyPrint.encode(self)
         let fileName = "\(PluginFile.stagePrefix)\(hookName)\(PluginFile.stageSuffix)"
         try data.write(to: directory.appendingPathComponent(fileName))
     }

@@ -111,7 +111,7 @@ import Foundation
     #expect(FileManager.default.fileExists(atPath: manifestURL.path))
 
     let data = try Data(contentsOf: manifestURL)
-    let decoded = try JSONDecoder().decode(PluginManifest.self, from: data)
+    let decoded = try JSONDecoder.piqley.decode(PluginManifest.self, from: data)
     #expect(decoded.identifier == "com.test.write-plugin")
     #expect(decoded.name == "Write Plugin")
     #expect(decoded.pluginSchemaVersion == "1.0")

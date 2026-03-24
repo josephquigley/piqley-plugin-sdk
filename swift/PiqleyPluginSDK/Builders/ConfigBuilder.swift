@@ -214,9 +214,7 @@ public func buildConfig(@ConfigComponentBuilder _ builder: () -> [any ConfigComp
 
 extension PluginConfig {
     public func write(to directory: URL) throws {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        let data = try encoder.encode(self)
+        let data = try JSONEncoder.piqleyPrettyPrint.encode(self)
 
         let fileURL = directory.appendingPathComponent(PluginFile.config)
         try data.write(to: fileURL)

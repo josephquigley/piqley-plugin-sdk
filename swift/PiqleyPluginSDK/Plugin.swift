@@ -29,7 +29,7 @@ extension PiqleyPlugin {
         // 1. Decode payload
         let payload: PluginInputPayload
         do {
-            payload = try JSONDecoder().decode(PluginInputPayload.self, from: input)
+            payload = try JSONDecoder.piqley.decode(PluginInputPayload.self, from: input)
         } catch {
             writeError("Failed to decode plugin payload: \(error)", io: io)
             return 1
@@ -68,7 +68,7 @@ extension PiqleyPlugin {
     }
 
     private func writeOutputLine(_ line: PluginOutputLine, io: PluginIO) {
-        if let data = try? JSONEncoder().encode(line), let string = String(data: data, encoding: .utf8) {
+        if let data = try? JSONEncoder.piqley.encode(line), let string = String(data: data, encoding: .utf8) {
             io.writeLine(string)
         }
     }

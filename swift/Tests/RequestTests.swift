@@ -119,7 +119,7 @@ private func makePayload(
     #expect(io.lines.count == 1)
     let line = io.lines[0]
     let data = try #require(line.data(using: .utf8))
-    let decoded = try JSONDecoder().decode(PluginOutputLine.self, from: data)
+    let decoded = try JSONDecoder.piqley.decode(PluginOutputLine.self, from: data)
     #expect(decoded.type == "progress")
     #expect(decoded.message == "Processing image")
 }
@@ -131,7 +131,7 @@ private func makePayload(
     let req = try PluginRequest(payload: makePayload(), io: io, registry: standardRegistry)
     req.reportImageResult("photo.jpg", success: true)
     #expect(io.lines.count == 1)
-    let decoded = try JSONDecoder().decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
+    let decoded = try JSONDecoder.piqley.decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
     #expect(decoded.type == "imageResult")
     #expect(decoded.filename == "photo.jpg")
     #expect(decoded.success == true)
@@ -143,7 +143,7 @@ private func makePayload(
     let req = try PluginRequest(payload: makePayload(), io: io, registry: standardRegistry)
     req.reportImageResult("photo.jpg", success: false, error: "conversion failed")
     #expect(io.lines.count == 1)
-    let decoded = try JSONDecoder().decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
+    let decoded = try JSONDecoder.piqley.decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
     #expect(decoded.type == "imageResult")
     #expect(decoded.filename == "photo.jpg")
     #expect(decoded.success == false)

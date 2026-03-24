@@ -67,8 +67,7 @@ public final class HookRegistry: Sendable {
 /// ``Hook/stageConfig``. Effectively empty configs are skipped.
 extension HookRegistry {
     public func writeStageFiles(to directory: URL) throws {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let encoder = JSONEncoder.piqleyPrettyPrint
 
         for box in boxes {
             if let cache = box.stageConfigCache {

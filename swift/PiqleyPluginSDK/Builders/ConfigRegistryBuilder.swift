@@ -37,9 +37,7 @@ public struct ConfigRegistry: Sendable {
 
     /// Writes the registry's config entries to `config-entries.json` in the given directory.
     public func writeConfigEntries(to directory: URL) throws {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        let data = try encoder.encode(entries)
+        let data = try JSONEncoder.piqleyPrettyPrint.encode(entries)
         try data.write(
             to: directory.appendingPathComponent("config-entries.json"),
             options: .atomic

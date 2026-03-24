@@ -55,12 +55,12 @@ private func makePayloadData(hook: String = "pre-process") throws -> Data {
         pluginVersion: SemanticVersion(major: 1, minor: 0, patch: 0),
         lastExecutedVersion: nil
     )
-    return try JSONEncoder().encode(payload)
+    return try JSONEncoder.piqley.encode(payload)
 }
 
 private func decodeLine(_ line: String) throws -> PluginOutputLine {
     let data = try #require(line.data(using: .utf8))
-    return try JSONDecoder().decode(PluginOutputLine.self, from: data)
+    return try JSONDecoder.piqley.decode(PluginOutputLine.self, from: data)
 }
 
 // MARK: - Tests
@@ -151,7 +151,7 @@ private func decodeLine(_ line: String) throws -> PluginOutputLine {
     #expect(io.lines.count == 1)
     let line = io.lines[0]
     let data = line.data(using: .utf8)!
-    let result = try? JSONDecoder().decode(PluginOutputLine.self, from: data)
+    let result = try? JSONDecoder.piqley.decode(PluginOutputLine.self, from: data)
     #expect(result?.type == "result")
     #expect(result?.success == false)
     #expect(result?.error != nil)

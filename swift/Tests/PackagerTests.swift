@@ -20,7 +20,7 @@ import Foundation
     }
     """
     let data = Data(json.utf8)
-    let manifest = try JSONDecoder().decode(BuildManifest.self, from: data)
+    let manifest = try JSONDecoder.piqley.decode(BuildManifest.self, from: data)
 
     #expect(manifest.identifier == "com.test.my-plugin")
     #expect(manifest.pluginName == "my-plugin")
@@ -41,7 +41,7 @@ import Foundation
     """
     let data = Data(json.utf8)
     #expect(throws: (any Error).self) {
-        try JSONDecoder().decode(BuildManifest.self, from: data)
+        try JSONDecoder.piqley.decode(BuildManifest.self, from: data)
     }
 }
 
@@ -62,7 +62,7 @@ import Foundation
     }
     """
     let data = Data(json.utf8)
-    let manifest = try JSONDecoder().decode(BuildManifest.self, from: data)
+    let manifest = try JSONDecoder.piqley.decode(BuildManifest.self, from: data)
 
     #expect(manifest.identifier == "com.test.multi-arch")
     #expect(manifest.pluginSchemaVersion == "1")
@@ -114,9 +114,7 @@ private func makePluginDirectory(
 
     // config-entries.json (optional)
     if let configEntries {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        let data = try encoder.encode(configEntries)
+        let data = try JSONEncoder.piqleyPrettyPrint.encode(configEntries)
         try data.write(to: dir.appendingPathComponent("config-entries.json"))
     }
 
@@ -168,7 +166,7 @@ private func makePluginDirectory(
     #expect(fm.fileExists(atPath: manifestURL.path))
 
     let data = try Data(contentsOf: manifestURL)
-    let manifest = try JSONDecoder().decode(PluginManifest.self, from: data)
+    let manifest = try JSONDecoder.piqley.decode(PluginManifest.self, from: data)
     #expect(manifest.identifier == "com.test.gen-test")
     #expect(manifest.name == "gen-test")
     #expect(manifest.pluginSchemaVersion == "1")
@@ -231,7 +229,7 @@ private func makePluginDirectory(
         .appendingPathComponent("config-test")
         .appendingPathComponent(PluginFile.manifest)
     let data = try Data(contentsOf: manifestURL)
-    let manifest = try JSONDecoder().decode(PluginManifest.self, from: data)
+    let manifest = try JSONDecoder.piqley.decode(PluginManifest.self, from: data)
     #expect(manifest.config == entries)
 }
 

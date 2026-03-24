@@ -189,6 +189,6 @@ private enum HashtagKeys: String, StateKey {
     #expect(FileManager.default.fileExists(atPath: configURL.path))
 
     let data = try Data(contentsOf: configURL)
-    let decoded = try JSONDecoder().decode(PluginConfig.self, from: data)
+    let decoded = try JSONDecoder.piqley.decode(PluginConfig.self, from: data)
     #expect(decoded.values["quality"] == .number(95))
 }

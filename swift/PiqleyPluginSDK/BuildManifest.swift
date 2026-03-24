@@ -52,7 +52,7 @@ public struct BuildManifest: Codable, Sendable, Equatable {
     public static func load(from directory: URL) throws -> BuildManifest {
         let url = directory.appendingPathComponent("piqley-build-manifest.json")
         let data = try Data(contentsOf: url)
-        return try JSONDecoder().decode(BuildManifest.self, from: data)
+        return try JSONDecoder.piqley.decode(BuildManifest.self, from: data)
     }
 
     /// Builds a `PluginManifest` from this build manifest's fields.

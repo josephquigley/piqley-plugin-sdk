@@ -42,7 +42,7 @@ struct ConfigRegistryTests {
 
         let file = dir.appendingPathComponent("config-entries.json")
         let data = try Data(contentsOf: file)
-        let decoded = try JSONDecoder().decode([ConfigEntry].self, from: data)
+        let decoded = try JSONDecoder.piqley.decode([ConfigEntry].self, from: data)
         #expect(decoded.count == 2)
         #expect(decoded[0] == ConfigEntry.value(key: "url", type: .string, value: .string("https://example.com")))
         #expect(decoded[1] == ConfigEntry.secret(secretKey: "KEY", type: .string))
@@ -58,7 +58,7 @@ struct ConfigRegistryTests {
         try registry.writeConfigEntries(to: dir)
 
         let data = try Data(contentsOf: dir.appendingPathComponent("config-entries.json"))
-        let decoded = try JSONDecoder().decode([ConfigEntry].self, from: data)
+        let decoded = try JSONDecoder.piqley.decode([ConfigEntry].self, from: data)
         #expect(decoded.isEmpty)
     }
 }

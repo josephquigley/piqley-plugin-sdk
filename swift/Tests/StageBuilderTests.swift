@@ -90,10 +90,8 @@ import Foundation
         Binary(command: "./bin/tool")
     }
 
-    let encoder = JSONEncoder()
-    encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-    let data = try encoder.encode(stage)
-    let decoded = try JSONDecoder().decode(StageConfig.self, from: data)
+    let data = try JSONEncoder.piqleyPrettyPrint.encode(stage)
+    let decoded = try JSONDecoder.piqley.decode(StageConfig.self, from: data)
     #expect(decoded.preRules?.count == 1)
     #expect(decoded.binary?.command == "./bin/tool")
     #expect(decoded.postRules == nil)
@@ -141,7 +139,7 @@ import Foundation
     #expect(files[0].lastPathComponent == "stage-publish.json")
 
     let data = try Data(contentsOf: files[0])
-    let config = try JSONDecoder().decode(StageConfig.self, from: data)
+    let config = try JSONDecoder.piqley.decode(StageConfig.self, from: data)
     #expect(config.binary?.command == "bin/test-plugin")
     #expect(config.binary?.pluginProtocol == .json)
 }

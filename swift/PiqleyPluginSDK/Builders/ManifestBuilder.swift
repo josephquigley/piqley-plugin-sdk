@@ -202,8 +202,6 @@ extension PluginManifest {
     public func encode() throws -> Data {
         let errors = ManifestValidator.validate(self)
         guard errors.isEmpty else { throw SDKError.manifestValidationFailed(errors) }
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        return try encoder.encode(self)
+        return try JSONEncoder.piqleyPrettyPrint.encode(self)
     }
 }
