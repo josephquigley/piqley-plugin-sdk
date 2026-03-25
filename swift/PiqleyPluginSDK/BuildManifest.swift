@@ -60,7 +60,10 @@ public struct BuildManifest: Codable, Sendable, Equatable {
     /// - Parameter configOverride: If provided, used as the manifest's config entries
     ///   instead of this build manifest's `config` field. This allows the packager to
     ///   inject config entries loaded from `config-entries.json`.
-    public func toPluginManifest(configOverride: [ConfigEntry]? = nil) throws -> PluginManifest {
+    public func toPluginManifest(
+        configOverride: [ConfigEntry]? = nil,
+        consumedFieldsOverride: [ConsumedField]? = nil
+    ) throws -> PluginManifest {
         let semver: SemanticVersion? = try pluginVersion.map { try SemanticVersion($0) }
         return PluginManifest(
             identifier: identifier,
@@ -73,7 +76,8 @@ public struct BuildManifest: Codable, Sendable, Equatable {
             dependencies: dependencies,
             supportedFormats: supportedFormats,
             conversionFormat: conversionFormat,
-            supportedPlatforms: Array(bin.keys).sorted()
+            supportedPlatforms: Array(bin.keys).sorted(),
+            consumedFields: consumedFieldsOverride ?? []
         )
     }
 

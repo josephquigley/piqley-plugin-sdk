@@ -59,6 +59,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `ConsumedFieldRegistry` DSL for declaring state fields a plugin works with
+- `Consumes` component: accepts `StateKey` types (bulk) or individual cases with optional type/description
+- `ConsumedFieldRegistry.writeConsumedFields(to:)` writes `consumed-fields.json` for build-time generation
+- `BuildManifest.toPluginManifest()` accepts optional `consumedFieldsOverride` parameter
+- Packager loads `consumed-fields.json` and injects into manifest during packaging
 - `ConfigRegistry` DSL for declaring plugin config values and secrets programmatically
 - `Config` typealias (for `Value`) and `Secret` conform to `ConfigComponent` for use in `ConfigRegistry`
 - `ConfigRegistry.writeConfigEntries(to:)` writes `config-entries.json` for build-time config generation
