@@ -66,6 +66,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Packager loads `consumed-fields.json` and injects into manifest during packaging
 - `ConfigRegistry` DSL for declaring plugin config values and secrets programmatically
 - `Config` typealias (for `Value`) and `Secret` conform to `ConfigComponent` for use in `ConfigRegistry`
+- DocC documentation catalog with landing page and dry run article
+- Doc comment on `PluginRequest.dryRun` explaining JSON and pipe protocol delivery
+- Pipe protocol environment variable reference table in README
 - `ConfigRegistry.writeConfigEntries(to:)` writes `config-entries.json` for build-time config generation
 - `pluginConfig` export in plugin template Hooks.swift for `ConfigRegistry` declarations
 - `HookRegistry.Registrar.register(_:stageConfig:)` overload for declaring stage configs via closure

@@ -11,6 +11,16 @@ public struct PluginRequest: @unchecked Sendable {
     public let executionLogPath: String
     public let dataPath: String
     public let logPath: String
+    /// Whether this is a dry run (preview mode).
+    ///
+    /// When `true`, the plugin should skip all destructive or external operations
+    /// (API calls, file writes, uploads) and instead report what it *would* do
+    /// via ``reportProgress(_:)``.
+    ///
+    /// For CLI tool plugins using the pipe protocol, this value is passed as
+    /// the `PIQLEY_DRY_RUN` environment variable (`"1"` when active, `"0"` otherwise).
+    ///
+    /// For JSON protocol plugins, this value is the `dryRun` field in the input payload.
     public let dryRun: Bool
     public let state: ResolvedState
     public let pluginVersion: SemanticVersion

@@ -166,7 +166,22 @@ The plugin writes JSON lines to stdout:
 {"type": "result", "success": true, "error": null}
 ```
 
-**Pipe protocol** — context is passed via environment variables (`PIQLEY_IMAGE_FOLDER_PATH`, `PIQLEY_HOOK`, `PIQLEY_SECRET_*`, etc.) and stdout/stderr are forwarded directly to the user. Exit code determines success.
+**Pipe protocol** — context is passed via environment variables and stdout/stderr are forwarded directly to the user. Exit code determines success.
+
+| Variable | Description |
+|----------|-------------|
+| `PIQLEY_IMAGE_FOLDER_PATH` | Directory containing images to process |
+| `PIQLEY_HOOK` | Current pipeline stage name |
+| `PIQLEY_DRY_RUN` | `"1"` when dry run is active, `"0"` otherwise |
+| `PIQLEY_EXECUTION_LOG_PATH` | Path to the execution log file |
+| `PIQLEY_IMAGE_PATH` | Path to the current image (single-image mode) |
+| `PIQLEY_PIPELINE_RUN_ID` | Unique identifier for this pipeline run |
+| `PIQLEY_SECRET_*` | Secret values (e.g. `PIQLEY_SECRET_API_KEY`) |
+| `PIQLEY_CONFIG_*` | Config values (e.g. `PIQLEY_CONFIG_BASE_URL`) |
+
+### Dry Run
+
+When a user runs `piqley process --dry-run`, the `dryRun` field in the JSON payload is `true` and the `PIQLEY_DRY_RUN` environment variable is `"1"`. Plugins should skip all external side effects (API calls, uploads, file writes) and instead report what they would do. See the [DocC documentation](swift/PiqleyPluginSDK/PiqleyPluginSDK.docc/DryRun.md) for implementation guidance.
 
 ### Multi-Platform Support
 
