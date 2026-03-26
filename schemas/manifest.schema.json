@@ -40,7 +40,9 @@
           "properties": {
             "key": { "type": "string" },
             "type": { "enum": ["string", "int", "float", "bool"] },
-            "value": {}
+            "value": {},
+            "label": { "type": "string" },
+            "description": { "type": "string" }
           },
           "additionalProperties": false
         },
@@ -49,7 +51,9 @@
           "required": ["secret_key", "type"],
           "properties": {
             "secret_key": { "type": "string" },
-            "type": { "enum": ["string", "int", "float", "bool"] }
+            "type": { "enum": ["string", "int", "float", "bool"] },
+            "label": { "type": "string" },
+            "description": { "type": "string" }
           },
           "additionalProperties": false
         }

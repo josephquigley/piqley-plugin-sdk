@@ -59,6 +59,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Optional `label` and `description` properties on config entry objects in `manifest.schema.json`
 - `ConsumedFieldRegistry` DSL for declaring state fields a plugin works with
 - `Consumes` component: accepts `StateKey` types (bulk) or individual cases with optional type/description
 - `ConsumedFieldRegistry.writeConsumedFields(to:)` writes `consumed-fields.json` for build-time generation
