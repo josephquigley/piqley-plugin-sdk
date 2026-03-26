@@ -3,7 +3,7 @@
   "$id": "https://piqley.dev/schemas/plugin-input.schema.json",
   "title": "Piqley Plugin Input Payload",
   "type": "object",
-  "required": ["hook", "imageFolderPath", "pluginConfig", "secrets", "executionLogPath", "dataPath", "logPath", "dryRun", "pluginVersion"],
+  "required": ["hook", "imageFolderPath", "pluginConfig", "secrets", "executionLogPath", "dataPath", "logPath", "dryRun", "debug", "pluginVersion"],
   "properties": {
     "hook": { "type": "string", "enum": ["pre-process", "post-process", "publish", "post-publish"] },
     "imageFolderPath": { "type": "string" },
@@ -13,6 +13,7 @@
     "dataPath": { "type": "string" },
     "logPath": { "type": "string" },
     "dryRun": { "type": "boolean" },
+    "debug": { "type": "boolean" },
     "state": {
       "type": "object",
       "additionalProperties": {

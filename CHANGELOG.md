@@ -60,6 +60,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- `PluginRequest.debug` property and `debug` field in plugin-input JSON schema for forwarding the CLI `--debug` flag to plugins
 - Optional `label` and `description` properties on config entry objects in `manifest.schema.json`
 - `ConsumedFieldRegistry` DSL for declaring state fields a plugin works with
 - `Consumes` component: accepts `StateKey` types (bulk) or individual cases with optional type/description

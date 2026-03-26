@@ -22,6 +22,16 @@ public struct PluginRequest: @unchecked Sendable {
     ///
     /// For JSON protocol plugins, this value is the `dryRun` field in the input payload.
     public let dryRun: Bool
+    /// Whether debug output is enabled.
+    ///
+    /// When `true`, the plugin should emit additional diagnostic information
+    /// via ``reportProgress(_:)`` to help with troubleshooting.
+    ///
+    /// For CLI tool plugins using the pipe protocol, this value is passed as
+    /// the `PIQLEY_DEBUG` environment variable (`"1"` when active, `"0"` otherwise).
+    ///
+    /// For JSON protocol plugins, this value is the `debug` field in the input payload.
+    public let debug: Bool
     public let state: ResolvedState
     public let pluginVersion: SemanticVersion
     public let lastExecutedVersion: SemanticVersion?
@@ -47,6 +57,7 @@ public struct PluginRequest: @unchecked Sendable {
         self.dataPath = payload.dataPath
         self.logPath = payload.logPath
         self.dryRun = payload.dryRun
+        self.debug = payload.debug
         self.state = ResolvedState(payload.state ?? [:])
         self.pluginVersion = payload.pluginVersion
         self.lastExecutedVersion = payload.lastExecutedVersion
@@ -131,6 +142,7 @@ extension PluginRequest {
         dataPath: String = "/tmp/test/data",
         logPath: String = "/tmp/test/logs",
         dryRun: Bool = false,
+        debug: Bool = false,
         state: ResolvedState = .empty,
         pluginVersion: SemanticVersion = SemanticVersion(major: 1, minor: 0, patch: 0),
         lastExecutedVersion: SemanticVersion? = nil,
@@ -146,6 +158,7 @@ extension PluginRequest {
             dataPath: dataPath,
             logPath: logPath,
             dryRun: dryRun,
+            debug: debug,
             state: state,
             pluginVersion: pluginVersion,
             lastExecutedVersion: lastExecutedVersion,
@@ -165,6 +178,7 @@ extension PluginRequest {
         dataPath: String,
         logPath: String,
         dryRun: Bool,
+        debug: Bool,
         state: ResolvedState,
         pluginVersion: SemanticVersion,
         lastExecutedVersion: SemanticVersion?,
@@ -179,6 +193,7 @@ extension PluginRequest {
         self.dataPath = dataPath
         self.logPath = logPath
         self.dryRun = dryRun
+        self.debug = debug
         self.state = state
         self.pluginVersion = pluginVersion
         self.lastExecutedVersion = lastExecutedVersion
