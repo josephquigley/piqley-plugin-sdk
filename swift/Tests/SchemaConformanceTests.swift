@@ -53,8 +53,8 @@ struct SchemaConformanceTests {
             pluginSchemaVersion: "1",
             pluginVersion: SemanticVersion(major: 1, minor: 2, patch: 3),
             config: [
-                .value(key: "quality", type: .int, value: .number(80)),
-                .secret(secretKey: "API_KEY", type: .string),
+                .value(key: "quality", type: .int, value: .number(80), metadata: ConfigMetadata()),
+                .secret(secretKey: "API_KEY", type: .string, metadata: ConfigMetadata()),
             ],
             setup: SetupConfig(command: "setup.sh", args: ["--verbose"]),
             dependencies: [

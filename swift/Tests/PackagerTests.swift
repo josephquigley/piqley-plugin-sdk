@@ -200,8 +200,8 @@ private func makePluginDirectory(
 
 @Test func packagerUsesConfigEntriesInManifest() throws {
     let entries: [ConfigEntry] = [
-        .value(key: "siteUrl", type: .string, value: .string("https://example.com")),
-        .secret(secretKey: "API_KEY", type: .string),
+        .value(key: "siteUrl", type: .string, value: .string("https://example.com"), metadata: ConfigMetadata()),
+        .secret(secretKey: "API_KEY", type: .string, metadata: ConfigMetadata()),
     ]
     let dir = try makePluginDirectory(
         pluginName: "config-test",

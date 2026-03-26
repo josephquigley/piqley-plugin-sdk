@@ -45,15 +45,15 @@ public struct ConfigEntries: ManifestComponent {
 
 public struct Value: ConfigComponent {
     let entry: ConfigEntry
-    public init(_ key: String, type: ConfigValueType, default defaultValue: JSONValue = .null) {
-        self.entry = .value(key: key, type: type, value: defaultValue)
+    public init(_ key: String, type: ConfigValueType, default defaultValue: JSONValue = .null, label: String? = nil, description: String? = nil) {
+        self.entry = .value(key: key, type: type, value: defaultValue, metadata: ConfigMetadata(label: label, description: description))
     }
 }
 
 public struct Secret: ConfigComponent {
     let entry: ConfigEntry
-    public init(_ secretKey: String, type: ConfigValueType) {
-        self.entry = .secret(secretKey: secretKey, type: type)
+    public init(_ secretKey: String, type: ConfigValueType, label: String? = nil, description: String? = nil) {
+        self.entry = .secret(secretKey: secretKey, type: type, metadata: ConfigMetadata(label: label, description: description))
     }
 }
 
