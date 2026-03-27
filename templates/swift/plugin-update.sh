@@ -41,6 +41,31 @@ latest_version() {
     echo "$tag"
 }
 
+# --- Finish phase (re-execed after self-update) ---
+
+if [[ "${1:-}" == "--finish" ]]; then
+    latest="$2"
+    language="$3"
+
+    # Update Package.swift SDK version
+    if [[ -f "Package.swift" ]]; then
+        echo "  Updating Package.swift SDK dependency..."
+        if [[ "$(uname)" == "Darwin" ]]; then
+            sed -i '' "s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|g" Package.swift
+        else
+            sed -i "s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|g" Package.swift
+        fi
+    fi
+
+    # Stamp new version
+    echo "$latest" > "$VERSION_FILE"
+
+    echo ""
+    echo "Updated to SDK version $latest."
+    echo "Run './piqley-build.sh' to rebuild with the new tooling."
+    exit 0
+fi
+
 # --- Main ---
 
 current="$(current_version)"
@@ -81,24 +106,9 @@ echo "  Updating piqley-build.sh..."
 curl -sfL "${RAW_BASE}/templates/${language}/piqley-build.sh" -o piqley-build.sh
 chmod +x piqley-build.sh
 
-# Update plugin-update.sh (this script)
+# Update plugin-update.sh (this script), then re-exec the new version
+# to avoid bash reading stale byte offsets from the replaced file.
 echo "  Updating plugin-update.sh..."
 curl -sfL "${RAW_BASE}/templates/${language}/plugin-update.sh" -o plugin-update.sh
 chmod +x plugin-update.sh
-
-# Update Package.swift SDK version
-if [[ -f "Package.swift" ]]; then
-    echo "  Updating Package.swift SDK dependency..."
-    if [[ "$(uname)" == "Darwin" ]]; then
-        sed -i '' "s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|g" Package.swift
-    else
-        sed -i "s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|g" Package.swift
-    fi
-fi
-
-# Stamp new version
-echo "$latest" > "$VERSION_FILE"
-
-echo ""
-echo "Updated to SDK version $latest."
-echo "Run './piqley-build.sh' to rebuild with the new tooling."
+exec ./plugin-update.sh --finish "$latest" "$language"
