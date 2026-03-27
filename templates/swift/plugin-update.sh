@@ -28,8 +28,12 @@ current_version() {
 
 latest_version() {
     local tag
-    tag=$(git ls-remote --tags --sort=-v:refname "${SDK_REPO}" 2>/dev/null \
-        | head -1 | sed 's/.*refs\/tags\///') || true
+    tag=$(git ls-remote --tags "${SDK_REPO}" 2>/dev/null \
+        | sed 's/.*refs\/tags\///' \
+        | grep -v '\^{}' \
+        | sed 's/^v//' \
+        | sort -t. -k1,1n -k2,2n -k3,3n \
+        | tail -1) || true
     if [[ -z "$tag" ]]; then
         echo "Error: Could not fetch latest version from GitHub." >&2
         exit 1
