@@ -51,9 +51,9 @@ if [[ "${1:-}" == "--finish" ]]; then
     if [[ -f "Package.swift" ]]; then
         echo "  Updating Package.swift SDK dependency..."
         if [[ "$(uname)" == "Darwin" ]]; then
-            sed -i '' "s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|g" Package.swift
+            sed -i '' "/piqley-plugin-sdk/s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|" Package.swift
         else
-            sed -i "s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|g" Package.swift
+            sed -i "/piqley-plugin-sdk/s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|" Package.swift
         fi
     fi
 

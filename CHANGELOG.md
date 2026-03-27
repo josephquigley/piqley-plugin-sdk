@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - `plugin-update.sh` now finds the latest tag regardless of v-prefix by stripping prefixes and using numeric semver sort
 - `plugin-update.sh` re-execs after self-update to avoid bash reading stale byte offsets from the replaced file
+- `plugin-update.sh` sed now scoped to the piqley-plugin-sdk line in Package.swift, avoiding clobbering other dependency versions
 - Swift template uses sanitized package name for target and bin paths instead of dotted identifier
 - SDK version resolution uses `git ls-remote --tags` instead of GitHub Releases API (repo uses tags, not releases)
 - Cross-compiled builds use separate scratch paths to avoid module cache conflicts with native builds
