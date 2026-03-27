@@ -48,12 +48,13 @@ if [[ "${1:-}" == "--finish" ]]; then
     language="$3"
 
     # Update Package.swift SDK version
+    # Handles both .upToNextMajor(from: "X.Y.Z") and exact: "X.Y.Z"
     if [[ -f "Package.swift" ]]; then
         echo "  Updating Package.swift SDK dependency..."
         if [[ "$(uname)" == "Darwin" ]]; then
-            sed -i '' "/piqley-plugin-sdk/s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|" Package.swift
+            sed -i '' "/piqley-plugin-sdk/{n;s|\"[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\"|\"${latest}\"|;}" Package.swift
         else
-            sed -i "/piqley-plugin-sdk/s|.upToNextMajor(from: \"[^\"]*\")|.upToNextMajor(from: \"${latest}\")|" Package.swift
+            sed -i "/piqley-plugin-sdk/{n;s|\"[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\"|\"${latest}\"|;}" Package.swift
         fi
     fi
 
