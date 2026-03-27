@@ -31,6 +31,7 @@ private func makePayload(
         dataPath: dataPath,
         logPath: logPath,
         dryRun: dryRun,
+        debug: false,
         state: state,
         pluginVersion: pluginVersion,
         lastExecutedVersion: lastExecutedVersion

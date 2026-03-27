@@ -68,6 +68,7 @@ public struct BuildManifest: Codable, Sendable, Equatable {
         return PluginManifest(
             identifier: identifier,
             name: pluginName,
+            type: .static,
             description: description,
             pluginSchemaVersion: pluginSchemaVersion,
             pluginVersion: semver,

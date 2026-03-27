@@ -49,6 +49,7 @@ struct SchemaConformanceTests {
         let manifest = PluginManifest(
             identifier: "com.test.full-plugin",
             name: "Full Plugin",
+            type: .static,
             description: "A full-featured plugin",
             pluginSchemaVersion: "1",
             pluginVersion: SemanticVersion(major: 1, minor: 2, patch: 3),

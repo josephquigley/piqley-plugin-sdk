@@ -51,6 +51,7 @@ private func makePayloadData(hook: String = "pre-process") throws -> Data {
         dataPath: "/tmp/data",
         logPath: "/tmp/logs",
         dryRun: false,
+        debug: false,
         state: nil,
         pluginVersion: SemanticVersion(major: 1, minor: 0, patch: 0),
         lastExecutedVersion: nil

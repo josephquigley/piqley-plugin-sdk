@@ -173,6 +173,7 @@ public func buildManifest(@ManifestComponentBuilder _ builder: () throws -> [any
     return PluginManifest(
         identifier: identifier!,
         name: name!,
+        type: .static,
         description: description,
         pluginSchemaVersion: protocolVersion!,
         pluginVersion: pluginVersion,
