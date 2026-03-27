@@ -41,6 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - All JSON encoding/decoding now uses `JSONEncoder.piqley`/`JSONDecoder.piqley` from PiqleyCore instead of bare initializers
 - **BREAKING:** Swift plugin template restructured to three-target layout (PluginHooks library, plugin executable, piqley-stage-gen executable)
 - `HookRegistry.writeStageFiles(to:)` promoted from `internal` to `public`
+- piqley-core dependency bumped to 0.13.0 (PluginType support)
 - `writeStageFiles` prefers override cache when available, falls back to `Hook.stageConfig`, uses `isEffectivelyEmpty` instead of `isEmpty`
 - Removed `--create-stage-files` codepath from `PiqleyPlugin.run()`
 - Minimum PiqleyCore dependency bumped to 0.9.0 (ConfigMetadata)
