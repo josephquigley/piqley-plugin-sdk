@@ -233,7 +233,24 @@ Config entries come in two flavors:
 - **Values** (`"key"`) — prompted during setup, stored in `config.json`
 - **Secrets** (`"secret_key"`) — prompted during setup, stored in the system keychain
 
-Default values are supported. Piqley handles all prompting and persistence — plugins just declare what they need.
+Default values are supported. Piqley handles all prompting and persistence: plugins just declare what they need.
+
+### Fields
+
+Plugins declare the metadata fields they consume or produce using the `FieldRegistry` DSL in the `PluginHooks` target:
+
+```swift
+public let pluginFields = FieldRegistry {
+    Consumes("start_date", type: "string", description: "Starting date input")
+    Consumes("locale", type: "string", description: "Locale for date parsing")
+    Outputs("day_diff", type: "int", description: "Computed days difference")
+    Outputs("month_diff", type: "int", description: "Computed months difference")
+}
+```
+
+`Consumes` declares writable fields. These can be targeted by rule actions (emit, write) in workflow rules. `Outputs` declares read-only fields. These are visible in match conditions for downstream plugins but cannot be used as action targets. This distinction lets plugins expose computed values without allowing other plugins to overwrite them.
+
+During packaging, the field registry serializes to `fields.json` alongside the manifest and stage files.
 
 ## Installation
 
