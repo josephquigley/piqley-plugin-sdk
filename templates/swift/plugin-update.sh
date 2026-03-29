@@ -58,6 +58,10 @@ if [[ "${1:-}" == "--finish" ]]; then
         fi
     fi
 
+    # Resolve updated dependencies
+    echo "  Running swift package update..."
+    swift package update
+
     # Stamp new version
     echo "$latest" > "$VERSION_FILE"
 

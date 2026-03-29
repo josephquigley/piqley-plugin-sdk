@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
+- `plugin-update.sh` runs `swift package update` after updating local files to resolve new SDK dependencies
 - `plugin-update.sh` now finds the latest tag regardless of v-prefix by stripping prefixes and using numeric semver sort
 - `plugin-update.sh` re-execs after self-update to avoid bash reading stale byte offsets from the replaced file
 - `plugin-update.sh` sed scoped to the piqley-plugin-sdk dependency in Package.swift, handling both `exact:` and `.upToNextMajor(from:)` constraints without clobbering other dependencies
