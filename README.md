@@ -12,6 +12,7 @@
   <img src="https://img.shields.io/badge/macOS-15%2B-blue?logo=apple" alt="macOS">
   <img src="https://img.shields.io/badge/Linux-supported-blue?logo=linux&logoColor=white" alt="Linux">
   <img src="https://img.shields.io/badge/Swift-6.0-orange?logo=swift&logoColor=white" alt="Swift">
+  <img src="https://img.shields.io/badge/Fully_Dogfooded-Yes-brightgreen?labelColor=555" alt="Fully Dogfooded: Yes">
 </p>
 
 <p align="center">
