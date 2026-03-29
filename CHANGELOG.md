@@ -37,6 +37,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- **Breaking:** `ConsumedFieldRegistry` renamed to `FieldRegistry`, `ConsumedFieldBuilder` renamed to `FieldBuilder`
+- **Breaking:** `Consumes` internal property renamed from `consumed` to `fields`; now passes `readOnly: false`
+- Added `Outputs` struct for declaring read-only output fields with `readOnly: true`
+- `consumed-fields.json` renamed to `fields.json` in Packager and BuildManifest
 - `Value` and `Secret` builders accept optional `label` and `description` parameters for `ConfigMetadata`
 - All JSON encoding/decoding now uses `JSONEncoder.piqley`/`JSONDecoder.piqley` from PiqleyCore instead of bare initializers
 - **BREAKING:** Swift plugin template restructured to three-target layout (PluginHooks library, plugin executable, piqley-stage-gen executable)
