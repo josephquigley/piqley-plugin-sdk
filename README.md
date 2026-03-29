@@ -192,9 +192,9 @@ Plugins can target multiple platforms. The `piqley-build-manifest.json` uses pla
 {
   "pluginSchemaVersion": "1",
   "bin": {
-    "macos-arm64": [".build/release/my-plugin"],
-    "linux-amd64": ["dist/my-plugin-linux-amd64"],
-    "linux-arm64": ["dist/my-plugin-linux-arm64"]
+    "macos-arm64": [".build/arm64-apple-macosx/release/my-plugin"],
+    "linux-amd64": [".build-linux-amd64/x86_64-swift-linux-musl/release/my-plugin"],
+    "linux-arm64": [".build-linux-arm64/aarch64-swift-linux-musl/release/my-plugin"]
   },
   "data": {}
 }
