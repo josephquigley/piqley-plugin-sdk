@@ -42,6 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Breaking:** `reportImageResult(_:success:error:)` replaced with `reportImageResult(_:outcome:message:)` using `ImageOutcome` enum
 - **Breaking:** `ImageResult.success: Bool` replaced with `ImageResult.outcome: ImageOutcome`
 - **Breaking:** Wire format `imageResult` lines use `"status"` string field instead of `"success"` boolean
+- Swift template `.gitignore` updated to match repo root gitignore
 - Bumped piqley-core dependency to 0.17.0
 - **Breaking:** `ConsumedFieldRegistry` renamed to `FieldRegistry`, `ConsumedFieldBuilder` renamed to `FieldBuilder`
 - **Breaking:** `Consumes` internal property renamed from `consumed` to `fields`; now passes `readOnly: false`

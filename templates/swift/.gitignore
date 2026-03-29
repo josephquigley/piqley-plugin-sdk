@@ -1,7 +1,38 @@
-.DS_Store
-/.build
-/Packages
-xcuserdata/
-DerivedData/
+# Swift
+.build/
 .swiftpm/
+DerivedData/
 Package.resolved
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+python/dist/
+python/build/
+.venv/
+*.whl
+
+# Node
+node/node_modules/
+node/dist/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Credentials
+.netrc
+
+# Tools
+.claude/settings.local.json
+.worktrees/
+.worktrees
