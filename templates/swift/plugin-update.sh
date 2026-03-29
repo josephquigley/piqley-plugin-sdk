@@ -111,9 +111,11 @@ echo "  Updating piqley-build.sh..."
 curl -sfL "${RAW_BASE}/templates/${language}/piqley-build.sh" -o piqley-build.sh
 chmod +x piqley-build.sh
 
-# Update plugin-update.sh (this script), then re-exec the new version
-# to avoid bash reading stale byte offsets from the replaced file.
+# Update plugin-update.sh (this script), then re-exec the new version.
+# Download to a temp file and mv into place so bash's open fd to the old
+# file stays valid long enough to reach the exec line.
 echo "  Updating plugin-update.sh..."
-curl -sfL "${RAW_BASE}/templates/${language}/plugin-update.sh" -o plugin-update.sh
-chmod +x plugin-update.sh
+curl -sfL "${RAW_BASE}/templates/${language}/plugin-update.sh" -o plugin-update.sh.tmp
+chmod +x plugin-update.sh.tmp
+mv plugin-update.sh.tmp plugin-update.sh
 exec ./plugin-update.sh --finish "$latest" "$language"
