@@ -21,7 +21,7 @@ import Foundation
         }
     }
     #expect(stage.preRules?.count == 1)
-    #expect(stage.preRules?[0].match.field == "original:TIFF:Model")
+    #expect(stage.preRules?[0].match?.field == "original:TIFF:Model")
     #expect(stage.binary?.command == "./bin/my-plugin")
     #expect(stage.binary?.args == ["--quality", "high"])
     #expect(stage.binary?.timeout == 60)

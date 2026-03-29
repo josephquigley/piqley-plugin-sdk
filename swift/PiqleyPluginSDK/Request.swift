@@ -81,8 +81,8 @@ public struct PluginRequest: @unchecked Sendable {
     }
 
     /// Writes an imageResult line to stdout immediately.
-    public func reportImageResult(_ filename: String, success: Bool, error: String? = nil) {
-        let line = PluginOutputLine(type: "imageResult", filename: filename, success: success, error: error)
+    public func reportImageResult(_ filename: String, outcome: ImageOutcome, message: String? = nil) {
+        let line = PluginOutputLine(type: "imageResult", filename: filename, status: outcome, error: message)
         if let data = try? JSONEncoder.piqley.encode(line), let string = String(data: data, encoding: .utf8) {
             io.writeLine(string)
         }
@@ -94,7 +94,7 @@ public struct PluginRequest: @unchecked Sendable {
 /// Result of a captured image result report.
 public struct ImageResult: Sendable {
     public let filename: String
-    public let success: Bool
+    public let outcome: ImageOutcome
     public let error: String?
 }
 
@@ -122,9 +122,9 @@ public final class CapturedOutput: Sendable {
                 let decoded = try? JSONDecoder.piqley.decode(PluginOutputLine.self, from: data),
                 decoded.type == "imageResult",
                 let filename = decoded.filename,
-                let success = decoded.success
+                let status = decoded.status
             else { return nil }
-            return ImageResult(filename: filename, success: success, error: decoded.error)
+            return ImageResult(filename: filename, outcome: status, error: decoded.error)
         }
     }
 

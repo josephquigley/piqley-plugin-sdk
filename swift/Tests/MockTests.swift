@@ -74,27 +74,27 @@ import Foundation
 
 @Test func capturedOutputImageResultSuccess() {
     let (req, output) = PluginRequest.mock()
-    req.reportImageResult("a.jpg", success: true)
+    req.reportImageResult("a.jpg", outcome: .success)
     #expect(output.imageResults.count == 1)
     #expect(output.imageResults[0].filename == "a.jpg")
-    #expect(output.imageResults[0].success == true)
+    #expect(output.imageResults[0].outcome == .success)
     #expect(output.imageResults[0].error == nil)
 }
 
 @Test func capturedOutputImageResultFailure() {
     let (req, output) = PluginRequest.mock()
-    req.reportImageResult("b.jxl", success: false, error: "unsupported codec")
+    req.reportImageResult("b.jxl", outcome: .failure, message: "unsupported codec")
     #expect(output.imageResults.count == 1)
     #expect(output.imageResults[0].filename == "b.jxl")
-    #expect(output.imageResults[0].success == false)
+    #expect(output.imageResults[0].outcome == .failure)
     #expect(output.imageResults[0].error == "unsupported codec")
 }
 
 @Test func capturedOutputMixedLines() {
     let (req, output) = PluginRequest.mock()
     req.reportProgress("Starting")
-    req.reportImageResult("c.jpg", success: true)
-    req.reportImageResult("d.jpg", success: false, error: "err")
+    req.reportImageResult("c.jpg", outcome: .success)
+    req.reportImageResult("d.jpg", outcome: .failure, message: "err")
     req.reportProgress("Done")
 
     #expect(output.progressMessages == ["Starting", "Done"])
@@ -123,6 +123,6 @@ import Foundation
 @Test func capturedOutputAllLines() {
     let (req, output) = PluginRequest.mock()
     req.reportProgress("hello")
-    req.reportImageResult("x.jpg", success: true)
+    req.reportImageResult("x.jpg", outcome: .success)
     #expect(output.allLines.count == 2)
 }

@@ -130,25 +130,49 @@ private func makePayload(
 @Test func reportImageResultSuccessWritesJSONLine() throws {
     let io = CapturedIO()
     let req = try PluginRequest(payload: makePayload(), io: io, registry: standardRegistry)
-    req.reportImageResult("photo.jpg", success: true)
+    req.reportImageResult("photo.jpg", outcome: .success)
     #expect(io.lines.count == 1)
     let decoded = try JSONDecoder.piqley.decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
     #expect(decoded.type == "imageResult")
     #expect(decoded.filename == "photo.jpg")
-    #expect(decoded.success == true)
+    #expect(decoded.status == .success)
     #expect(decoded.error == nil)
 }
 
 @Test func reportImageResultFailureWritesJSONLine() throws {
     let io = CapturedIO()
     let req = try PluginRequest(payload: makePayload(), io: io, registry: standardRegistry)
-    req.reportImageResult("photo.jpg", success: false, error: "conversion failed")
+    req.reportImageResult("photo.jpg", outcome: .failure, message: "conversion failed")
     #expect(io.lines.count == 1)
     let decoded = try JSONDecoder.piqley.decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
     #expect(decoded.type == "imageResult")
     #expect(decoded.filename == "photo.jpg")
-    #expect(decoded.success == false)
+    #expect(decoded.status == .failure)
     #expect(decoded.error == "conversion failed")
+}
+
+@Test func reportImageResultWarningWritesJSONLine() throws {
+    let io = CapturedIO()
+    let req = try PluginRequest(payload: makePayload(), io: io, registry: standardRegistry)
+    req.reportImageResult("photo.jpg", outcome: .warning, message: "missing GPS data")
+    #expect(io.lines.count == 1)
+    let decoded = try JSONDecoder.piqley.decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
+    #expect(decoded.type == "imageResult")
+    #expect(decoded.filename == "photo.jpg")
+    #expect(decoded.status == .warning)
+    #expect(decoded.error == "missing GPS data")
+}
+
+@Test func reportImageResultSkipWritesJSONLine() throws {
+    let io = CapturedIO()
+    let req = try PluginRequest(payload: makePayload(), io: io, registry: standardRegistry)
+    req.reportImageResult("photo.jpg", outcome: .skip, message: "not a RAW file")
+    #expect(io.lines.count == 1)
+    let decoded = try JSONDecoder.piqley.decode(PluginOutputLine.self, from: io.lines[0].data(using: .utf8)!)
+    #expect(decoded.type == "imageResult")
+    #expect(decoded.filename == "photo.jpg")
+    #expect(decoded.status == .skip)
+    #expect(decoded.error == "not a RAW file")
 }
 
 // MARK: - imageFiles()

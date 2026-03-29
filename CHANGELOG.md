@@ -38,6 +38,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- **Breaking:** `reportImageResult(_:success:error:)` replaced with `reportImageResult(_:outcome:message:)` using `ImageOutcome` enum
+- **Breaking:** `ImageResult.success: Bool` replaced with `ImageResult.outcome: ImageOutcome`
+- **Breaking:** Wire format `imageResult` lines use `"status"` string field instead of `"success"` boolean
 - **Breaking:** `ConsumedFieldRegistry` renamed to `FieldRegistry`, `ConsumedFieldBuilder` renamed to `FieldBuilder`
 - **Breaking:** `Consumes` internal property renamed from `consumed` to `fields`; now passes `readOnly: false`
 - Added `Outputs` struct for declaring read-only output fields with `readOnly: true`

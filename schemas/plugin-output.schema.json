@@ -16,10 +16,10 @@
       "properties": {
         "type": { "const": "imageResult" },
         "filename": { "type": "string" },
-        "success": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["success", "failure", "warning", "skip"] },
         "error": { "type": ["string", "null"] }
       },
-      "required": ["type", "filename", "success"]
+      "required": ["type", "filename", "status"]
     },
     {
       "properties": {
