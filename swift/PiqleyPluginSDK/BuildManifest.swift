@@ -62,7 +62,7 @@ public struct BuildManifest: Codable, Sendable, Equatable {
     ///   inject config entries loaded from `config-entries.json`.
     public func toPluginManifest(
         configOverride: [ConfigEntry]? = nil,
-        consumedFieldsOverride: [ConsumedField]? = nil
+        fieldsOverride: [ConsumedField]? = nil
     ) throws -> PluginManifest {
         let semver: SemanticVersion? = try pluginVersion.map { try SemanticVersion($0) }
         return PluginManifest(
@@ -78,7 +78,7 @@ public struct BuildManifest: Codable, Sendable, Equatable {
             supportedFormats: supportedFormats,
             conversionFormat: conversionFormat,
             supportedPlatforms: Array(bin.keys).sorted(),
-            consumedFields: consumedFieldsOverride ?? []
+            fields: fieldsOverride ?? []
         )
     }
 

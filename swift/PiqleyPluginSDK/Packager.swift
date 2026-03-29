@@ -27,7 +27,7 @@ public struct Packager {
         }
         let buildManifest = try BuildManifest.load(from: directory)
 
-        // 2. Load config-entries.json and consumed-fields.json if they exist
+        // 2. Load config-entries.json and fields.json if they exist
         let configEntriesURL = directory.appendingPathComponent("config-entries.json")
         let configOverride: [ConfigEntry]?
         if fm.fileExists(atPath: configEntriesURL.path) {
@@ -37,18 +37,18 @@ public struct Packager {
             configOverride = nil
         }
 
-        let consumedFieldsURL = directory.appendingPathComponent("consumed-fields.json")
-        let consumedFieldsOverride: [ConsumedField]?
-        if fm.fileExists(atPath: consumedFieldsURL.path) {
-            let consumedData = try Data(contentsOf: consumedFieldsURL)
-            consumedFieldsOverride = try JSONDecoder.piqley.decode([ConsumedField].self, from: consumedData)
+        let fieldsURL = directory.appendingPathComponent("fields.json")
+        let fieldsOverride: [ConsumedField]?
+        if fm.fileExists(atPath: fieldsURL.path) {
+            let fieldsData = try Data(contentsOf: fieldsURL)
+            fieldsOverride = try JSONDecoder.piqley.decode([ConsumedField].self, from: fieldsData)
         } else {
-            consumedFieldsOverride = nil
+            fieldsOverride = nil
         }
 
         let pluginManifest = try buildManifest.toPluginManifest(
             configOverride: configOverride,
-            consumedFieldsOverride: consumedFieldsOverride
+            fieldsOverride: fieldsOverride
         )
 
         // 3. Verify all bin paths exist
