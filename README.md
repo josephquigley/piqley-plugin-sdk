@@ -40,7 +40,7 @@ curl -sL https://raw.githubusercontent.com/josephquigley/piqley-plugin-sdk/main/
 This walks you through choosing a language, naming your plugin, and setting up the project. You can also scaffold from the CLI if you have piqley installed:
 
 ```bash
-piqley plugin create my-plugin --language swift
+piqley plugin create my-plugin --identifier com.example.my-plugin --language swift
 ```
 
 > **Rules-only plugins don't need the SDK.** If your plugin only needs declarative rules (match/filter metadata, skip images, etc.) without running any external tool, use `piqley plugin init` instead. This creates a plugin with just a manifest and stage files that you can configure entirely through the rules editor (`piqley plugin rules edit <your plugin identifier>`).
@@ -54,7 +54,6 @@ A piqley plugin is a directory inside `~/.config/piqley/plugins/<plugin-name>/` 
 ```
 ~/.config/piqley/plugins/my-plugin/
 ├── manifest.json           # Declarative: identity, config schema, setup command
-├── config.json             # Mutable: resolved values (managed by piqley)
 ├── stage-pre-process.json  # Rules and/or binary for pre-process hook
 ├── stage-publish.json      # Rules and/or binary for publish hook
 ├── data/                   # Plugin working directory
@@ -72,7 +71,7 @@ Sources/
 ├── <plugin-name>/      # Plugin binary (business logic)
 │   ├── main.swift
 │   └── Plugin.swift
-└── StageGen/           # Stage file generator (built at package time)
+└── ManifestGen/        # Manifest and stage file generator (built at package time)
     └── main.swift
 ```
 
@@ -93,7 +92,7 @@ public let pluginRegistry = HookRegistry { r in
 }
 ```
 
-Stage files are generated automatically during `./piqley-build.sh`. The `piqley-stage-gen` binary builds for the host platform and writes `stage-*.json` files before packaging.
+Stage files are generated automatically during `./piqley-build.sh`. The `piqley-manifest-gen` binary builds for the host platform and writes `stage-*.json` files and `config-entries.json` before packaging.
 
 ### Manifest
 
@@ -125,6 +124,7 @@ Plugins communicate with piqley over stdin/stdout using one of two protocols:
 | `PIQLEY_IMAGE_FOLDER_PATH` | Directory containing images to process |
 | `PIQLEY_HOOK` | Current pipeline stage name |
 | `PIQLEY_DRY_RUN` | `"1"` when dry run is active, `"0"` otherwise |
+| `PIQLEY_DEBUG` | `"1"` when debug mode is active, `"0"` otherwise |
 | `PIQLEY_EXECUTION_LOG_PATH` | Path to the execution log file |
 | `PIQLEY_IMAGE_PATH` | Path to the current image (single-image mode) |
 | `PIQLEY_PIPELINE_RUN_ID` | Unique identifier for this pipeline run |
@@ -169,7 +169,7 @@ Cross-compiling to macOS from Linux is not currently supported by Swift (no macO
 
 Config entries come in two flavors:
 
-- **Values** (`"key"`): prompted during setup, stored in `config.json`
+- **Values** (`"key"`): prompted during setup, stored by piqley
 - **Secrets** (`"secret_key"`): prompted during setup, stored in the system keychain
 
 Default values are supported. Piqley handles all prompting and persistence: plugins just declare what they need. For the JSON config schema, see the [JSON Plugin Reference](docs/json-plugin-reference.md#config-entries).
@@ -196,7 +196,7 @@ During packaging, the field registry serializes to `fields.json` alongside the m
 **Swift (SPM):**
 ```swift
 dependencies: [
-    .package(url: "https://github.com/josephquigley/piqley-plugin-sdk.git", from: "0.7.0")
+    .package(url: "https://github.com/josephquigley/piqley-plugin-sdk.git", from: "0.14.0")
 ]
 ```
 

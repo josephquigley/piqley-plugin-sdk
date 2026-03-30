@@ -12,6 +12,7 @@ The manifest declares the plugin's identity, config schema, supported platforms,
 {
   "identifier": "com.example.my-plugin",
   "name": "my-plugin",
+  "type": "mutable",
   "pluginSchemaVersion": "1",
   "supportedPlatforms": ["macos-arm64", "linux-amd64"],
   "config": [
@@ -30,7 +31,7 @@ The manifest declares the plugin's identity, config schema, supported platforms,
 
 Config entries come in two flavors:
 
-- **Values** use the `"key"` field. They are prompted during setup and stored in `config.json`.
+- **Values** use the `"key"` field. They are prompted during setup and stored by piqley.
 - **Secrets** use the `"secret_key"` field. They are prompted during setup and stored in the system keychain.
 
 Default values are supported via the `"value"` field. Piqley handles all prompting and persistence.
@@ -65,18 +66,28 @@ piqley sends a JSON object on stdin:
   "imageFolderPath": "/tmp/piqley-abc123/",
   "pluginConfig": { "url": "https://mysite.com" },
   "secrets": { "api-key": "id:secret" },
-  "skipped": [{ "file": "draft.jpg", "plugin": "com.example.filter" }],
-  "dryRun": false
+  "executionLogPath": "/tmp/piqley-abc123/.execution-log.jsonl",
+  "dataPath": "~/.config/piqley/plugins/com.example.my-plugin/data",
+  "logPath": "~/.config/piqley/plugins/com.example.my-plugin/logs",
+  "dryRun": false,
+  "debug": false,
+  "pluginVersion": "1.0.0",
+  "state": {
+    "photo.jpg": {
+      "original": { "EXIF:DateTimeOriginal": "2025:12:25 10:30:00" }
+    }
+  },
+  "lastExecutedVersion": null
 }
 ```
 
-The `skipped` array lists images that were excluded from processing by upstream plugins via skip rules. Your plugin will not receive these images in its image folder, but the records are provided for logging or reporting.
+All fields above except `state` and `lastExecutedVersion` are required. The `state` object maps image filenames to namespaced key-value pairs populated by upstream plugins.
 
 The plugin writes JSON lines to stdout:
 
 ```json
 {"type": "progress", "message": "Uploading photo.jpg..."}
-{"type": "imageResult", "filename": "photo.jpg", "success": true}
+{"type": "imageResult", "filename": "photo.jpg", "status": "success"}
 {"type": "result", "success": true, "error": null}
 ```
 
@@ -111,7 +122,9 @@ The build manifest uses platform-keyed `bin` and `data` fields to declare where 
 
 ```json
 {
+  "pluginName": "my-plugin",
   "pluginSchemaVersion": "1",
+  "type": "mutable",
   "bin": {
     "macos-arm64": [".build/arm64-apple-macosx/release/my-plugin"],
     "linux-amd64": [".build-linux-amd64/x86_64-swift-linux-musl/release/my-plugin"],

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+## 0.16.0 - 2026-03-30
+
 ### Removed
 
 - `config.json` sidecar is no longer created or included in `.piqleyplugin` archives
