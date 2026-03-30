@@ -3,11 +3,12 @@
   "$id": "https://piqley.dev/schemas/build-manifest.schema.json",
   "title": "Piqley Build Manifest",
   "type": "object",
-  "required": ["pluginName", "pluginSchemaVersion", "bin"],
+  "required": ["pluginName", "pluginSchemaVersion", "type"],
   "properties": {
     "identifier": { "type": "string", "minLength": 1 },
     "pluginName": { "type": "string", "minLength": 1 },
     "pluginSchemaVersion": { "type": "string", "const": "1" },
+    "type": { "type": "string", "enum": ["static", "mutable"] },
     "description": { "type": "string" },
     "pluginVersion": {
       "type": "string",
@@ -25,7 +26,6 @@
     "conversionFormat": { "type": "string" },
     "bin": {
       "type": "object",
-      "minProperties": 1,
       "patternProperties": {
         "^(macos-arm64|linux-amd64|linux-arm64)$": {
           "type": "array",

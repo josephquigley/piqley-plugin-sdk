@@ -10,6 +10,7 @@ public struct BuildManifest: Codable, Sendable, Equatable {
     public let identifier: String
     public let pluginName: String
     public let pluginSchemaVersion: String
+    public let type: PluginType
     public let description: String?
     public let pluginVersion: String?
     public let config: [ConfigEntry]?
@@ -24,6 +25,7 @@ public struct BuildManifest: Codable, Sendable, Equatable {
         identifier: String,
         pluginName: String,
         pluginSchemaVersion: String,
+        type: PluginType = .static,
         description: String? = nil,
         pluginVersion: String? = nil,
         config: [ConfigEntry]? = nil,
@@ -37,6 +39,7 @@ public struct BuildManifest: Codable, Sendable, Equatable {
         self.identifier = identifier
         self.pluginName = pluginName
         self.pluginSchemaVersion = pluginSchemaVersion
+        self.type = type
         self.description = description
         self.pluginVersion = pluginVersion
         self.config = config
@@ -68,7 +71,7 @@ public struct BuildManifest: Codable, Sendable, Equatable {
         return PluginManifest(
             identifier: identifier,
             name: pluginName,
-            type: .static,
+            type: type,
             description: description,
             pluginSchemaVersion: pluginSchemaVersion,
             pluginVersion: semver,
@@ -84,7 +87,7 @@ public struct BuildManifest: Codable, Sendable, Equatable {
 
     // Custom decoding to provide defaults for fields that may not exist in older build manifests.
     private enum CodingKeys: String, CodingKey {
-        case identifier, pluginName, pluginSchemaVersion
+        case identifier, pluginName, pluginSchemaVersion, type
         case description, pluginVersion
         case config, setup
         case supportedFormats, conversionFormat
@@ -96,23 +99,26 @@ public struct BuildManifest: Codable, Sendable, Equatable {
         self.identifier = try container.decode(String.self, forKey: .identifier)
         self.pluginName = try container.decode(String.self, forKey: .pluginName)
         self.pluginSchemaVersion = try container.decode(String.self, forKey: .pluginSchemaVersion)
+        self.type = try container.decode(PluginType.self, forKey: .type)
         self.description = try container.decodeIfPresent(String.self, forKey: .description)
         self.pluginVersion = try container.decodeIfPresent(String.self, forKey: .pluginVersion)
         self.config = try container.decodeIfPresent([ConfigEntry].self, forKey: .config)
         self.setup = try container.decodeIfPresent(SetupConfig.self, forKey: .setup)
         self.supportedFormats = try container.decodeIfPresent([String].self, forKey: .supportedFormats)
         self.conversionFormat = try container.decodeIfPresent(String.self, forKey: .conversionFormat)
-        self.bin = try container.decode([String: [String]].self, forKey: .bin)
+        self.bin = try container.decodeIfPresent([String: [String]].self, forKey: .bin) ?? [:]
         self.data = try container.decodeIfPresent([String: [String]].self, forKey: .data) ?? [:]
 
-        let invalidDataPlatforms = Set(self.data.keys).subtracting(Set(self.bin.keys))
-        if !invalidDataPlatforms.isEmpty {
-            throw DecodingError.dataCorrupted(
-                DecodingError.Context(
-                    codingPath: [CodingKeys.data],
-                    debugDescription: "Data platforms \(invalidDataPlatforms.sorted()) are not declared in bin"
+        if !self.bin.isEmpty {
+            let invalidDataPlatforms = Set(self.data.keys).subtracting(Set(self.bin.keys))
+            if !invalidDataPlatforms.isEmpty {
+                throw DecodingError.dataCorrupted(
+                    DecodingError.Context(
+                        codingPath: [CodingKeys.data],
+                        debugDescription: "Data platforms \(invalidDataPlatforms.sorted()) are not declared in bin"
+                    )
                 )
-            )
+            }
         }
         if let structured = try? container.decodeIfPresent([PluginDependency].self, forKey: .dependencies) {
             self.dependencies = structured

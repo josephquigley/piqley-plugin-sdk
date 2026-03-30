@@ -39,6 +39,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- **Breaking:** Build manifest now requires a `type` field (`"static"` or `"mutable"`)
+- `bin` field in build manifest is now optional (defaults to empty) to support mutable plugins with no compiled binaries
+- `BuildManifest.toPluginManifest()` uses the manifest's `type` field instead of hardcoding `static`
 - **Breaking:** `reportImageResult(_:success:error:)` replaced with `reportImageResult(_:outcome:message:)` using `ImageOutcome` enum
 - **Breaking:** `ImageResult.success: Bool` replaced with `ImageResult.outcome: ImageOutcome`
 - **Breaking:** Wire format `imageResult` lines use `"status"` string field instead of `"success"` boolean
