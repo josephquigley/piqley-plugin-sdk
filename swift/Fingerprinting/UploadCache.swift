@@ -40,6 +40,10 @@ public struct UploadCache: Sendable {
         entries.append(entry)
     }
 
+    public mutating func remove(hash: String) {
+        entries.removeAll { $0.hash == hash }
+    }
+
     public func save() throws {
         let url = URL(fileURLWithPath: filePath)
         let dir = url.deletingLastPathComponent()

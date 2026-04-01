@@ -57,6 +57,28 @@ struct UploadCacheTests {
         try? FileManager.default.removeItem(atPath: path)
     }
 
+    @Test("remove by hash filters out matching entries")
+    func removeByHash() {
+        var cache = UploadCache(filePath: "/tmp/test-upload-cache-remove.json")
+        cache.add(hash: "aaaa000000000000", filename: "a.jpg", editorURL: "https://example.com/editor/1")
+        cache.add(hash: "bbbb000000000000", filename: "b.jpg", editorURL: "https://example.com/editor/2")
+        cache.remove(hash: "aaaa000000000000")
+        let removed = cache.findMatch(for: ImageFingerprint(hash: "aaaa000000000000"), threshold: 0)
+        let kept = cache.findMatch(for: ImageFingerprint(hash: "bbbb000000000000"), threshold: 0)
+        #expect(removed == nil)
+        #expect(kept != nil)
+    }
+
+    @Test("remove by hash handles multiple entries with same hash")
+    func removeByHashMultiple() {
+        var cache = UploadCache(filePath: "/tmp/test-upload-cache-remove-multi.json")
+        cache.add(hash: "aaaa000000000000", filename: "a1.jpg", editorURL: "https://example.com/editor/1")
+        cache.add(hash: "aaaa000000000000", filename: "a2.jpg", editorURL: "https://example.com/editor/2")
+        cache.remove(hash: "aaaa000000000000")
+        let match = cache.findMatch(for: ImageFingerprint(hash: "aaaa000000000000"), threshold: 0)
+        #expect(match == nil)
+    }
+
     @Test("filename fallback: exact match works")
     func filenameFallback() {
         var cache = UploadCache(filePath: "/tmp/test-upload-cache-fname.json")
