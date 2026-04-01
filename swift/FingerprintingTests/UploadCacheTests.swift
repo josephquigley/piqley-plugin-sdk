@@ -1,19 +1,22 @@
 import Foundation
 import Testing
+import PiqleyCore
 @testable import Fingerprinting
 
 @Suite("UploadCache")
 struct UploadCacheTests {
+    let fm = InMemoryFileManager()
+
     @Test("empty cache returns no match")
     func emptyCache() {
-        let cache = UploadCache(filePath: "/tmp/test-upload-cache-empty.json")
+        let cache = UploadCache(filePath: "/test/upload-cache-empty.json", fileManager: fm)
         let fp = ImageFingerprint(hash: "a1b2c3d4e5f67890")
         #expect(cache.findMatch(for: fp, threshold: 10) == nil)
     }
 
     @Test("exact hash match returns entry")
     func exactMatch() {
-        var cache = UploadCache(filePath: "/tmp/test-upload-cache-exact.json")
+        var cache = UploadCache(filePath: "/test/upload-cache-exact.json", fileManager: fm)
         cache.add(hash: "a1b2c3d4e5f67890", filename: "sunset.jpg", editorURL: "https://example.com/editor/1")
         let fp = ImageFingerprint(hash: "a1b2c3d4e5f67890")
         let match = cache.findMatch(for: fp, threshold: 10)
@@ -24,7 +27,7 @@ struct UploadCacheTests {
 
     @Test("near match within threshold returns entry")
     func nearMatch() {
-        var cache = UploadCache(filePath: "/tmp/test-upload-cache-near.json")
+        var cache = UploadCache(filePath: "/test/upload-cache-near.json", fileManager: fm)
         cache.add(hash: "0000000000000000", filename: "sunset.jpg", editorURL: "https://example.com/editor/1")
         let fp = ImageFingerprint(hash: "000000000000000f")
         let match = cache.findMatch(for: fp, threshold: 10)
@@ -33,7 +36,7 @@ struct UploadCacheTests {
 
     @Test("match beyond threshold returns nil")
     func beyondThreshold() {
-        var cache = UploadCache(filePath: "/tmp/test-upload-cache-beyond.json")
+        var cache = UploadCache(filePath: "/test/upload-cache-beyond.json", fileManager: fm)
         cache.add(hash: "0000000000000000", filename: "sunset.jpg", editorURL: "https://example.com/editor/1")
         let fp = ImageFingerprint(hash: "ffffffffffffffff")
         let match = cache.findMatch(for: fp, threshold: 10)
@@ -42,24 +45,21 @@ struct UploadCacheTests {
 
     @Test("save and load round-trip preserves entries")
     func saveLoadRoundTrip() throws {
-        let path = "/tmp/test-upload-cache-roundtrip.json"
-        try? FileManager.default.removeItem(atPath: path)
+        let path = "/test/upload-cache-roundtrip.json"
 
-        var cache = UploadCache(filePath: path)
+        var cache = UploadCache(filePath: path, fileManager: fm)
         cache.add(hash: "a1b2c3d4e5f67890", filename: "sunset.jpg", editorURL: "https://example.com/editor/1")
         try cache.save()
 
-        let loaded = UploadCache(filePath: path)
+        let loaded = UploadCache(filePath: path, fileManager: fm)
         let match = loaded.findMatch(for: ImageFingerprint(hash: "a1b2c3d4e5f67890"), threshold: 0)
         #expect(match != nil)
         #expect(match?.filename == "sunset.jpg")
-
-        try? FileManager.default.removeItem(atPath: path)
     }
 
     @Test("remove by hash filters out matching entries")
     func removeByHash() {
-        var cache = UploadCache(filePath: "/tmp/test-upload-cache-remove.json")
+        var cache = UploadCache(filePath: "/test/upload-cache-remove.json", fileManager: fm)
         cache.add(hash: "aaaa000000000000", filename: "a.jpg", editorURL: "https://example.com/editor/1")
         cache.add(hash: "bbbb000000000000", filename: "b.jpg", editorURL: "https://example.com/editor/2")
         cache.remove(hash: "aaaa000000000000")
@@ -71,7 +71,7 @@ struct UploadCacheTests {
 
     @Test("remove by hash handles multiple entries with same hash")
     func removeByHashMultiple() {
-        var cache = UploadCache(filePath: "/tmp/test-upload-cache-remove-multi.json")
+        var cache = UploadCache(filePath: "/test/upload-cache-remove-multi.json", fileManager: fm)
         cache.add(hash: "aaaa000000000000", filename: "a1.jpg", editorURL: "https://example.com/editor/1")
         cache.add(hash: "aaaa000000000000", filename: "a2.jpg", editorURL: "https://example.com/editor/2")
         cache.remove(hash: "aaaa000000000000")
@@ -81,7 +81,7 @@ struct UploadCacheTests {
 
     @Test("filename fallback: exact match works")
     func filenameFallback() {
-        var cache = UploadCache(filePath: "/tmp/test-upload-cache-fname.json")
+        var cache = UploadCache(filePath: "/test/upload-cache-fname.json", fileManager: fm)
         cache.add(hash: "sunset.jpg", filename: "sunset.jpg", editorURL: "https://example.com/editor/1")
         let fp = ImageFingerprint(hash: "sunset.jpg")
         let match = cache.findMatch(for: fp, threshold: 10)

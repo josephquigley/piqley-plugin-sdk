@@ -190,10 +190,10 @@ extension PluginManifest {
     ///
     /// Runs ``ManifestValidator`` before writing. Throws ``SDKError/manifestValidationFailed(_:)``
     /// if validation fails.
-    public func writeValidated(to directory: URL) throws {
+    public func writeValidated(to directory: URL, fileManager: any FileSystemManager = FileManager.default) throws {
         let data = try encode()
         let fileURL = directory.appendingPathComponent(PluginFile.manifest)
-        try data.write(to: fileURL)
+        try fileManager.write(data, to: fileURL)
     }
 
     /// Validates and encodes the manifest as JSON data without writing to disk.

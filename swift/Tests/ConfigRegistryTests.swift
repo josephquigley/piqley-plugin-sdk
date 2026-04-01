@@ -5,6 +5,8 @@ import PiqleyCore
 
 @Suite("ConfigRegistry")
 struct ConfigRegistryTests {
+    let fm = InMemoryFileManager()
+
     @Test("Config creates a value ConfigEntry")
     func configCreatesValueEntry() {
         let config = Config("siteUrl", type: .string, default: .string("https://example.com"))
@@ -34,14 +36,13 @@ struct ConfigRegistryTests {
             Config("url", type: .string, default: .string("https://example.com"))
             Secret("KEY", type: .string)
         }
-        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: dir) }
+        let dir = URL(fileURLWithPath: "/test/config-registry")
+        try fm.createDirectory(at: dir, withIntermediateDirectories: true)
 
-        try registry.writeConfigEntries(to: dir)
+        try registry.writeConfigEntries(to: dir, fileManager: fm)
 
         let file = dir.appendingPathComponent("config-entries.json")
-        let data = try Data(contentsOf: file)
+        let data = try fm.contents(of: file)
         let decoded = try JSONDecoder.piqley.decode([ConfigEntry].self, from: data)
         #expect(decoded.count == 2)
         #expect(decoded[0] == ConfigEntry.value(key: "url", type: .string, value: .string("https://example.com"), metadata: ConfigMetadata()))
@@ -51,13 +52,12 @@ struct ConfigRegistryTests {
     @Test("Empty ConfigRegistry writes empty array")
     func emptyRegistryWritesEmptyArray() throws {
         let registry = ConfigRegistry {}
-        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: dir) }
+        let dir = URL(fileURLWithPath: "/test/config-registry-empty")
+        try fm.createDirectory(at: dir, withIntermediateDirectories: true)
 
-        try registry.writeConfigEntries(to: dir)
+        try registry.writeConfigEntries(to: dir, fileManager: fm)
 
-        let data = try Data(contentsOf: dir.appendingPathComponent("config-entries.json"))
+        let data = try fm.contents(of: dir.appendingPathComponent("config-entries.json"))
         let decoded = try JSONDecoder.piqley.decode([ConfigEntry].self, from: data)
         #expect(decoded.isEmpty)
     }

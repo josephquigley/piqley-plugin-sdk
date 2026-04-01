@@ -173,22 +173,22 @@ private enum HashtagKeys: String, StateKey {
 // MARK: - Write success
 
 @Test func configBuilderWriteSuccess() throws {
+    let fm = InMemoryFileManager()
     let config = buildConfig {
         Values {
             "quality" => 95
         }
     }
 
-    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-    defer { try? FileManager.default.removeItem(at: tempDir) }
+    let tempDir = URL(fileURLWithPath: "/test/config-write")
+    try fm.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
-    try config.write(to: tempDir)
+    try config.write(to: tempDir, fileManager: fm)
 
     let configURL = tempDir.appendingPathComponent("config.json")
-    #expect(FileManager.default.fileExists(atPath: configURL.path))
+    #expect(fm.fileExists(atPath: configURL.path))
 
-    let data = try Data(contentsOf: configURL)
+    let data = try fm.contents(of: configURL)
     let decoded = try JSONDecoder.piqley.decode(PluginConfig.self, from: data)
     #expect(decoded.values["quality"] == .number(95))
 }

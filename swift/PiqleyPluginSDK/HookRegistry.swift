@@ -66,7 +66,7 @@ public final class HookRegistry: Sendable {
 /// configs are used. For hooks without an override, falls back to
 /// ``Hook/stageConfig``. Effectively empty configs are skipped.
 extension HookRegistry {
-    public func writeStageFiles(to directory: URL) throws {
+    public func writeStageFiles(to directory: URL, fileManager: any FileSystemManager = FileManager.default) throws {
         let encoder = JSONEncoder.piqleyPrettyPrint
 
         for box in boxes {
@@ -76,7 +76,7 @@ extension HookRegistry {
                     guard !config.isEffectivelyEmpty else { continue }
                     let filename = "\(PluginFile.stagePrefix)\(hookName)\(PluginFile.stageSuffix)"
                     let data = try encoder.encode(config)
-                    try data.write(to: directory.appendingPathComponent(filename), options: .atomic)
+                    try fileManager.write(data, to: directory.appendingPathComponent(filename), options: .atomic)
                 }
             } else {
                 // Fallback path: use hook.stageConfig
@@ -85,7 +85,7 @@ extension HookRegistry {
                     guard !config.isEffectivelyEmpty else { continue }
                     let filename = "\(PluginFile.stagePrefix)\(hook.rawValue)\(PluginFile.stageSuffix)"
                     let data = try encoder.encode(config)
-                    try data.write(to: directory.appendingPathComponent(filename), options: .atomic)
+                    try fileManager.write(data, to: directory.appendingPathComponent(filename), options: .atomic)
                 }
             }
         }

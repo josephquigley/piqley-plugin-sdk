@@ -213,10 +213,10 @@ public func buildConfig(@ConfigComponentBuilder _ builder: () -> [any ConfigComp
 // MARK: - PluginConfig write extension
 
 extension PluginConfig {
-    public func write(to directory: URL) throws {
+    public func write(to directory: URL, fileManager: any FileSystemManager = FileManager.default) throws {
         let data = try JSONEncoder.piqleyPrettyPrint.encode(self)
 
         let fileURL = directory.appendingPathComponent(PluginFile.config)
-        try data.write(to: fileURL)
+        try fileManager.write(data, to: fileURL)
     }
 }

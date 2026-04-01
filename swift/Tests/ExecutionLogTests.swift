@@ -3,22 +3,11 @@ import Testing
 import PiqleyCore
 import Foundation
 
-// MARK: - Helper
-
-private func tempLogPath() -> String {
-    FileManager.default.temporaryDirectory
-        .appendingPathComponent(UUID().uuidString)
-        .appendingPathComponent("test.jsonl")
-        .path
-}
-
 // MARK: - Append and query
 
 @Test func executionLogAppendAndQuery() throws {
-    let path = tempLogPath()
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
-    let log = try ExecutionLog(path: path)
+    let fm = InMemoryFileManager()
+    let log = try ExecutionLog(path: "/test/exec.jsonl", fileManager: fm)
     let entry = ExecutionLogEntry(filename: "photo.jpg", hook: StandardHook.preProcess, success: true)
     try log.append(entry)
 
@@ -33,10 +22,8 @@ private func tempLogPath() -> String {
 // MARK: - Contains
 
 @Test func executionLogContains() throws {
-    let path = tempLogPath()
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
-    let log = try ExecutionLog(path: path)
+    let fm = InMemoryFileManager()
+    let log = try ExecutionLog(path: "/test/exec.jsonl", fileManager: fm)
     try log.append(ExecutionLogEntry(filename: "img.jpg", hook: StandardHook.publish, success: true))
 
     #expect(try log.contains(filename: "img.jpg") == true)
@@ -46,10 +33,8 @@ private func tempLogPath() -> String {
 // MARK: - Multiple entries for different files
 
 @Test func executionLogMultipleFiles() throws {
-    let path = tempLogPath()
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
-    let log = try ExecutionLog(path: path)
+    let fm = InMemoryFileManager()
+    let log = try ExecutionLog(path: "/test/exec.jsonl", fileManager: fm)
     try log.append(ExecutionLogEntry(filename: "a.jpg", hook: StandardHook.preProcess, success: true))
     try log.append(ExecutionLogEntry(filename: "b.jpg", hook: StandardHook.postProcess, success: false))
     try log.append(ExecutionLogEntry(filename: "a.jpg", hook: StandardHook.publish, success: true))
@@ -68,10 +53,8 @@ private func tempLogPath() -> String {
 // MARK: - Entry with metadata
 
 @Test func executionLogEntryWithMetadata() throws {
-    let path = tempLogPath()
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
-    let log = try ExecutionLog(path: path)
+    let fm = InMemoryFileManager()
+    let log = try ExecutionLog(path: "/test/exec.jsonl", fileManager: fm)
     let metadata: [String: JSONValue] = ["score": .number(42), "label": .string("portrait")]
     let entry = ExecutionLogEntry(filename: "meta.jpg", hook: StandardHook.postProcess, success: true, metadata: metadata)
     try log.append(entry)
@@ -85,25 +68,23 @@ private func tempLogPath() -> String {
 // MARK: - Creates file if missing
 
 @Test func executionLogCreatesFileIfMissing() throws {
-    let path = tempLogPath()
-    defer { try? FileManager.default.removeItem(atPath: path) }
+    let fm = InMemoryFileManager()
+    let path = "/test/exec.jsonl"
 
-    #expect(!FileManager.default.fileExists(atPath: path))
+    #expect(!fm.fileExists(atPath: path))
 
-    let log = try ExecutionLog(path: path)
+    let log = try ExecutionLog(path: path, fileManager: fm)
     try log.append(ExecutionLogEntry(filename: "new.jpg", hook: StandardHook.preProcess, success: true))
 
-    #expect(FileManager.default.fileExists(atPath: path))
+    #expect(fm.fileExists(atPath: path))
 }
 
 // MARK: - Timestamp is set
 
 @Test func executionLogTimestampIsSet() throws {
-    let path = tempLogPath()
-    defer { try? FileManager.default.removeItem(atPath: path) }
-
+    let fm = InMemoryFileManager()
     let before = Date().addingTimeInterval(-1) // allow 1s slack for ISO 8601 second truncation
-    let log = try ExecutionLog(path: path)
+    let log = try ExecutionLog(path: "/test/exec.jsonl", fileManager: fm)
     let entry = ExecutionLogEntry(filename: "ts.jpg", hook: StandardHook.publish, success: true)
     try log.append(entry)
     let after = Date().addingTimeInterval(1)
@@ -117,8 +98,8 @@ private func tempLogPath() -> String {
 // MARK: - Empty query when file missing
 
 @Test func executionLogEmptyWhenFileMissing() throws {
-    let path = tempLogPath()
-    let log = try ExecutionLog(path: path)
+    let fm = InMemoryFileManager()
+    let log = try ExecutionLog(path: "/test/exec.jsonl", fileManager: fm)
     let results = try log.entries(for: "ghost.jpg")
     #expect(results.isEmpty)
 }

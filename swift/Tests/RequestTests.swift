@@ -178,17 +178,16 @@ private func makePayload(
 // MARK: - imageFiles()
 
 @Test func imageFilesReturnsOnlySupportedExtensions() throws {
-    let dir = FileManager.default.temporaryDirectory
-        .appendingPathComponent("piqley-test-\(UUID().uuidString)")
-    try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-    defer { try? FileManager.default.removeItem(at: dir) }
+    let fm = InMemoryFileManager()
+    let dir = URL(fileURLWithPath: "/test/photos")
+    try fm.createDirectory(at: dir, withIntermediateDirectories: true)
 
     let filenames = ["a.jpg", "b.jpeg", "c.jxl", "d.png", "e.tiff", "f.txt", "g.JPG", "h.heic", "i.webp"]
     for name in filenames {
-        FileManager.default.createFile(atPath: dir.appendingPathComponent(name).path, contents: nil)
+        fm.createFile(atPath: dir.appendingPathComponent(name).path, contents: nil, attributes: nil)
     }
 
-    let req = try PluginRequest(payload: makePayload(imageFolderPath: dir.path), io: CapturedIO(), registry: standardRegistry)
+    let req = try PluginRequest(payload: makePayload(imageFolderPath: dir.path), io: CapturedIO(), registry: standardRegistry, fileManager: fm)
     let found = try req.imageFiles()
     let names = Set(found.map { $0.lastPathComponent })
     #expect(names.contains("a.jpg"))

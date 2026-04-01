@@ -114,6 +114,7 @@ import Foundation
 }
 
 @Test func writeStageFilesUsesOverrideCache() throws {
+    let fm = InMemoryFileManager()
     let registry = HookRegistry { r in
         r.register(StandardHook.self) { hook in
             switch hook {
@@ -127,40 +128,40 @@ import Foundation
         }
     }
 
-    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-    defer { try? FileManager.default.removeItem(at: tempDir) }
+    let tempDir = URL(fileURLWithPath: "/test/stages")
+    try fm.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
-    try registry.writeStageFiles(to: tempDir)
+    try registry.writeStageFiles(to: tempDir, fileManager: fm)
 
     // Only publish should have a stage file
-    let files = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+    let files = try fm.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
     #expect(files.count == 1)
     #expect(files[0].lastPathComponent == "stage-publish.json")
 
-    let data = try Data(contentsOf: files[0])
+    let data = try fm.contents(of: files[0])
     let config = try JSONDecoder.piqley.decode(StageConfig.self, from: data)
     #expect(config.binary?.command == "bin/test-plugin")
     #expect(config.binary?.pluginProtocol == .json)
 }
 
 @Test func writeStageFilesFallbackProducesNothingForEmptyStageConfig() throws {
+    let fm = InMemoryFileManager()
     // StandardHook.stageConfig returns empty configs, so no files should be written
     let registry = HookRegistry { r in
         r.register(StandardHook.self)
     }
 
-    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-    defer { try? FileManager.default.removeItem(at: tempDir) }
+    let tempDir = URL(fileURLWithPath: "/test/stages-empty")
+    try fm.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
-    try registry.writeStageFiles(to: tempDir)
+    try registry.writeStageFiles(to: tempDir, fileManager: fm)
 
-    let files = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+    let files = try fm.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
     #expect(files.isEmpty)
 }
 
 @Test func writeStageFilesSkipsEffectivelyEmpty() throws {
+    let fm = InMemoryFileManager()
     let registry = HookRegistry { r in
         r.register(StandardHook.self) { hook in
             switch hook {
@@ -172,12 +173,11 @@ import Foundation
         }
     }
 
-    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-    defer { try? FileManager.default.removeItem(at: tempDir) }
+    let tempDir = URL(fileURLWithPath: "/test/stages-skip")
+    try fm.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
-    try registry.writeStageFiles(to: tempDir)
+    try registry.writeStageFiles(to: tempDir, fileManager: fm)
 
-    let files = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+    let files = try fm.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
     #expect(files.isEmpty)
 }

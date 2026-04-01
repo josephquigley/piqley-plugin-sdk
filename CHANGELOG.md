@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - Packager, Request, ExecutionLog, and UploadCache accept FileSystemManager parameter
+- SDK builders and tests use injectable FileSystemManager
 
 ## 0.16.0 - 2026-03-30
 

@@ -95,22 +95,22 @@ import Foundation
 // MARK: - Write success: creates manifest.json, round-trip decode
 
 @Test func writeSuccessRoundTrip() throws {
+    let fm = InMemoryFileManager()
     let manifest = try buildManifest {
         Identifier("com.test.write-plugin")
         Name("Write Plugin")
         ProtocolVersion("1.0")
     }
 
-    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-    defer { try? FileManager.default.removeItem(at: tempDir) }
+    let tempDir = URL(fileURLWithPath: "/test/manifest-write")
+    try fm.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
-    try manifest.writeValidated(to: tempDir)
+    try manifest.writeValidated(to: tempDir, fileManager: fm)
 
     let manifestURL = tempDir.appendingPathComponent("manifest.json")
-    #expect(FileManager.default.fileExists(atPath: manifestURL.path))
+    #expect(fm.fileExists(atPath: manifestURL.path))
 
-    let data = try Data(contentsOf: manifestURL)
+    let data = try fm.contents(of: manifestURL)
     let decoded = try JSONDecoder.piqley.decode(PluginManifest.self, from: data)
     #expect(decoded.identifier == "com.test.write-plugin")
     #expect(decoded.name == "Write Plugin")
