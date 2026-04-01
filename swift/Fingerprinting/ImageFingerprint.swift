@@ -15,4 +15,20 @@ public struct ImageFingerprint: Codable, Sendable, Equatable {
         }
         return (selfValue ^ otherValue).nonzeroBitCount
     }
+
+    public enum Sensitivity: String, CaseIterable, Sendable {
+        case conservative
+        case moderate
+        case aggressive
+
+        public var threshold: Int {
+            switch self {
+            case .conservative: return 5
+            case .moderate: return 10
+            case .aggressive: return 18
+            }
+        }
+
+        public static let `default`: Sensitivity = .moderate
+    }
 }
