@@ -8,6 +8,19 @@ public enum PackagerError: Error, Sendable, Equatable {
     case zipFailed(String)
 }
 
+extension PackagerError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .missingBuildManifest:
+            return "Missing piqley-build-manifest.json in the plugin directory."
+        case .missingPath(let path):
+            return "Required path not found: \(path)"
+        case .zipFailed(let detail):
+            return "Failed to create plugin archive: \(detail)"
+        }
+    }
+}
+
 /// Assembles a `.piqleyplugin` archive from a plugin source directory.
 public struct Packager {
 

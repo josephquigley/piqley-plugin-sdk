@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - `Fingerprinting` library product: perceptual hashing (pHash/DCT), `ImageFingerprint`, and `UploadCache` extracted from ghost plugin as a reusable, zero-dependency module
 - `ImageFingerprint.Sensitivity` enum with conservative/moderate/aggressive thresholds for perceptual hash comparison
 
+### Fixed
+
+- Add LocalizedError conformance to SDKError and PackagerError for human-readable error descriptions
+
 ## 0.16.0 - 2026-03-30
 
 ### Removed
