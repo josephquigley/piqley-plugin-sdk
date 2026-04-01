@@ -11,7 +11,7 @@ let package = Package(
         .executable(name: "piqley-build", targets: ["piqley-build"]),
     ],
     dependencies: [
-        .package(path: "../piqley-core"),
+        .package(url: "https://github.com/josephquigley/piqley-core", .upToNextMajor(from: "0.21.0")),
         .package(url: "https://github.com/kylef/JSONSchema.swift", .upToNextMajor(from: "0.6.0")),
     ],
     targets: [
