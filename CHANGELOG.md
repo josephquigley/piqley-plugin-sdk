@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Unreleased
 
+### Added
+
+- `Fingerprinting` library product: perceptual hashing (pHash/DCT), `ImageFingerprint`, and `UploadCache` extracted from ghost plugin as a reusable, zero-dependency module
+
 ## 0.16.0 - 2026-03-30
 
 ### Removed

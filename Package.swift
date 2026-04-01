@@ -7,6 +7,7 @@ let package = Package(
     platforms: [.macOS(.v15)],
     products: [
         .library(name: "PiqleyPluginSDK", targets: ["PiqleyPluginSDK"]),
+        .library(name: "Fingerprinting", targets: ["Fingerprinting"]),
         .executable(name: "piqley-build", targets: ["piqley-build"]),
     ],
     dependencies: [
@@ -18,6 +19,10 @@ let package = Package(
             name: "PiqleyPluginSDK",
             dependencies: [.product(name: "PiqleyCore", package: "piqley-core")],
             path: "swift/PiqleyPluginSDK"
+        ),
+        .target(
+            name: "Fingerprinting",
+            path: "swift/Fingerprinting"
         ),
         .executableTarget(
             name: "piqley-build",
@@ -32,6 +37,11 @@ let package = Package(
             ],
             path: "swift/Tests",
             resources: [.copy("schemas")]
+        ),
+        .testTarget(
+            name: "FingerprintingTests",
+            dependencies: ["Fingerprinting"],
+            path: "swift/FingerprintingTests"
         ),
     ]
 )
