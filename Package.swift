@@ -11,7 +11,7 @@ let package = Package(
         .executable(name: "piqley-build", targets: ["piqley-build"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/josephquigley/piqley-core", .upToNextMajor(from: "0.17.0")),
+        .package(path: "../piqley-core"),
         .package(url: "https://github.com/kylef/JSONSchema.swift", .upToNextMajor(from: "0.6.0")),
     ],
     targets: [
@@ -22,6 +22,7 @@ let package = Package(
         ),
         .target(
             name: "Fingerprinting",
+            dependencies: [.product(name: "PiqleyCore", package: "piqley-core")],
             path: "swift/Fingerprinting"
         ),
         .executableTarget(

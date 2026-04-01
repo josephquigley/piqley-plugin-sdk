@@ -1,7 +1,9 @@
 import Foundation
+import PiqleyCore
 
 public struct UploadCache: Sendable {
     private let filePath: String
+    private let fileManager: any FileSystemManager
     private var entries: [Entry]
 
     public struct Entry: Codable, Sendable {
@@ -18,9 +20,10 @@ public struct UploadCache: Sendable {
         }
     }
 
-    public init(filePath: String) {
+    public init(filePath: String, fileManager: any FileSystemManager = FileManager.default) {
         self.filePath = filePath
-        self.entries = Self.load(from: filePath)
+        self.fileManager = fileManager
+        self.entries = Self.load(from: filePath, fileManager: fileManager)
     }
 
     public func findMatch(for fingerprint: ImageFingerprint, threshold: Int) -> Entry? {
@@ -47,21 +50,21 @@ public struct UploadCache: Sendable {
     public func save() throws {
         let url = URL(fileURLWithPath: filePath)
         let dir = url.deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
 
         let wrapper = CacheFile(entries: entries)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         let data = try encoder.encode(wrapper)
-        try data.write(to: url, options: .atomic)
+        try fileManager.write(data, to: url, options: .atomic)
     }
 
     private struct CacheFile: Codable {
         let entries: [Entry]
     }
 
-    private static func load(from path: String) -> [Entry] {
-        guard let data = FileManager.default.contents(atPath: path),
+    private static func load(from path: String, fileManager: any FileSystemManager) -> [Entry] {
+        guard let data = fileManager.contents(atPath: path),
               let file = try? JSONDecoder().decode(CacheFile.self, from: data)
         else {
             return []

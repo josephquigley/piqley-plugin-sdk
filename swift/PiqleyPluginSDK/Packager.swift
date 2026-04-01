@@ -30,12 +30,11 @@ public struct Packager {
     /// `manifest.json` from the build manifest. If `config-entries.json` exists, its
     /// entries are used as the manifest's config; otherwise the build manifest's config
     /// field is used.
-    public static func package(directory: URL, outputPath: URL? = nil) throws -> URL {
-        let fm = FileManager.default
+    public static func package(directory: URL, outputPath: URL? = nil, fileManager: any FileSystemManager = FileManager.default) throws -> URL {
 
         // 1. Load build manifest
         let buildManifestURL = directory.appendingPathComponent("piqley-build-manifest.json")
-        guard fm.fileExists(atPath: buildManifestURL.path) else {
+        guard fileManager.fileExists(atPath: buildManifestURL.path) else {
             throw PackagerError.missingBuildManifest
         }
         let buildManifest = try BuildManifest.load(from: directory)
@@ -43,8 +42,8 @@ public struct Packager {
         // 2. Load config-entries.json and fields.json if they exist
         let configEntriesURL = directory.appendingPathComponent("config-entries.json")
         let configOverride: [ConfigEntry]?
-        if fm.fileExists(atPath: configEntriesURL.path) {
-            let configData = try Data(contentsOf: configEntriesURL)
+        if fileManager.fileExists(atPath: configEntriesURL.path) {
+            let configData = try fileManager.contents(of: configEntriesURL)
             configOverride = try JSONDecoder.piqley.decode([ConfigEntry].self, from: configData)
         } else {
             configOverride = nil
@@ -52,8 +51,8 @@ public struct Packager {
 
         let fieldsURL = directory.appendingPathComponent("fields.json")
         let fieldsOverride: [ConsumedField]?
-        if fm.fileExists(atPath: fieldsURL.path) {
-            let fieldsData = try Data(contentsOf: fieldsURL)
+        if fileManager.fileExists(atPath: fieldsURL.path) {
+            let fieldsData = try fileManager.contents(of: fieldsURL)
             fieldsOverride = try JSONDecoder.piqley.decode([ConsumedField].self, from: fieldsData)
         } else {
             fieldsOverride = nil
@@ -68,7 +67,7 @@ public struct Packager {
         for (_, paths) in buildManifest.bin {
             for bin in paths {
                 let binURL = directory.appendingPathComponent(bin)
-                guard fm.fileExists(atPath: binURL.path) else {
+                guard fileManager.fileExists(atPath: binURL.path) else {
                     throw PackagerError.missingPath(bin)
                 }
             }
@@ -78,7 +77,7 @@ public struct Packager {
         for (_, paths) in buildManifest.data {
             for dataPath in paths {
                 let dataURL = directory.appendingPathComponent(dataPath)
-                guard fm.fileExists(atPath: dataURL.path) else {
+                guard fileManager.fileExists(atPath: dataURL.path) else {
                     throw PackagerError.missingPath(dataPath)
                 }
             }
@@ -86,20 +85,20 @@ public struct Packager {
 
         // 5. Stage files into a temp directory
         let pluginName = buildManifest.pluginName
-        let staging = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let staging = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let pluginDir = staging.appendingPathComponent(pluginName)
-        try fm.createDirectory(at: pluginDir, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: pluginDir, withIntermediateDirectories: true)
 
         // Write generated manifest.json
         let manifestData = try pluginManifest.encode()
-        try manifestData.write(to: pluginDir.appendingPathComponent(PluginFile.manifest))
+        try fileManager.write(manifestData, to: pluginDir.appendingPathComponent(PluginFile.manifest))
 
         // Copy stage-*.json files
-        let dirContents = try fm.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+        let dirContents = try fileManager.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
         for file in dirContents {
             let fileName = file.lastPathComponent
             if fileName.hasPrefix(PluginFile.stagePrefix) && fileName.hasSuffix(PluginFile.stageSuffix) {
-                try fm.copyItem(at: file, to: pluginDir.appendingPathComponent(fileName))
+                try fileManager.copyItem(at: file, to: pluginDir.appendingPathComponent(fileName))
             }
         }
 
@@ -108,11 +107,11 @@ public struct Packager {
             let binDir = pluginDir.appendingPathComponent(PluginDirectory.bin)
             for (platform, paths) in buildManifest.bin {
                 let platformDir = binDir.appendingPathComponent(platform)
-                try fm.createDirectory(at: platformDir, withIntermediateDirectories: true)
+                try fileManager.createDirectory(at: platformDir, withIntermediateDirectories: true)
                 for bin in paths {
                     let src = directory.appendingPathComponent(bin)
                     let dst = platformDir.appendingPathComponent(URL(fileURLWithPath: bin).lastPathComponent)
-                    try fm.copyItem(at: src, to: dst)
+                    try fileManager.copyItem(at: src, to: dst)
                 }
             }
         }
@@ -122,11 +121,11 @@ public struct Packager {
             let dataDir = pluginDir.appendingPathComponent(PluginDirectory.data)
             for (platform, paths) in buildManifest.data {
                 let platformDir = dataDir.appendingPathComponent(platform)
-                try fm.createDirectory(at: platformDir, withIntermediateDirectories: true)
+                try fileManager.createDirectory(at: platformDir, withIntermediateDirectories: true)
                 for dataPath in paths {
                     let src = directory.appendingPathComponent(dataPath)
                     let dst = dataDir.appendingPathComponent(URL(fileURLWithPath: dataPath).lastPathComponent)
-                    try fm.copyItem(at: src, to: dst)
+                    try fileManager.copyItem(at: src, to: dst)
                 }
             }
         }
@@ -135,11 +134,11 @@ public struct Packager {
         let outputURL: URL
         if let outputPath {
             let parent = outputPath.deletingLastPathComponent()
-            try fm.createDirectory(at: parent, withIntermediateDirectories: true)
+            try fileManager.createDirectory(at: parent, withIntermediateDirectories: true)
             outputURL = outputPath
         } else {
             let buildDir = directory.appendingPathComponent(".build")
-            try fm.createDirectory(at: buildDir, withIntermediateDirectories: true)
+            try fileManager.createDirectory(at: buildDir, withIntermediateDirectories: true)
             outputURL = buildDir.appendingPathComponent("\(buildManifest.identifier).piqleyplugin")
         }
         let process = Process()
@@ -154,7 +153,7 @@ public struct Packager {
         process.waitUntilExit()
 
         // Clean up staging
-        try? fm.removeItem(at: staging)
+        try? fileManager.removeItem(at: staging)
 
         guard process.terminationStatus == 0 else {
             let stderr = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""

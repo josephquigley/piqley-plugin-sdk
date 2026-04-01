@@ -31,6 +31,7 @@ public struct ExecutionLogEntry: Codable, Sendable {
 
 public struct ExecutionLog: Sendable {
     private let path: String
+    private let fileManager: any FileSystemManager
 
     private static var iso8601Decoder: JSONDecoder {
         let decoder = JSONDecoder()
@@ -44,8 +45,9 @@ public struct ExecutionLog: Sendable {
         return encoder
     }
 
-    public init(path: String) throws {
+    public init(path: String, fileManager: any FileSystemManager = FileManager.default) throws {
         self.path = path
+        self.fileManager = fileManager
     }
 
     public func append(_ entry: ExecutionLogEntry) throws {
@@ -53,7 +55,7 @@ public struct ExecutionLog: Sendable {
 
         // Create parent directories if needed
         let parentDir = fileURL.deletingLastPathComponent()
-        try FileManager.default.createDirectory(at: parentDir, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)
 
         let data = try Self.iso8601Encoder.encode(entry)
         // Force-unwrap is safe: JSONEncoder always produces valid UTF-8
@@ -62,22 +64,24 @@ public struct ExecutionLog: Sendable {
         let lineWithNewline = line + "\n"
         let lineData = Data(lineWithNewline.utf8)
 
-        if FileManager.default.fileExists(atPath: path) {
-            let fileHandle = try FileHandle(forWritingTo: fileURL)
-            defer { fileHandle.closeFile() }
-            fileHandle.seekToEndOfFile()
-            fileHandle.write(lineData)
+        if fileManager.fileExists(atPath: path) {
+            let existing = try fileManager.contents(of: fileURL)
+            var combined = existing
+            combined.append(lineData)
+            try fileManager.write(combined, to: fileURL)
         } else {
-            try lineData.write(to: fileURL, options: .atomic)
+            try fileManager.write(lineData, to: fileURL, options: .atomic)
         }
     }
 
     public func entries(for filename: String) throws -> [ExecutionLogEntry] {
-        guard FileManager.default.fileExists(atPath: path) else {
+        guard fileManager.fileExists(atPath: path) else {
             return []
         }
 
-        let content = try String(contentsOfFile: path, encoding: .utf8)
+        let fileURL = URL(fileURLWithPath: path)
+        let rawData = try fileManager.contents(of: fileURL)
+        let content = String(data: rawData, encoding: .utf8) ?? ""
         let decoder = Self.iso8601Decoder
 
         return try content

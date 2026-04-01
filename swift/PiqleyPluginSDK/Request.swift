@@ -40,12 +40,13 @@ public struct PluginRequest: @unchecked Sendable {
     public let pipelineRunId: String?
 
     private let io: PluginIO
+    private let fileManager: any FileSystemManager
     private static let imageExtensions: Set<String> = [
         "jpg", "jpeg", "jxl", "png", "tiff", "tif", "heic", "heif", "webp",
     ]
 
     /// Internal init from payload. Throws if the hook string is unrecognized.
-    init(payload: PluginInputPayload, io: PluginIO, registry: HookRegistry) throws {
+    init(payload: PluginInputPayload, io: PluginIO, registry: HookRegistry, fileManager: any FileSystemManager = FileManager.default) throws {
         guard let hook = registry.resolve(payload.hook) else {
             throw SDKError.unknownHook(payload.hook)
         }
@@ -63,12 +64,13 @@ public struct PluginRequest: @unchecked Sendable {
         self.lastExecutedVersion = payload.lastExecutedVersion
         self.pipelineRunId = payload.pipelineRunId
         self.io = io
+        self.fileManager = fileManager
     }
 
     /// Lists image files in imageFolderPath matching piqley's supported extensions (.jpg, .jpeg, .jxl).
     public func imageFiles() throws -> [URL] {
         let url = URL(fileURLWithPath: imageFolderPath)
-        let contents = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
+        let contents = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
         return contents.filter { Self.imageExtensions.contains($0.pathExtension.lowercased()) }
     }
 
@@ -146,7 +148,8 @@ extension PluginRequest {
         state: ResolvedState = .empty,
         pluginVersion: SemanticVersion = SemanticVersion(major: 1, minor: 0, patch: 0),
         lastExecutedVersion: SemanticVersion? = nil,
-        pipelineRunId: String? = nil
+        pipelineRunId: String? = nil,
+        fileManager: any FileSystemManager = FileManager.default
     ) -> (request: PluginRequest, output: CapturedOutput) {
         let io = CapturedIO()
         let request = PluginRequest(
@@ -163,7 +166,8 @@ extension PluginRequest {
             pluginVersion: pluginVersion,
             lastExecutedVersion: lastExecutedVersion,
             pipelineRunId: pipelineRunId,
-            io: io
+            io: io,
+            fileManager: fileManager
         )
         return (request, CapturedOutput(io: io))
     }
@@ -183,7 +187,8 @@ extension PluginRequest {
         pluginVersion: SemanticVersion,
         lastExecutedVersion: SemanticVersion?,
         pipelineRunId: String?,
-        io: PluginIO
+        io: PluginIO,
+        fileManager: any FileSystemManager = FileManager.default
     ) {
         self.hook = hook
         self.imageFolderPath = imageFolderPath
@@ -199,5 +204,6 @@ extension PluginRequest {
         self.lastExecutedVersion = lastExecutedVersion
         self.pipelineRunId = pipelineRunId
         self.io = io
+        self.fileManager = fileManager
     }
 }
