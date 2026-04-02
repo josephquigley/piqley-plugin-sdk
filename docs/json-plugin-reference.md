@@ -50,7 +50,7 @@ Commands and rules are defined in separate stage files (e.g., `stage-publish.jso
 }
 ```
 
-Stage files are named `stage-<hook>.json`, where `<hook>` is one of: `pre-process`, `post-process`, `publish`, `post-publish`.
+Stage files are named `stage-<hook>.json`, where `<hook>` matches a pipeline stage name. The default stages are `pre-process`, `post-process`, `publish`, and `post-publish`, but workflows can define custom stages.
 
 ## Communication Protocol
 
@@ -77,11 +77,15 @@ piqley sends a JSON object on stdin:
       "original": { "EXIF:DateTimeOriginal": "2025:12:25 10:30:00" }
     }
   },
-  "lastExecutedVersion": null
+  "lastExecutedVersion": null,
+  "skipped": [
+    { "file": "photo2.jpg", "plugin": "com.example.filter" }
+  ],
+  "pipelineRunId": "A1B2C3D4"
 }
 ```
 
-All fields above except `state` and `lastExecutedVersion` are required. The `state` object maps image filenames to namespaced key-value pairs populated by upstream plugins.
+All fields above except `state`, `lastExecutedVersion`, `skipped`, and `pipelineRunId` are required. The `state` object maps image filenames to namespaced key-value pairs populated by upstream plugins. The `skipped` array lists images skipped by upstream plugins. The `pipelineRunId` is a unique identifier for the current pipeline run.
 
 The plugin writes JSON lines to stdout:
 

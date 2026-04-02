@@ -5,7 +5,7 @@
   "type": "object",
   "required": ["hook", "imageFolderPath", "pluginConfig", "secrets", "executionLogPath", "dataPath", "logPath", "dryRun", "debug", "pluginVersion"],
   "properties": {
-    "hook": { "type": "string", "enum": ["pre-process", "post-process", "publish", "post-publish"] },
+    "hook": { "type": "string", "minLength": 1 },
     "imageFolderPath": { "type": "string" },
     "pluginConfig": { "type": "object", "additionalProperties": true },
     "secrets": { "type": "object", "additionalProperties": { "type": "string" } },
@@ -25,7 +25,20 @@
       }
     },
     "pluginVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
-    "lastExecutedVersion": { "type": ["string", "null"], "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+    "lastExecutedVersion": { "type": ["string", "null"], "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "skipped": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "plugin"],
+        "properties": {
+          "file": { "type": "string" },
+          "plugin": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "pipelineRunId": { "type": ["string", "null"] }
   },
   "additionalProperties": false
 }

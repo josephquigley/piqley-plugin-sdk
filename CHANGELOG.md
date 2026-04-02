@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Fixed
 
 - Flush stdout after each write in FileHandleOutputStream to fix buffered batch output over pipes
+- Sync schemas with code: add skipped, pipelineRunId, not, source, conversionFormat, supportedFormats, and fields
 
 ## 0.20.0 - 2026-04-01
 

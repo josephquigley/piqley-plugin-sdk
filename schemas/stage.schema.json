@@ -37,13 +37,13 @@
       "required": ["field", "pattern"],
       "properties": {
         "field": { "type": "string" },
-        "pattern": { "type": "string" }
+        "pattern": { "type": "string" },
+        "not": { "type": "boolean" }
       },
       "additionalProperties": false
     },
     "emitConfig": {
       "type": "object",
-      "required": ["field"],
       "properties": {
         "action": { "type": "string" },
         "field": { "type": "string" },
@@ -59,7 +59,9 @@
             },
             "additionalProperties": false
           }
-        }
+        },
+        "source": { "type": "string" },
+        "not": { "type": "boolean" }
       },
       "additionalProperties": false
     },

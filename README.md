@@ -102,7 +102,7 @@ For the full JSON schema of manifest and stage files, see the [JSON Plugin Refer
 
 ### Hooks
 
-Plugins participate in a four-stage pipeline by registering hooks:
+Plugins participate in a pipeline by registering hooks. The default stages are:
 
 | Hook | Purpose |
 |------|---------|
@@ -110,6 +110,8 @@ Plugins participate in a four-stage pipeline by registering hooks:
 | `post-process` | Modify images after processing (e.g. resize, metadata) |
 | `publish` | Upload or distribute processed images |
 | `post-publish` | Clean up, notify, or log after publishing |
+
+Workflows can also define custom stages. Two lifecycle stages (`pipeline-start`, `pipeline-finished`) run automatically and cannot be removed.
 
 ### Communication Protocol
 
@@ -196,7 +198,7 @@ During packaging, the field registry serializes to `fields.json` alongside the m
 **Swift (SPM):**
 ```swift
 dependencies: [
-    .package(url: "https://github.com/josephquigley/piqley-plugin-sdk.git", from: "0.14.0")
+    .package(url: "https://github.com/josephquigley/piqley-plugin-sdk.git", from: "0.20.0")
 ]
 ```
 

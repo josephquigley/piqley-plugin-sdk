@@ -23,6 +23,11 @@
       "type": "array",
       "items": { "$ref": "#/$defs/pluginDependency" }
     },
+    "supportedFormats": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "conversionFormat": { "type": "string" },
     "supportedPlatforms": {
       "type": "array",
       "items": {
@@ -30,6 +35,10 @@
         "enum": ["macos-arm64", "linux-amd64", "linux-arm64"]
       },
       "minItems": 1
+    },
+    "fields": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/consumedField" }
     }
   },
   "$defs": {
@@ -66,6 +75,17 @@
       "properties": {
         "command": { "type": "string" },
         "args": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "consumedField": {
+      "type": "object",
+      "required": ["name", "readOnly"],
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" },
+        "readOnly": { "type": "boolean" }
       },
       "additionalProperties": false
     },
