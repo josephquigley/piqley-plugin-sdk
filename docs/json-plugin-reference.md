@@ -139,3 +139,23 @@ The build manifest uses platform-keyed `bin` and `data` fields to declare where 
 ```
 
 Supported platforms: `macos-arm64`, `linux-amd64`, `linux-arm64`. At least one platform must be declared. When packaged, each platform's files go into subdirectories (`bin/macos-arm64/`, `bin/linux-amd64/`, etc.). When a user installs the plugin, piqley copies only the files matching their platform.
+
+### Interpreted languages (Python, Node.js, etc.)
+
+For plugins written in interpreted languages, there is no compiled binary per platform — the same script runs everywhere. Point every platform's `bin` entry to the same entrypoint script:
+
+```json
+{
+  "pluginName": "my-python-plugin",
+  "pluginSchemaVersion": "1",
+  "type": "mutable",
+  "bin": {
+    "macos-arm64": ["my_plugin.py"],
+    "linux-amd64": ["my_plugin.py"],
+    "linux-arm64": ["my_plugin.py"]
+  },
+  "data": {}
+}
+```
+
+All three platforms reference the identical path because the script itself is platform-independent. The file is still copied into each platform's `bin/<platform>/` directory at package time, so the install-time platform selection works the same way as for compiled plugins. Make sure the entrypoint script is executable (`chmod +x`) and has an appropriate shebang line (e.g. `#!/usr/bin/env python3` or `#!/usr/bin/env node`).
